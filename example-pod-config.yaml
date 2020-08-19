@@ -8,7 +8,6 @@ metadata:
     osversion: "32"
     arch: x8664
     assertions: no
-  namespace: llvm-pre-merge
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
