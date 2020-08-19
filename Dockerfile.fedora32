@@ -1,0 +1,88 @@
+FROM fedora:32
+
+LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
+LABEL author="Konrad Kleine <kkleine@redhat.com>"
+LABEL description="An image to build and test LLVM on Fedora32 x86_64"
+ENV LANG=en_US.utf8
+
+RUN echo -e "\
+[buildkite-agent] \n\
+name            = Buildkite Pty Ltd \n\
+baseurl         = https://yum.buildkite.com/buildkite-agent/stable/x86_64/ \n\
+enabled         = 1 \n\
+priority        = 1 \n\
+gpgcheck        = 0\
+" > /etc/yum.repos.d/buildkite-agent.repo
+
+RUN dnf install -y \
+    buildkite-agent \
+    ccache \
+    clang \
+    cmake \
+    doxygen \
+    doxygen \
+    gcc \
+    git \
+    graphviz \
+    htop \
+    libedit-devel \
+    libxml2-devel \
+    make \
+    ninja-build \
+    python3-psutil \
+    python3 \
+    python3-devel \
+    vim \
+    wget \
+    xz-devel \
+    zip \
+   && yum clean all
+
+COPY build.sh /build.sh
+RUN chmod +x /build.sh
+
+# This is the secret you should set from outside
+ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
+
+# Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
+ENV BUILDKITE_AGENT_TAGS="os=fedora,osversion=32"
+
+# Ensure we only download the latest version and not more
+ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
+
+# Prepend timestamps on each line of output.
+ENV BUILDKITE_TIMESTAMP_LINES=1
+
+# Don't automatically run ssh-keyscan before checkout
+ENV BUILDKITE_NO_SSH_KEYSCAN=1
+
+# Don't show colors in logging
+ENV BUILDKITE_AGENT_NO_COLOR=1
+
+# Start an HTTP server on this addr:port that returns whether the agent is healthy, disabled by default
+ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
+
+# 9090 health port (see BUILDKITE_AGENT_HEALTH_CHECK_ADDR)
+EXPOSE \
+  9090/tcp \
+
+# We check the health of the container by checking the BUILDKITE_AGENT_HEALTH_CHECK_ADDR
+# https://docs.docker.com/engine/reference/builder/#healthcheck)
+HEALTHCHECK --interval=5m --timeout=3s \
+  CMD curl -f http://0.0.0.0:9090/ || exit 1
+
+# WORKAROUND FOR OPENSHIFT BECAUSE "USER" COMMAND WILL BE IGNORED
+# See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
+RUN chgrp -R 0 /etc/buildkite-agent /var/lib/buildkite-agent && \
+    chmod -R g=u /etc/buildkite-agent /var/lib/buildkite-agent
+
+# ATTENTION: WILL BE IGNORED BY OPENSHIFT (see above)
+# USER buildkite-agent
+
+ENTRYPOINT [\
+    "/usr/bin/buildkite-agent" \
+]
+
+CMD ["start"]
+
+
