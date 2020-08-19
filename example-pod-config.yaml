@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: llvm-ci-fedora32-x8664-pod
+  labels:
+    app: llvm-ci
+    os: fedora
+    osversion: "32"
+    arch: x8664
+    assertions: no
+  namespace: llvm-pre-merge
+spec:
+  containers:
+    - name: llvm-ci-fedora32-x8664-container
+      image: quay.io/kkleine/llvm-ci-fedora32-x86_64:10
+      ports:
+        - containerPort: 9090
+      env:
+        - name: LLVM_TARGETS_TO_BUILD
+          value: "X86"
+        - name: LLVM_ENABLE_ASSERTIONS
+          value: Off
+        - name: BUILDKITE_AGENT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: buildkite-agent-token
+              key: WebHookSecretKey
