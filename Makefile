@@ -20,8 +20,8 @@ ifneq ($(shell git status --porcelain --untracked-files=no),)
        GIT_COMMIT_ID := $(GIT_COMMIT_ID)-dirty
 endif
 
-FEDORA_32_IMAGE_NAME := quay.io/kkleine/llvm-ci/fedora:32-$(shell arch)-$(GIT_COMMIT_ID)
-FEDORA_RAWHIDE_IMAGE_NAME := quay.io/kkleine/llvm-ci/fedora:rawhide-$(shell arch)-$(GIT_COMMIT_ID)
+FEDORA_32_IMAGE_NAME := quay.io/kkleine/llvm-ci:fedora-32-$(shell arch)-$(GIT_COMMIT_ID)
+FEDORA_RAWHIDE_IMAGE_NAME := quay.io/kkleine/llvm-ci:fedora-rawhide-$(shell arch)-$(GIT_COMMIT_ID)
 
 .PHONY: fedora-images
 fedora-images: fedora-32-image fedora-rawhide-image
@@ -29,19 +29,19 @@ fedora-images: fedora-32-image fedora-rawhide-image
 .PHONY: fedora-32-image
 fedora-32-image: Dockerfile.fedora
 	@echo Building image ${FEDORA_32_IMAGE_NAME}
-	$(Q)podman build --build-arg osversion=32 ${Q_FLAG} \
+	$(Q)podman build $(Q_FLAG) --build-arg osversion=32 ${Q_FLAG} \
 		. \
 		-f Dockerfile.fedora \
 		-t ${FEDORA_32_IMAGE_NAME}
 	@echo Pushing image ${FEDORA_32_IMAGE_NAME}
-	$(Q)podman push ${FEDORA_32_IMAGE_NAME}
+	$(Q)podman push $(Q_FLAG) ${FEDORA_32_IMAGE_NAME}
 
 .PHONY: fedora-rawhide-image
 fedora-rawhide-image: Dockerfile.fedora
 	@echo Building image ${FEDORA_RAWHIDE_IMAGE_NAME}
-	$(Q)podman build --build-arg osversion=rawhide ${Q_FLAG} \
+	$(Q)podman build $(Q_FLAG) --build-arg osversion=rawhide ${Q_FLAG} \
 		. \
 		-f Dockerfile.fedora \
 		-t ${FEDORA_RAWHIDE_IMAGE_NAME}
 	@echo Pushing ${FEDORA_RAWHIDE_IMAGE_NAME}
-	$(Q)podman push ${FEDORA_RAWHIDE_IMAGE_NAME}
+	$(Q)podman push $(Q_FLAG) ${FEDORA_RAWHIDE_IMAGE_NAME}
