@@ -33,7 +33,7 @@ fedora-32-image: Dockerfile.fedora
 		. \
 		-f Dockerfile.fedora \
 		-t ${FEDORA_32_IMAGE_NAME}
-	@echo Pushing image ${FEDORA_RAWHIDE_IMAGE_NAME}
+	@echo Pushing image ${FEDORA_32_IMAGE_NAME}
 	$(Q)podman push ${FEDORA_32_IMAGE_NAME}
 
 .PHONY: fedora-rawhide-image
