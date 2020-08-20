@@ -27,7 +27,7 @@ fedora-images: fedora-32-image fedora-rawhide-image
 fedora-32-image: Dockerfile.fedora
 	$(Q)podman build --build-arg osversion=32 ${Q_FLAG} \
 		. \
-		-f Dockefile.fedora \
+		-f Dockerfile.fedora \
 		-t quay.io/kkleine/llvm-ci/fedora:32-$(shell arch)-${GIT_COMMIT_ID}
 	$Q(podman) push quay.io/kkleine/llvm-ci/fedora:32-$(shell arch)-${GIT_COMMIT_ID}
 
@@ -35,6 +35,6 @@ fedora-32-image: Dockerfile.fedora
 fedora-rawhide-image: Dockerfile.fedora
 	$(Q)podman build --build-arg osversion=rawhide ${Q_FLAG} \
 		. \
-		-f Dockefile.fedora \
+		-f Dockerfile.fedora \
 		-t quay.io/kkleine/llvm-ci/fedora:rawhide-$(shell arch)-${GIT_COMMIT_ID}
 	$Q(podman) push quay.io/kkleine/llvm-ci/fedora:rawhide-$(shell arch)-${GIT_COMMIT_ID}
