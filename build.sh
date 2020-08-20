@@ -11,6 +11,9 @@ mkdir -p build
 
 cd build
 
+# make/ninja -j flag to control parallel compilations 
+MAKE_J_FLAG=${MAKE_J_FLAG:-8}
+
 # Let's begin constructing the main CMake command by using environment variables
 # and defaults for each variable. This let's us use one container for multiple
 # build pipelines. Neat, eh?
@@ -27,6 +30,23 @@ CMD="$CMD -G \"$GENERATOR\""
 
 CMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS:-1}
 CMD="$CMD -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}"
+
+CMAKE_RULE_MESSAGES=${CMAKE_RULE_MESSAGES:-Off}
+CMD="$CMD -DCMAKE_RULE_MESSAGES:BOOL=$CMAKE_RULE_MESSAGES"
+
+# Add VERBOSE=1 to make invocation or -v to ninja invocation
+CMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE:-On}
+CMD="$CMD -DCMAKE_VERBOSE_MAKEFILE:BOOL=$CMAKE_VERBOSE_MAKEFILE"
+
+# Off: To remove the ‘building’ and ‘linking’ lines from the output
+# NOTE: Only works if CMAKE_VERBOSE_MAKEFILE is On
+CMAKE_RULE_MESSAGES=${CMAKE_RULE_MESSAGES:-On}
+CMD="$CMD -DCMAKE_RULE_MESSAGES:BOOL=$CMAKE_RULE_MESSAGES"
+
+# Off: To remove the ‘Entering directory’ and ‘Leaving directory’ lines from the output
+# NOTE: Only works if CMAKE_VERBOSE_MAKEFILE is On
+CMAKE_RULE_MESSAGES=${CMAKE_RULE_MESSAGES:-On}
+CMD="$CMD -DCMAKE_RULE_MESSAGES:BOOL=$CMAKE_RULE_MESSAGES"
 
 # Variables not conforming to LLVM's CMake
 
@@ -53,7 +73,7 @@ DCMAKE_BUILD_TYPE=${DCMAKE_BUILD_TYPE:-RelWithDebInfo}
 CMD="$CMD -DCMAKE_BUILD_TYPE=$DCMAKE_BUILD_TYPE"
 
 LLVM_ENABLE_PROJECTS=${LLVM_ENABLE_PROJECTS:-lldb;clang;clang-tools-extra;lld;debuginfo-tests}
-CMD="$CMD -DLLVM_ENABLE_PROJECTS=\"${LLVM_ENABLE_PROJECTS}\""
+CMD="$CMD -DLLVM_ENABLE_PROJECTS='${LLVM_ENABLE_PROJECTS}'"
 
 LLVM_USE_SPLIT_DWARF=${LLVM_USE_SPLIT_DWARF:-On}
 CMD="$CMD -DLLVM_USE_SPLIT_DWARF=${LLVM_USE_SPLIT_DWARF}"
@@ -67,7 +87,7 @@ CMD="$CMD -DLLVM_USE_SPLIT_DWARF=${LLVM_USE_SPLIT_DWARF}"
 LLVM_PARALLEL_LINK_JOBS=${LLVM_PARALLEL_LINK_JOBS:-2}
 CMD="$CMD -DLLVM_PARALLEL_LINK_JOBS=${LLVM_PARALLEL_LINK_JOBS}"
 
-LLVM_PARALLEL_COMPILE_JOBS=${LLVM_PARALLEL_COMPILE_JOBS:-$(nproc)}
+LLVM_PARALLEL_COMPILE_JOBS=${LLVM_PARALLEL_COMPILE_JOBS:-${MAKE_J_FLAG}}
 CMD="$CMD -DLLVM_PARALLEL_COMPILE_JOBS=${LLVM_PARALLEL_COMPILE_JOBS}"
 
 LLVM_ENABLE_LTO=${LLVM_ENABLE_LTO:-Off}
@@ -85,8 +105,12 @@ CMD="$CMD -DLLVM_BUILD_EXAMPLES=${LLVM_BUILD_EXAMPLES}"
 LLVM_CCACHE_BUILD=${LLVM_CCACHE_BUILD:-On}
 CMD="$CMD -DLLVM_CCACHE_BUILD=${LLVM_CCACHE_BUILD}"
 
+LLVM_CCACHE_DIR=${LLVM_CCACHE_DIR:-${PWD}/llvm_ccache_dir}
+CMD="$CMD -DLLVM_CCACHE_DIR=${LLVM_CCACHE_DIR}"
+mkdir -pv "${LLVM_CCACHE_DIR}"
+
 LLVM_LIT_ARGS=${LLVM_LIT_ARGS:-"-sv -j 1"}
-CMD="$CMD -DLLVM_LIT_ARGS=${LLVM_LIT_ARGS}"
+CMD="$CMD -DLLVM_LIT_ARGS='${LLVM_LIT_ARGS}'"
 
 LLVM_BUILD_INSTRUMENTED_COVERAGE=${LLVM_BUILD_INSTRUMENTED_COVERAGE:-Off}
 CMD="$CMD -DLLVM_BUILD_INSTRUMENTED_COVERAGE=${LLVM_BUILD_INSTRUMENTED_COVERAGE}"
@@ -100,7 +124,7 @@ CMD="$CMD -DLLDB_EXPORT_ALL_SYMBOLS=${LLDB_EXPORT_ALL_SYMBOLS}"
 eval $CMD
 
 # Build all configured projects (see LLVM_ENABLE_PROJECTS above)
-cmake --build . --config RelWithDebInfo --target all -- -j $(nproc)
+cmake --build . --config RelWithDebInfo --target all -- -j ${MAKE_J_FLAG}
 
 # See https://llvm.org/docs/CMake.html#executing-the-tests
-cmake --build . --config RelWithDebInfo --target check-all -- -j $(nproc)
+cmake --build . --config RelWithDebInfo --target check-all -- -j ${MAKE_J_FLAG}

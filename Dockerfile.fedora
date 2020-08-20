@@ -1,4 +1,11 @@
-FROM fedora:32
+# Let's use one image for all Fedoras out there
+ARG osversion=32
+
+FROM fedora:${osversion}
+
+# Keep the following osversion ARG. For and explanation see:
+# https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
+ARG osversion
 
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 LABEL author="Konrad Kleine <kkleine@redhat.com>"
@@ -32,6 +39,7 @@ RUN dnf install -y \
     python3-psutil \
     python3 \
     python3-devel \
+    screen \
     vim \
     wget \
     xz-devel \
@@ -45,7 +53,7 @@ RUN chmod +x /build.sh
 ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
 
 # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-ENV BUILDKITE_AGENT_TAGS="os=fedora,osversion=32"
+ENV BUILDKITE_AGENT_TAGS="os=fedora,osversion=${osversion}"
 
 # Ensure we only download the latest version and not more
 ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
