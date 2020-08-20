@@ -7,15 +7,20 @@ FROM fedora:${osversion}
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG osversion
 
+ARG git_revision=master
+ARG arch=x86_64
+
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 LABEL author="Konrad Kleine <kkleine@redhat.com>"
-LABEL description="An image to build and test LLVM on Fedora32 x86_64"
+LABEL description="An image to build and test LLVM on Fedora ${os_version} ${arch}"
+LABEL git_repo="https://github.com/kwk/llvm-ci"
+LABEL git_revision="${git_revision}"
 ENV LANG=en_US.utf8
 
 RUN echo -e "\
 [buildkite-agent] \n\
 name            = Buildkite Pty Ltd \n\
-baseurl         = https://yum.buildkite.com/buildkite-agent/stable/x86_64/ \n\
+baseurl         = https://yum.buildkite.com/buildkite-agent/stable/${arch}/ \n\
 enabled         = 1 \n\
 priority        = 1 \n\
 gpgcheck        = 0\
@@ -53,7 +58,7 @@ RUN chmod +x /build.sh
 ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
 
 # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-ENV BUILDKITE_AGENT_TAGS="os=fedora,osversion=${osversion}"
+ENV BUILDKITE_AGENT_TAGS="os=fedora,osversion=${osversion},arch=${arch},git_revision=${git_revision}"
 
 # Ensure we only download the latest version and not more
 ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
@@ -84,12 +89,10 @@ HEALTHCHECK --interval=5m --timeout=3s \
 RUN chgrp -R 0 /etc/buildkite-agent /var/lib/buildkite-agent && \
     chmod -R g=u /etc/buildkite-agent /var/lib/buildkite-agent
 
-# ATTENTION: WILL BE IGNORED BY OPENSHIFT (see above)
+# ATTENTION: "USER" WILL BE IGNORED BY OPENSHIFT (see above)
 # USER buildkite-agent
 
-ENTRYPOINT [\
-    "/usr/bin/buildkite-agent" \
-]
+ENTRYPOINT ["/usr/bin/buildkite-agent"]
 
 CMD ["start"]
 

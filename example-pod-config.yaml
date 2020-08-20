@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
-      image: quay.io/kkleine/llvm-ci/fedora:32-x86_64-36a900e
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-f95bff9
       ports:
         - containerPort: 9090
       env:
