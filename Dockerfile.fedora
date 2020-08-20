@@ -1,11 +1,11 @@
 # Let's use one image for all Fedoras out there
-ARG osversion=32
+AR_G osversion=32
 
-FROM fedora:${osversion}
+FROM fedora:${os_version}
 
-# Keep the following osversion ARG. For and explanation see:
+# Keep the following os_version ARG. For an explanation see:
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG osversion
+ARG os_version
 
 ARG git_revision=master
 ARG arch=x86_64
@@ -58,7 +58,7 @@ RUN chmod +x /build.sh
 ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
 
 # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-ENV BUILDKITE_AGENT_TAGS="os=fedora,osversion=${osversion},arch=${arch},git_revision=${git_revision}"
+ENV BUILDKITE_AGENT_TAGS="os=fedora,os_version=${osversion},arch=${arch},git_revision=${git_revision}"
 
 # Ensure we only download the latest version and not more
 ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"

@@ -5,13 +5,13 @@ metadata:
   labels:
     app: llvm-ci
     os: fedora
-    osversion: "32"
+    os_version: "32"
     arch: x8664
     assertions: no
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-f95bff9
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-8961877
       ports:
         - containerPort: 9090
       env:

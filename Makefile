@@ -31,7 +31,7 @@ fedora-images: fedora-32-image fedora-rawhide-image
 fedora-32-image: Dockerfile.fedora
 	@echo Building image ${FEDORA_32_IMAGE_NAME}
 	$(Q)podman build $(Q_FLAG) \
-		--build-arg osversion=32 \
+		--build-arg os_version=32 \
 		--build-arg git_revision=$(GIT_COMMIT_ID) \
 		--build-arg arch=$(ARCH) \
 		. \
@@ -44,7 +44,7 @@ fedora-32-image: Dockerfile.fedora
 fedora-rawhide-image: Dockerfile.fedora
 	@echo Building image ${FEDORA_RAWHIDE_IMAGE_NAME}
 	$(Q)podman build $(Q_FLAG) \
-		--build-arg osversion=rawhide \
+		--build-arg os_version=rawhide \
 		--build-arg git_revision=$(GIT_COMMIT_ID) \
 		--build-arg arch=$(ARCH) \
 		. \
