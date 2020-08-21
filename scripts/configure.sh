@@ -41,11 +41,9 @@ CMD="$CMD -DCMAKE_RULE_MESSAGES:BOOL=$CMAKE_RULE_MESSAGES"
 
 # TODO(kwk): If one Sanitizer is used the other may not be enabled.
 
-ENABLE_ASAN=${ENABLE_ASAN:-Off}
-[[ "${ENABLE_ASAN}" == "On" ]] && CMD="$CMD -DLLVM_USE_SANITIZER=Address"
-
-ENABLE_TSAN=${ENABLE_TSAN:-Off}
-[[ "${ENABLE_TSAN}" == "On" ]] && CMD="$CMD -DLLVM_USE_SANITIZER=Thread"
+# Possible values: Address or Thread
+LLVM_USE_SANITIZER=${LLVM_USE_SANITIZER:-""}
+[[ "${LLVM_USE_SANITIZER}" != "" ]] && CMD="$CMD -DLLVM_USE_SANITIZER=${LLVM_USE_SANITIZER}"
 
 # Variables conforming to LLVM's CMake
 
