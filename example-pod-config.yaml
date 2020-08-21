@@ -13,11 +13,35 @@ spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
       image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-8961877
+      # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
+      QoS Tier:
+        # A Guaranteed CPU container is guaranteed to get the amount requested
+        # and no more, even if there are additional CPU cycles available. This
+        # provides a consistent level of performance independent of other
+        # activity on the node.
+        cpu:  Guaranteed
+        # A Burstable memory container is scheduled on the node to get the
+        # amount of memory requested, but it may consume more. If there is an
+        # out of memory event on the node, Burstable containers are killed after
+        # BestEffort containers when attempting to recover memory.
+        memory: Burstable
       resources:
         requests:
+          # Memory is measured in bytes. In addition, it may be used with SI
+          # suffices (E, P, T, G, M, K) or their power-of-two-equivalents
+          # (Ei, Pi, Ti, Gi, Mi, Ki).
           memory: "16Gi"
+          # CPU is measured in units called millicores. Each node in a cluster
+          # inspects the operating system to determine the amount of CPU cores
+          # on the node, then multiplies that value by 1000 to express its total
+          # capacity. For example, if a node has 2 cores, the node’s CPU
+          # capacity would be represented as 2000m. If you wanted to use 1/10 of
+          # a single core, it would be represented as 100m.
+          # (see https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#dev-compute-resources)
+          cpu: "8000m" # 8 cores
         limits:
-          memory: "16Gi"
+          memory: "20Gi"
+          cpu: "8000m"
       ports:
         - containerPort: 9090
       env:
