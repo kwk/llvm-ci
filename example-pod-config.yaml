@@ -8,7 +8,7 @@ metadata:
     os_version: "32"
     arch: x8664
     assertions: no
-    ccache: no
+    ccache: yes
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
@@ -26,7 +26,7 @@ spec:
         - name: LLVM_ENABLE_ASSERTIONS
           value: Off
         - name: LLVM_CCACHE_BUILD
-          value: "Off"
+          value: "On"
         - name: BUILDKITE_AGENT_TOKEN
           valueFrom:
             secretKeyRef:
