@@ -1,5 +1,5 @@
 # Let's use one image for all Fedoras out there
-AR_G osversion=32
+ARG os_version=32
 
 FROM fedora:${os_version}
 
