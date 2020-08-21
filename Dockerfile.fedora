@@ -31,6 +31,7 @@ RUN dnf install -y \
     ccache \
     clang \
     cmake \
+    diff \
     doxygen \
     doxygen \
     gcc \
