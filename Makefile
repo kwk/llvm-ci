@@ -23,6 +23,7 @@ endif
 ARCH=$(shell arch)
 FEDORA_32_IMAGE_NAME := quay.io/kkleine/llvm-ci:fedora-32-$(ARCH)-$(GIT_COMMIT_ID)
 FEDORA_RAWHIDE_IMAGE_NAME := quay.io/kkleine/llvm-ci:fedora-rawhide-$(ARCH)-$(GIT_COMMIT_ID)
+RHEL_8_IMAGE_NAME := quay.io/kkleine/llvm-ci:rhel-8-$(ARCH)-$(GIT_COMMIT_ID)
 
 .PHONY: fedora-images
 fedora-images: fedora-32-image fedora-rawhide-image
@@ -52,3 +53,17 @@ fedora-rawhide-image: Dockerfile.fedora
 		-t ${FEDORA_RAWHIDE_IMAGE_NAME}
 	@echo Pushing ${FEDORA_RAWHIDE_IMAGE_NAME}
 	$(Q)podman push $(Q_FLAG) ${FEDORA_RAWHIDE_IMAGE_NAME}
+
+.PHONY: rhel-8-image
+rhel-8-image: Dockerfile.rhel8
+	@echo Building image ${RHEL_8_IMAGE_NAME}
+	$(Q)podman build $(Q_FLAG) \
+		--build-arg os_version=8.2 \
+		--build-arg git_revision=$(GIT_COMMIT_ID) \
+		--build-arg arch=$(ARCH) \
+		. \
+		-f Dockerfile.rhel8 \
+		-t ${RHEL_8_IMAGE_NAME}
+	@echo Pushing image ${RHEL_8_IMAGE_NAME}
+	$(Q)podman push $(Q_FLAG) ${RHEL_8_IMAGE_NAME}
+

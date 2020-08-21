@@ -45,6 +45,8 @@ spec:
       ports:
         - containerPort: 9090
       env:
+        - name: MAKE_J_FLAG
+          value: 8 # build with 8 cores
         - name: LLVM_TARGETS_TO_BUILD
           value: "X86"
         - name: LLVM_ENABLE_ASSERTIONS
