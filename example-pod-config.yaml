@@ -38,10 +38,10 @@ spec:
           # capacity would be represented as 2000m. If you wanted to use 1/10 of
           # a single core, it would be represented as 100m.
           # (see https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#dev-compute-resources)
-          cpu: "8000m" # 8 cores
+          cpu: "4000m"
         limits:
-          memory: "20Gi"
-          cpu: "8000m"
+          memory: "32Gi"
+          cpu: "8000m" # 8 cores
       ports:
         - containerPort: 9090
       env:
@@ -51,6 +51,8 @@ spec:
           value: Off
         - name: LLVM_CCACHE_BUILD
           value: "On"
+        - name: CMAKE_VERBOSE_MAKEFILE
+          value: "Off"
         - name: BUILDKITE_AGENT_TOKEN
           valueFrom:
             secretKeyRef:
