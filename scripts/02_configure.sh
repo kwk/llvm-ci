@@ -3,13 +3,6 @@
 set -x
 set -e
 
-export LANG=en_US.UTF-8
-
-python_version=3.7
-
-mkdir -p build
-
-cd build
 
 # Let's begin constructing the main CMake command by using environment variables
 # and defaults for each variable. This let's us use one container for multiple
