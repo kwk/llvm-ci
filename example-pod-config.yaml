@@ -8,10 +8,16 @@ metadata:
     os_version: "32"
     arch: x8664
     assertions: no
+    ccache: no
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
       image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-8961877
+      resources:
+        requests:
+          memory: "16Gi"
+        limits:
+          memory: "16Gi"
       ports:
         - containerPort: 9090
       env:
@@ -19,6 +25,8 @@ spec:
           value: "X86"
         - name: LLVM_ENABLE_ASSERTIONS
           value: Off
+        - name: LLVM_CCACHE_BUILD
+          value: "Off"
         - name: BUILDKITE_AGENT_TOKEN
           valueFrom:
             secretKeyRef:
