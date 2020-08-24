@@ -67,3 +67,9 @@ rhel-8-image: Dockerfile.rhel8
 	@echo Pushing image ${RHEL_8_IMAGE_NAME}
 	$(Q)podman push $(Q_FLAG) ${RHEL_8_IMAGE_NAME}
 
+.PHONY: deploy
+deploy:
+	$(Q)echo -n "Logged in as "
+	$(Q)oc whoami -c
+	$(Q)oc apply --dry-run=true --overwrite=true -o  -f example-pod-config.yaml
+
