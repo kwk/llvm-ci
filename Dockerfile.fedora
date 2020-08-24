@@ -52,11 +52,8 @@ RUN dnf install -y \
     zip \
    && yum clean all
 
-COPY scripts/01_bootstrap.sh /01_bootstrap.sh
-COPY scripts/02_configure.sh /02_configure.sh
-COPY scripts/03_build.sh /03_build.sh
-COPY scripts/04_test.sh /04_test.sh
-RUN chmod +x /01_bootstrap.sh /02_configure.sh /03_build.sh /04_test.sh
+COPY scripts/configure_build_test.sh /configure_build_test.sh
+RUN chmod +x /configure_build_test.sh
 
 # This is the secret you should set from outside
 ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"

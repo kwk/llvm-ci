@@ -3,7 +3,8 @@
 set -x
 set -e
 
-cd build
+mkdir -pv build
+
 
 # Let's begin constructing the main CMake command by using environment variables
 # and defaults for each variable. This let's us use one container for multiple
@@ -64,3 +65,9 @@ CMD="$CMD -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}"
 [[ "${LLDB_EXPORT_ALL_SYMBOLS}" != "" ]] && CMD="$CMD -DLLDB_EXPORT_ALL_SYMBOLS=${LLDB_EXPORT_ALL_SYMBOLS}"
 
 eval $CMD
+
+# Build all configured projects (see LLVM_ENABLE_PROJECTS above)
+cmake --build . --config RelWithDebInfo --target all
+
+# See https://llvm.org/docs/CMake.html#executing-the-tests
+cmake --build . --config RelWithDebInfo --target check-all
