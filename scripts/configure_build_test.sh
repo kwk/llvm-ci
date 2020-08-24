@@ -5,6 +5,7 @@ set -e
 
 mkdir -pv build
 
+cd build
 
 # Let's begin constructing the main CMake command by using environment variables
 # and defaults for each variable. This let's us use one container for multiple
