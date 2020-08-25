@@ -9,10 +9,9 @@ metadata:
     arch: "x8664"
     ccache: "yes"
 spec:
-
   containers:
     - name: llvm-ci-fedora32-x8664-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-687d5e7
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-87a19b7-dirty
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -30,7 +29,7 @@ spec:
           # Memory is measured in bytes. In addition, it may be used with SI
           # suffices (E, P, T, G, M, K) or their power-of-two-equivalents
           # (Ei, Pi, Ti, Gi, Mi, Ki).
-          memory: "32Gi"
+          memory: "16Gi"
           # CPU is measured in units called millicores. Each node in a cluster
           # inspects the operating system to determine the amount of CPU cores
           # on the node, then multiplies that value by 1000 to express its total
@@ -45,10 +44,40 @@ spec:
       ports:
         - containerPort: 9090
       env:
-        - name: LLVM_TARGETS_TO_BUILD
-          value: "X86"
+        # Google builds with these settings:
+        # cmake ../llvm -D LLVM_ENABLE_PROJECTS="clang;compiler-rt;llvm" -G Ninja -D CMAKE_BUILD_TYPE=Release -D LLVM_ENABLE_ASSERTIONS=ON -D LLVM_BUILD_EXAMPLES=ON -D LLVM_LIT_ARGS="-v --xunit-xml-output test-results.xml" -D LLVM_ENABLE_LLD=ON -D CMAKE_CXX_FLAGS=-gmlt -D LLVM_CCACHE_BUILD=ON -D LLVM_CCACHE_DIR=/mnt/disks/ssd0/agent/ccache -D LLVM_CCACHE_MAXSIZE=20G
+        # See: https://github.com/google/llvm-premerge-checks/blob/dc1080fc4ce21f12a8015090683884c540680f3f/scripts/run_cmake_config.yaml#L5-L9
+        - name: CMAKE_BUILD_TYPE
+          value: "Release"
+        - name: LLVM_ENABLE_ASSERTIONS
+          value: "On"
+        - name: LLVM_BUILD_EXAMPLES
+          value: "On"
+        - name: LLVM_LIT_ARGS
+          value: -v --xunit-xml-output test-results.xml
+        - name: LLVM_ENABLE_LLD
+          value: "On" # TODO(kwk): Are we cool with this?
+        - name: CMAKE_CXX_FLAGS
+          value: -gmlt # TODO(kwk): Are we cool with this?
         - name: LLVM_CCACHE_BUILD
           value: "On"
+        - name: LLVM_CCACHE_DIR
+          value: "/ccache"
+        - name: LLVM_CCACHE_MAXSIZE
+          value: "20G"
+
+        # - name: LLVM_TARGETS_TO_BUILD
+        #   value: "X86"
+
+        # To be more close to our build pipeline we build with GCC
+        - name: CXX
+          value: g++
+        - name: CC
+          value: gcc
+        - name: LD
+          value: "ldd" # TODO(kwk): Are we cool with this?
+                       # This helps us not to allocate too much memory.
+
         - name: BUILDKITE_AGENT_TOKEN
           valueFrom:
             secretKeyRef:
@@ -57,6 +86,11 @@ spec:
       volumeMounts:
       - mountPath: /ccache
         name: cache-volume
+      - mountPath: /var/lib/buildkite-agent/builds
+        name: pvol
   volumes:
   - name: cache-volume
     emptyDir: {}
+  - name: pvol
+    persistentVolumeClaim:
+      claimName: llvm-storage-claim

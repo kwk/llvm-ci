@@ -17,17 +17,7 @@ LABEL git_repo="https://github.com/kwk/llvm-ci"
 LABEL git_revision="${git_revision}"
 ENV LANG=en_US.utf8
 
-RUN echo -e "\
-[buildkite-agent] \n\
-name            = Buildkite Pty Ltd \n\
-baseurl         = https://yum.buildkite.com/buildkite-agent/stable/${arch}/ \n\
-enabled         = 1 \n\
-priority        = 1 \n\
-gpgcheck        = 0\
-" > /etc/yum.repos.d/buildkite-agent.repo
-
 RUN dnf install -y \
-    buildkite-agent \
     ccache \
     clang \
     cmake \
@@ -50,6 +40,22 @@ RUN dnf install -y \
     wget \
     xz-devel \
     zip \
+   && yum clean all
+
+# We split the installation of the buildkite-agend to allow cache utilization
+# for all the packages before.
+# See https://docs.docker.com/engine/reference/builder/#impact-on-build-caching 
+RUN echo -e "\
+[buildkite-agent] \n\
+name            = Buildkite Pty Ltd \n\
+baseurl         = https://yum.buildkite.com/buildkite-agent/stable/${arch}/ \n\
+enabled         = 1 \n\
+priority        = 1 \n\
+gpgcheck        = 0\
+" > /etc/yum.repos.d/buildkite-agent.repo
+
+RUN dnf install -y \
+    buildkite-agent \
    && yum clean all
 
 COPY scripts/configure_build_test.sh /configure_build_test.sh
@@ -95,10 +101,10 @@ RUN chgrp -R 0 /etc/buildkite-agent /var/lib/buildkite-agent && \
 
 # This allows you to split the build cache and the builds itself into different
 # volumes.
-mkdir -p /var/lib/buildkite-agent/builds /ccache
-VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
+RUN mkdir -p /var/lib/buildkite-agent/builds /ccache
 RUN chgrp -R 0 /var/lib/buildkite-agent/builds /ccache && \
     chmod -R g=u /var/lib/buildkite-agent/builds /ccache
+VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
 
 ENTRYPOINT ["/usr/bin/buildkite-agent"]
 
