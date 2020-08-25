@@ -22,7 +22,7 @@ GENERATOR=${GENERATOR:-Ninja}
 CMD="$CMD -G \"$GENERATOR\""
 
 CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-RelWithDebInfo}
-CMD="$CMD -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE"
+CMD="$CMD -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
 
 LLVM_ENABLE_PROJECTS=${LLVM_ENABLE_PROJECTS:-lldb;clang;clang-tools-extra;lld;debuginfo-tests}
 CMD="$CMD -DLLVM_ENABLE_PROJECTS='${LLVM_ENABLE_PROJECTS}'"
@@ -68,7 +68,7 @@ CMD="$CMD -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}"
 eval $CMD
 
 # Build all configured projects (see LLVM_ENABLE_PROJECTS above)
-cmake --build . --config RelWithDebInfo --target all
+cmake --build . --config ${CMAKE_BUILD_TYPE} --target all
 
 # See https://llvm.org/docs/CMake.html#executing-the-tests
-cmake --build . --config RelWithDebInfo --target check-all
+cmake --build . --config ${CMAKE_BUILD_TYPE} --target check-all
