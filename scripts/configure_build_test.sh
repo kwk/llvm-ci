@@ -65,6 +65,10 @@ CMD="$CMD -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}"
 [[ "${BUILD_SHARED_LIBS}" != "" ]] && CMD="$CMD -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}"
 [[ "${LLDB_EXPORT_ALL_SYMBOLS}" != "" ]] && CMD="$CMD -DLLDB_EXPORT_ALL_SYMBOLS=${LLDB_EXPORT_ALL_SYMBOLS}"
 
+# Start with cold cache
+ccache --clear
+ccache --zero-stats
+
 eval $CMD
 
 # Build all configured projects (see LLVM_ENABLE_PROJECTS above)
@@ -72,3 +76,12 @@ cmake --build . --config ${CMAKE_BUILD_TYPE} --target all
 
 # See https://llvm.org/docs/CMake.html#executing-the-tests
 cmake --build . --config ${CMAKE_BUILD_TYPE} --target check-all
+
+# Clang Tidy
+git diff -U0 --no-prefix HEAD~1 | clang-tidy-diff -p0
+
+# Clang Format
+../clang/tools/clang-format/git-clang-format HEAD~1
+
+# Show CCache statistics 
+ccache --show-stats
