@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-99bdd78-dirty
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-b8c9984
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -29,7 +29,7 @@ spec:
           # Memory is measured in bytes. In addition, it may be used with SI
           # suffices (E, P, T, G, M, K) or their power-of-two-equivalents
           # (Ei, Pi, Ti, Gi, Mi, Ki).
-          memory: "16Gi"
+          memory: "8Gi"
           # CPU is measured in units called millicores. Each node in a cluster
           # inspects the operating system to determine the amount of CPU cores
           # on the node, then multiplies that value by 1000 to express its total
@@ -39,7 +39,7 @@ spec:
           # (see https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#dev-compute-resources)
           cpu: "32000m"
         limits:
-          memory: "32Gi"
+          memory: "64Gi"
           cpu: "32000m" # 32 cores
       ports:
         - containerPort: 9090

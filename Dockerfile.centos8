@@ -19,8 +19,8 @@ ENV LANG=en_US.utf8
 
 USER root
 
-
-RUN dnf install -y dnf-plugin-subscription-manager \
+RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+    && dnf install -y dnf-plugin-subscription-manager \
     && dnf config-manager --set-enabled PowerTools \
     && dnf install -y --setopt=tsflags=nodocs \
     ccache \
@@ -45,109 +45,74 @@ RUN dnf install -y dnf-plugin-subscription-manager \
     xz-devel \
     zip \
    && yum clean all
+  
+# We split the installation of the buildkite-agend to allow cache utilization
+# for all the packages before.
+# See https://docs.docker.com/engine/reference/builder/#impact-on-build-caching 
+RUN echo -e "\
+[buildkite-agent] \n\
+name            = Buildkite Pty Ltd \n\
+baseurl         = https://yum.buildkite.com/buildkite-agent/stable/${arch}/ \n\
+enabled         = 1 \n\
+priority        = 1 \n\
+gpgcheck        = 0\
+" > /etc/yum.repos.d/buildkite-agent.repo
 
-# # Get ninja binary
-# RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.1/ninja-linux.zip \
-#     && unzip ninja-linux.zip \
-#     && rm -f ninja-linux.zip \
-#     && mv ninja /usr/bin
+RUN dnf install -y --setopt=tsflags=nodocs \
+    buildkite-agent \
+   && yum clean all
 
-# # Install some packages from EPEL because they are not available in pure RHEL.
-# # Normally, we would install these packages as well but they might not be needed
-# # that much: doxygen, graphviz, libedit-devel
-# RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-# RUN dnf install -y \
-#      ccache \
-#      htop \
-#      python3-psutil \
-#      screen \
-#     && yum clean all
+COPY scripts/configure_build_test.sh /configure_build_test.sh
+RUN chmod +x /configure_build_test.sh
 
-# RUN yum install https://mirrors.n-ix.net/fedora-epel/8/Everything/x86_64/Packages/c/ccache-3.7.7-1.el8.x86_64.rpm
-# RUN dnf install -y --nogpgcheck https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-# RUN dnf install -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
+# This is the secret you should set from outside
+ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
 
-# ENTRYPOINT ["bash"]
-#  
-#  # Enable EPEL and install missing packages from RHEL base repo
-#  RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-#  RUN subscription-manager repos --enable "codeready-builder-for-rhel-8-${arch}-rpms"
-#  
-#  RUN dnf install -y \
-#      doxygen \
-#      graphviz \
-#      libedit-devel \
-#      screen \
-#     && yum clean all
-#  
- # We split the installation of the buildkite-agend to allow cache utilization
- # for all the packages before.
- # See https://docs.docker.com/engine/reference/builder/#impact-on-build-caching 
- RUN echo -e "\
- [buildkite-agent] \n\
- name            = Buildkite Pty Ltd \n\
- baseurl         = https://yum.buildkite.com/buildkite-agent/stable/${arch}/ \n\
- enabled         = 1 \n\
- priority        = 1 \n\
- gpgcheck        = 0\
- " > /etc/yum.repos.d/buildkite-agent.repo
- 
- RUN dnf install -y \
-     buildkite-agent \
-    && yum clean all
-#  
-#  COPY scripts/configure_build_test.sh /configure_build_test.sh
-#  RUN chmod +x /configure_build_test.sh
-#  
-#  # This is the secret you should set from outside
-#  ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
-#  
-#  # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-#  ENV BUILDKITE_AGENT_TAGS="os=fedora,os_version=${osversion},arch=${arch},git_revision=${git_revision}"
-#  
-#  # Ensure we only download the latest version and not more
-#  ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
-#  
-#  # Prepend timestamps on each line of output.
-#  ENV BUILDKITE_TIMESTAMP_LINES=1
-#  
-#  # Don't automatically run ssh-keyscan before checkout
-#  ENV BUILDKITE_NO_SSH_KEYSCAN=1
-#  
-#  # Don't show colors in logging
-#  ENV BUILDKITE_AGENT_NO_COLOR=1
-#  
-#  # Start an HTTP server on this addr:port that returns whether the agent is healthy, disabled by default
-#  ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
-#  
-#  # 9090 health port (see BUILDKITE_AGENT_HEALTH_CHECK_ADDR)
-#  EXPOSE \
-#    9090/tcp \
-#  
-#  # We check the health of the container by checking the BUILDKITE_AGENT_HEALTH_CHECK_ADDR
-#  # https://docs.docker.com/engine/reference/builder/#healthcheck)
-#  HEALTHCHECK --interval=5m --timeout=3s \
-#    CMD curl -f http://0.0.0.0:9090/ || exit 1
-#  
-#  # WORKAROUND FOR OPENSHIFT BECAUSE "USER" COMMAND WILL BE IGNORED
-#  # See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
-#  RUN chgrp -R 0 /etc/buildkite-agent /var/lib/buildkite-agent && \
-#      chmod -R g=u /etc/buildkite-agent /var/lib/buildkite-agent
-#  
-#  # ATTENTION: "USER" WILL BE IGNORED BY OPENSHIFT (see above)
-#  # USER buildkite-agent
-#  
-#  # This allows you to split the build cache and the builds itself into different
-#  # volumes.
-#  RUN mkdir -p /var/lib/buildkite-agent/builds /ccache
-#  RUN chgrp -R 0 /var/lib/buildkite-agent/builds /ccache && \
-#      chmod -R g=u /var/lib/buildkite-agent/builds /ccache
-#  VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
-#  
-#  ENTRYPOINT ["/usr/bin/buildkite-agent"]
-#  
-#  CMD ["start"]
-#  
+# Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
+ENV BUILDKITE_AGENT_TAGS="os=fedora,os_version=${osversion},arch=${arch},git_revision=${git_revision}"
+
+# Ensure we only download the latest version and not more
+ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
+
+# Prepend timestamps on each line of output.
+ENV BUILDKITE_TIMESTAMP_LINES=1
+
+# Don't automatically run ssh-keyscan before checkout
+ENV BUILDKITE_NO_SSH_KEYSCAN=1
+
+# Don't show colors in logging
+ENV BUILDKITE_AGENT_NO_COLOR=1
+
+# Start an HTTP server on this addr:port that returns whether the agent is healthy, disabled by default
+ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
+
+# 9090 health port (see BUILDKITE_AGENT_HEALTH_CHECK_ADDR)
+EXPOSE \
+  9090/tcp \
+
+# We check the health of the container by checking the BUILDKITE_AGENT_HEALTH_CHECK_ADDR
+# https://docs.docker.com/engine/reference/builder/#healthcheck)
+HEALTHCHECK --interval=5m --timeout=3s \
+  CMD curl -f http://0.0.0.0:9090/ || exit 1
+
+# WORKAROUND FOR OPENSHIFT BECAUSE "USER" COMMAND WILL BE IGNORED
+# See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
+RUN chgrp -R 0 /etc/buildkite-agent /var/lib/buildkite-agent && \
+    chmod -R g=u /etc/buildkite-agent /var/lib/buildkite-agent
+
+# ATTENTION: "USER" WILL BE IGNORED BY OPENSHIFT (see above)
+# USER buildkite-agent
+
+# This allows you to split the build cache and the builds itself into different
+# volumes.
+RUN mkdir -p /var/lib/buildkite-agent/builds /ccache
+RUN chgrp -R 0 /var/lib/buildkite-agent/builds /ccache && \
+    chmod -R g=u /var/lib/buildkite-agent/builds /ccache
+VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
+
+ENTRYPOINT ["/usr/bin/buildkite-agent"]
+
+CMD ["start"]  
 
 
 
