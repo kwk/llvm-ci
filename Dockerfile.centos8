@@ -1,9 +1,7 @@
-FROM registry.redhat.io/ubi8
-
 # Let's use one image for all RHEL8 out there
 ARG os_version=8.2
 
-FROM registry.redhat.io/rhel8/llvm-toolset
+FROM centos:centos${os_version}
 
 # Keep the following os_version ARG. For an explanation see:
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
@@ -14,7 +12,7 @@ ARG arch=x86_64
 
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 LABEL author="Konrad Kleine <kkleine@redhat.com>"
-LABEL description="An image to build and test LLVM on RHEL8 (${os_version}) ${arch}"
+LABEL description="An image to build and test LLVM on CentOS (${os_version}) ${arch}"
 LABEL git_repo="https://github.com/kwk/llvm-ci"
 LABEL git_revision="${git_revision}"
 ENV LANG=en_US.utf8
@@ -22,44 +20,54 @@ ENV LANG=en_US.utf8
 USER root
 
 
-RUN dnf install -y --setopt=tsflags=nodocs \
+RUN dnf install -y dnf-plugin-subscription-manager \
+    && dnf config-manager --set-enabled PowerTools \
+    && dnf install -y --setopt=tsflags=nodocs \
+    ccache \
     clang \
     cmake \
     diffutils \
+    doxygen \
     gcc \
     git \
+    graphviz \
+    htop \
+    libedit-devel \
     libxml2-devel \
     make \
+    ninja-build \
+    python3-psutil \
     python3 \
     python3-devel \
+    screen \
     vim \
     wget \
     xz-devel \
     zip \
    && yum clean all
 
-# Get ninja binary
-RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.1/ninja-linux.zip \
-    && unzip ninja-linux.zip \
-    && rm -f ninja-linux.zip \
-    && mv ninja /usr/bin
+# # Get ninja binary
+# RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.1/ninja-linux.zip \
+#     && unzip ninja-linux.zip \
+#     && rm -f ninja-linux.zip \
+#     && mv ninja /usr/bin
 
-# Install some packages from EPEL because they are not available in pure RHEL.
-# Normally, we would install these packages as well but they might not be needed
-# that much: doxygen, graphviz, libedit-devel
-RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-RUN dnf install -y \
-     ccache \
-     htop \
-     python3-psutil \
-     screen \
-    && yum clean all
+# # Install some packages from EPEL because they are not available in pure RHEL.
+# # Normally, we would install these packages as well but they might not be needed
+# # that much: doxygen, graphviz, libedit-devel
+# RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+# RUN dnf install -y \
+#      ccache \
+#      htop \
+#      python3-psutil \
+#      screen \
+#     && yum clean all
 
 # RUN yum install https://mirrors.n-ix.net/fedora-epel/8/Everything/x86_64/Packages/c/ccache-3.7.7-1.el8.x86_64.rpm
 # RUN dnf install -y --nogpgcheck https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 # RUN dnf install -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
 
-ENTRYPOINT ["bash"]
+# ENTRYPOINT ["bash"]
 #  
 #  # Enable EPEL and install missing packages from RHEL base repo
 #  RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
@@ -72,21 +80,21 @@ ENTRYPOINT ["bash"]
 #      screen \
 #     && yum clean all
 #  
-#  # We split the installation of the buildkite-agend to allow cache utilization
-#  # for all the packages before.
-#  # See https://docs.docker.com/engine/reference/builder/#impact-on-build-caching 
-#  RUN echo -e "\
-#  [buildkite-agent] \n\
-#  name            = Buildkite Pty Ltd \n\
-#  baseurl         = https://yum.buildkite.com/buildkite-agent/stable/${arch}/ \n\
-#  enabled         = 1 \n\
-#  priority        = 1 \n\
-#  gpgcheck        = 0\
-#  " > /etc/yum.repos.d/buildkite-agent.repo
-#  
-#  RUN dnf install -y \
-#      buildkite-agent \
-#     && yum clean all
+ # We split the installation of the buildkite-agend to allow cache utilization
+ # for all the packages before.
+ # See https://docs.docker.com/engine/reference/builder/#impact-on-build-caching 
+ RUN echo -e "\
+ [buildkite-agent] \n\
+ name            = Buildkite Pty Ltd \n\
+ baseurl         = https://yum.buildkite.com/buildkite-agent/stable/${arch}/ \n\
+ enabled         = 1 \n\
+ priority        = 1 \n\
+ gpgcheck        = 0\
+ " > /etc/yum.repos.d/buildkite-agent.repo
+ 
+ RUN dnf install -y \
+     buildkite-agent \
+    && yum clean all
 #  
 #  COPY scripts/configure_build_test.sh /configure_build_test.sh
 #  RUN chmod +x /configure_build_test.sh

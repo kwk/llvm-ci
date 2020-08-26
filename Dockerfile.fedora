@@ -17,12 +17,11 @@ LABEL git_repo="https://github.com/kwk/llvm-ci"
 LABEL git_revision="${git_revision}"
 ENV LANG=en_US.utf8
 
-RUN dnf install -y \
+RUN dnf install -y --setopt=tsflags=nodocs \
     ccache \
     clang \
     cmake \
     diffutils \
-    doxygen \
     doxygen \
     gcc \
     git \
@@ -54,7 +53,7 @@ priority        = 1 \n\
 gpgcheck        = 0\
 " > /etc/yum.repos.d/buildkite-agent.repo
 
-RUN dnf install -y \
+RUN dnf install -y --setopt=tsflags=nodocs \
     buildkite-agent \
    && yum clean all
 
