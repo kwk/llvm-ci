@@ -71,6 +71,8 @@ ccache --zero-stats
 
 eval $CMD
 
+export PATH="${PATH}:${PWD}/bin"
+
 # Build all configured projects (see LLVM_ENABLE_PROJECTS above)
 cmake --build . --config ${CMAKE_BUILD_TYPE} --target all
 
