@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-cfb3ba1
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-9c2b6c7
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -77,7 +77,8 @@ spec:
         - name: LD
           value: "ldd" # TODO(kwk): Are we cool with this?
                        # This helps us not to allocate too much memory.
-
+        - name: LLVM_USE_LINKER
+          value: "ldd"
         - name: BUILDKITE_AGENT_TOKEN
           valueFrom:
             secretKeyRef:

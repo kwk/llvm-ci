@@ -33,8 +33,6 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     make \
     python3 \
     python3-devel \
-    vim \
-    wget \
     xz-devel \
     zip \
    && yum clean all
@@ -53,7 +51,6 @@ RUN dnf install -y \
      ccache \
      htop \
      python3-psutil \
-     screen \
     && yum clean all
 
 # RUN yum install https://mirrors.n-ix.net/fedora-epel/8/Everything/x86_64/Packages/c/ccache-3.7.7-1.el8.x86_64.rpm
