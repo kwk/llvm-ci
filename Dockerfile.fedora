@@ -23,6 +23,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     cmake \
     diffutils \
     doxygen \
+    findutils \
     gcc \
     git \
     graphviz \
