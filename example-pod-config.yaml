@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-b8c9984
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-cfb3ba1
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested

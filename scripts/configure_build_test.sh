@@ -3,6 +3,25 @@
 set -x
 set -e
 
+# Exit script immediately if an undefined variable is used (e.g. echo
+# "$UNDEFINED_ENV_VAR").
+set -u
+
+# Ensure Bash pipelines (e.g. cmd | othercmd) return a non-zero status if any of
+# the commands fail, rather than returning the exit status of the last command
+# in the pipeline.
+set -o pipefail
+
+echo "--- Clear CCache (make it cold)"
+ccache --clear
+
+echo "--- Clean CCache Stats"
+ccache --zero-stats
+
+# See https://buildkite.com/docs/pipelines/managing-log-output for why we use
+# three dashes here and below.
+echo "--- Prepare CMake configuration"
+
 mkdir -pv build
 
 cd build
@@ -65,25 +84,24 @@ CMD="$CMD -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}"
 [[ "${BUILD_SHARED_LIBS}" != "" ]] && CMD="$CMD -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}"
 [[ "${LLDB_EXPORT_ALL_SYMBOLS}" != "" ]] && CMD="$CMD -DLLDB_EXPORT_ALL_SYMBOLS=${LLDB_EXPORT_ALL_SYMBOLS}"
 
-# Start with cold cache
-ccache --clear
-ccache --zero-stats
-
-eval $CMD
+echo "--- Configure and Generate"
+eval "$CMD"
 
 export PATH="${PATH}:${PWD}/bin"
 
 # Build all configured projects (see LLVM_ENABLE_PROJECTS above)
-cmake --build . --config ${CMAKE_BUILD_TYPE} --target all
+echo "--- Build"
+cmake --build . --config "${CMAKE_BUILD_TYPE}" --target all
 
 # See https://llvm.org/docs/CMake.html#executing-the-tests
-cmake --build . --config ${CMAKE_BUILD_TYPE} --target check-all
+echo "--- Test"
+cmake --build . --config "${CMAKE_BUILD_TYPE}" --target check-all
 
-# Clang Tidy
+echo "--- Clang Tidy"
 git diff -U0 --no-prefix HEAD~1 | clang-tidy-diff -p0
 
-# Clang Format
+echo "--- Clang Format"
 ../clang/tools/clang-format/git-clang-format HEAD~1
 
-# Show CCache statistics 
+echo "--- Show CCache statistics" 
 ccache --show-stats
