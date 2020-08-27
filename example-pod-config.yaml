@@ -55,8 +55,8 @@ spec:
           value: "On"
         - name: LLVM_LIT_ARGS
           value: -v --xunit-xml-output test-results.xml
-        - name: LLVM_ENABLE_LLD
-          value: "On" # TODO(kwk): Are we cool with this?
+        # - name: LLVM_ENABLE_LLD
+        #   value: "On" # TODO(kwk): Are we cool with this?
         - name: CMAKE_CXX_FLAGS
           value: -gmlt # TODO(kwk): Are we cool with this?
         - name: LLVM_CCACHE_BUILD
@@ -74,9 +74,9 @@ spec:
           value: g++
         - name: CC
           value: gcc
-        - name: LD
-          value: "ldd" # TODO(kwk): Are we cool with this?
-                       # This helps us not to allocate too much memory.
+        # - name: LD
+        #   value: "ldd" # TODO(kwk): Are we cool with this?
+        #                # This helps us not to allocate too much memory.
         - name: BUILDKITE_AGENT_TOKEN
           valueFrom:
             secretKeyRef:
