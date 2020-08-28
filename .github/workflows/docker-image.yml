@@ -1,0 +1,17 @@
+name: Container Image CI
+
+on:
+  push:
+    branches: [ master ]
+  
+
+jobs:
+
+  build:
+    
+    runs-on: fedora-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Make fedora 32 image
+      run: make fedora-32-image
