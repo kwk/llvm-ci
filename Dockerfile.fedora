@@ -94,9 +94,9 @@ RUN chgrp -R 0 /etc/buildkite-agent /var/lib/buildkite-agent && \
 
 # This allows you to split the build cache and the builds itself into different
 # volumes.
-RUN mkdir -p /var/lib/buildkite-agent/builds /ccache
-RUN chgrp -R 0 /var/lib/buildkite-agent/builds /ccache && \
-    chmod -R g=u /var/lib/buildkite-agent/builds /ccache
+RUN mkdir -p /var/lib/buildkite-agent/builds /ccache \
+    && chgrp -R 0 /var/lib/buildkite-agent/builds /ccache \
+    && chmod -R g=u /var/lib/buildkite-agent/builds /ccache
 VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
 
 ENTRYPOINT ["/usr/bin/buildkite-agent"]
