@@ -14,4 +14,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make fedora-32-image
-      run: make fedora-32-image
+      run: make VERBOSE=1 fedora-32-image
