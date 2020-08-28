@@ -26,9 +26,6 @@ FEDORA_RAWHIDE_IMAGE_NAME := quay.io/kkleine/llvm-ci:fedora-rawhide-$(ARCH)-$(GI
 RHEL_8_IMAGE_NAME := quay.io/kkleine/llvm-ci:rhel-8-$(ARCH)-$(GIT_COMMIT_ID)
 CENTOS_8_IMAGE_NAME := quay.io/kkleine/llvm-ci:centos-8-$(ARCH)-$(GIT_COMMIT_ID)
 
-.PHONY: fedora-images
-fedora-images: fedora-32-image fedora-rawhide-image
-
 .PHONY: fedora-32-image
 fedora-32-image: Dockerfile.fedora
 	@echo Building image ${FEDORA_32_IMAGE_NAME}
