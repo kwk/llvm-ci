@@ -9,9 +9,9 @@ jobs:
 
   build:
     
-    runs-on: fedora-latest
+    runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v2
-    - name: Make fedora 32 image
+    - name: make fedora-32-image
       run: make fedora-32-image
