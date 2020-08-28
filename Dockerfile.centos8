@@ -27,12 +27,9 @@ RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.n
     clang \
     cmake \
     diffutils \
-    doxygen \
     findutils \
     gcc \
     git \
-    graphviz \
-    htop \
     libedit-devel \
     libxml2-devel \
     make \
@@ -67,7 +64,7 @@ RUN chmod +x /configure_build_test.sh
 ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
 
 # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-ENV BUILDKITE_AGENT_TAGS="os=fedora,os_version=${osversion},arch=${arch},git_revision=${git_revision}"
+ENV BUILDKITE_AGENT_TAGS="os=centos,os_version=${osversion},arch=${arch},git_revision=${git_revision}"
 
 # Ensure we only download the latest version and not more
 ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
@@ -103,9 +100,9 @@ RUN chgrp -R 0 /etc/buildkite-agent /var/lib/buildkite-agent && \
 
 # This allows you to split the build cache and the builds itself into different
 # volumes.
-RUN mkdir -p /var/lib/buildkite-agent/builds /ccache
-RUN chgrp -R 0 /var/lib/buildkite-agent/builds /ccache && \
-    chmod -R g=u /var/lib/buildkite-agent/builds /ccache
+RUN mkdir -p /var/lib/buildkite-agent/builds /ccache \
+    && chgrp -R 0 /var/lib/buildkite-agent/builds /ccache \
+    && chmod -R g=u /var/lib/buildkite-agent/builds /ccache
 VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
 
 ENTRYPOINT ["/usr/bin/buildkite-agent"]

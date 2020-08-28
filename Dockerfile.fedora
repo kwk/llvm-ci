@@ -19,6 +19,7 @@ ENV LANG=en_US.utf8
 
 RUN dnf install -y --setopt=tsflags=nodocs \
     ccache \
+    clang \
     cmake \
     diffutils \
     findutils \
