@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: llvm-ci-fedora32-x8664-container
-      image: image quay.io/kkleine/llvm-ci:fedora-32-x86_64-fdfd34e
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-4205788-dirty
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -74,6 +74,8 @@ spec:
           value: g++
         - name: CC
           value: gcc
+        - name: LLVM_ENABLE_PROJECTS
+          value: "clang;clang-tools-extra;lld;debuginfo-tests" # TODO(kwk): re-enable lldb
         # - name: LD
         #   value: "ldd" # TODO(kwk): Are we cool with this?
         #                # This helps us not to allocate too much memory.
@@ -82,14 +84,14 @@ spec:
             secretKeyRef:
               name: buildkite-agent-token
               key: WebHookSecretKey
-      volumeMounts:
-      - mountPath: /ccache
-        name: cache-volume
-      - mountPath: /var/lib/buildkite-agent/builds
-        name: pvol
-  volumes:
-  - name: cache-volume
-    emptyDir: {}
-  - name: pvol
-    persistentVolumeClaim:
-      claimName: llvm-storage-claim
+      # volumeMounts:
+      # - mountPath: /ccache
+      #   name: cache-volume
+      # - mountPath: /var/lib/buildkite-agent/builds
+      #   name: pvol
+  # volumes:
+  # - name: cache-volume
+  #   emptyDir: {}
+  # - name: pvol
+  #   persistentVolumeClaim:
+  #     claimName: llvm-storage-claim
