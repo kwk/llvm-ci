@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - run: docker login -u="kkleine+llvm_ci_github_account" -p="${{ secrets.QUAY_IO_LLVM_CI_GITHUB_ACCOUNT_PASSWORD }}" quay.io 
     - uses: actions/checkout@v2
-    - name: make fedora-32-image
+    - name: make VERBOSE=1 fedora-32-image
       run: make VERBOSE=1 fedora-32-image
