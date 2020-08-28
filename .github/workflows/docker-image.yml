@@ -2,6 +2,10 @@ name: Container Image CI
 
 on:
   push:
+    # Don't trigger a build if these files were modified
+    # (see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#excluding-paths)
+    paths-ignore:
+    - 'README.md'
     branches: [ master ]
 
 jobs:
