@@ -28,6 +28,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     diffutils \
     findutils \
     gcc \
+    gdb \
     git \
     libxml2-devel \
     make \

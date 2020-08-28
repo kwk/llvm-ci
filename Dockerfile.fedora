@@ -24,6 +24,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     diffutils \
     findutils \
     gcc \
+    gdb \
     git \
     libedit-devel \
     libxml2-devel \
