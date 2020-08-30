@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: llvm-ci-fedora32-x8664-pod
+  name: llvm-ci-fedora-32-x86_64-pod
   labels:
     app: "llvm-ci"
     os: "fedora"
@@ -10,7 +10,7 @@ metadata:
     ccache: "yes"
 spec:
   containers:
-    - name: llvm-ci-fedora32-x8664-container
+    - name: llvm-ci-fedora-32-x86_64-container
       image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-6165d06
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
