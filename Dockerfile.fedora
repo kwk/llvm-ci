@@ -33,6 +33,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     python3-psutil \
     python3 \
     python3-devel \
+    rsync \
     xz-devel \
     zip \
    && yum clean all

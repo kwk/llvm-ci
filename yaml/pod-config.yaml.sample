@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: llvm-ci-fedora-32-x86_64-pod
+  name: llvm-ci-fedora-32-x8664-pod
   labels:
     app: "llvm-ci"
     os: "fedora"
@@ -10,8 +10,8 @@ metadata:
     ccache: "yes"
 spec:
   containers:
-    - name: llvm-ci-fedora-32-x86_64-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-6165d06
+    - name: llvm-ci-fedora-32-x8664-container
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-485e2fa
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -75,7 +75,7 @@ spec:
         - name: CC
           value: gcc
         - name: LLVM_ENABLE_PROJECTS
-          value: "clang;clang-tools-extra;lld;debuginfo-tests" # TODO(kwk): re-enable lldb
+          value: "clang;clang-tools-extra;compiler-rt;lld;debuginfo-tests" # TODO(kwk): re-enable lldb
         # - name: LD
         #   value: "ldd" # TODO(kwk): Are we cool with this?
         #                # This helps us not to allocate too much memory.
