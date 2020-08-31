@@ -26,14 +26,18 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     gcc \
     gdb \
     git \
+    golang \
+    jq \
     libedit-devel \
     libxml2-devel \
     make \
+    ncurses-devel \
     ninja-build \
     python3-psutil \
     python3 \
     python3-devel \
     rsync \
+    swig \
     xz-devel \
     zip \
    && yum clean all
