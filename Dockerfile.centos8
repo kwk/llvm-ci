@@ -33,6 +33,7 @@ RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.n
     git \
     golang \
     jq \
+    libatomic \
     libedit-devel \
     libxml2-devel \
     ncurses-devel \

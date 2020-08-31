@@ -28,6 +28,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     git \
     golang \
     jq \
+    libatomic \
     libedit-devel \
     libxml2-devel \
     make \
