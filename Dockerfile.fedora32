@@ -54,6 +54,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     buildkite-agent \
    && yum clean all
 
+RUN mkdir -pv /build-scripts
 COPY build-scripts/* /build-scripts
 RUN chmod +x /build-scripts/*
 
