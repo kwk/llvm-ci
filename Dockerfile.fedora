@@ -30,6 +30,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     jq \
     libatomic \
     libedit-devel \
+    libstdc++-static \
     libxml2-devel \
     make \
     ncurses-devel \
