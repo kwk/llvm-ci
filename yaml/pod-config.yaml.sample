@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: llvm-ci-fedora-32-x8664-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-e799991-dirty
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-5a36012
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -57,8 +57,8 @@ spec:
           value: -v --xunit-xml-output test-results.xml
         # - name: LLVM_ENABLE_LLD
         #   value: "On" # TODO(kwk): Are we cool with this?
-        - name: CMAKE_CXX_FLAGS
-          value: -gmlt # TODO(kwk): Are we cool with this?
+        # - name: CMAKE_CXX_FLAGS
+        #   value: -gmlt # TODO(kwk): Are we cool with this?
         - name: LLVM_CCACHE_BUILD
           value: "On"
         - name: LLVM_CCACHE_DIR
@@ -75,10 +75,20 @@ spec:
         - name: CC
           value: gcc
         - name: LLVM_ENABLE_PROJECTS
-          value: "clang;clang-tools-extra;compiler-rt;lld;debuginfo-tests" # TODO(kwk): re-enable lldb
+          value: "clang;clang-tools-extra;compiler-rt;lld;debuginfo-tests;mlir" # TODO(kwk): re-enable lldb
         # - name: LD
         #   value: "ldd" # TODO(kwk): Are we cool with this?
         #                # This helps us not to allocate too much memory.
+        
+        - name: LLVM_BUILD_LLVM_DYLIB
+          value: "On"
+        - name: LLVM_LINK_LLVM_DYLIB  
+          value: "On"
+        - name: CLANG_LINK_CLANG_DYLIB
+          value: "On"
+        - name: BUILD_SHARED_LIBS
+          value: "Off" # dev-only setting
+
         - name: BUILDKITE_AGENT_TOKEN
           valueFrom:
             secretKeyRef:
