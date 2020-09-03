@@ -1,7 +1,4 @@
-# Let's use one image for all Fedoras out there
-ARG os_version=32
-
-FROM fedora:${os_version}
+FROM fedora:32
 
 # Keep the following os_version ARG. For an explanation see:
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
@@ -12,7 +9,7 @@ ARG arch=x86_64
 
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 LABEL author="Konrad Kleine <kkleine@redhat.com>"
-LABEL description="An image to build and test LLVM on Fedora ${os_version} ${arch}"
+LABEL description="An image to build and test LLVM on Fedora 32 ${arch}"
 LABEL git_repo="https://github.com/kwk/llvm-ci"
 LABEL git_revision="${git_revision}"
 ENV LANG=en_US.utf8
