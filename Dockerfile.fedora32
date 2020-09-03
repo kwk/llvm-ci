@@ -1,17 +1,5 @@
 FROM fedora:32
 
-# Keep the following os_version ARG. For an explanation see:
-# https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG os_version
-
-ARG git_revision=master
-ARG arch=x86_64
-
-LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
-LABEL author="Konrad Kleine <kkleine@redhat.com>"
-LABEL description="An image to build and test LLVM on Fedora 32 ${arch}"
-LABEL git_repo="https://github.com/kwk/llvm-ci"
-LABEL git_revision="${git_revision}"
 ENV LANG=en_US.utf8
 
 RUN dnf install -y --setopt=tsflags=nodocs \
@@ -40,6 +28,15 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     xz-devel \
     zip \
    && yum clean all
+
+ARG git_revision=master
+ARG arch=x86_64
+
+LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
+LABEL author="Konrad Kleine <kkleine@redhat.com>"
+LABEL description="An image to build and test LLVM on Fedora 32 ${arch}"
+LABEL git_repo="https://github.com/kwk/llvm-ci"
+LABEL git_revision="${git_revision}"
 
 # We split the installation of the buildkite-agend to allow cache utilization
 # for all the packages before.
@@ -108,5 +105,4 @@ VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
 ENTRYPOINT ["/usr/bin/buildkite-agent"]
 
 CMD ["start"]
-
 
