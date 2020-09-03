@@ -57,8 +57,8 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     buildkite-agent \
    && yum clean all
 
-COPY scripts/configure_build_test.sh /configure_build_test.sh
-RUN chmod +x /configure_build_test.sh
+COPY build-scripts/* /build-scripts
+RUN chmod +x /build-scripts/*
 
 # This is the secret you should set from outside
 ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
@@ -76,7 +76,7 @@ ENV BUILDKITE_TIMESTAMP_LINES=1
 ENV BUILDKITE_NO_SSH_KEYSCAN=1
 
 # Don't show colors in logging
-ENV BUILDKITE_AGENT_NO_COLOR=1
+ENV BUILDKITE_AGENT_NO_COLOR=0
 
 # Start an HTTP server on this addr:port that returns whether the agent is healthy, disabled by default
 ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"

@@ -1,22 +1,6 @@
 #!/bin/bash 
 
-#-------------------------------------------------------------------------------
-# This script configures LLVM, builds and tests it.
-#-------------------------------------------------------------------------------
-
-set -x
-set -e
-
-# Ensure Bash pipelines (e.g. cmd | othercmd) return a non-zero status if any of
-# the commands fail, rather than returning the exit status of the last command
-# in the pipeline.
-set -o pipefail
-
-echo "--- Clear CCache (make it cold)"
-ccache --clear
-
-echo "--- Clean CCache Stats"
-ccache --zero-stats
+source $(dirname "$0")/common.sh
 
 # See https://buildkite.com/docs/pipelines/managing-log-output for why we use
 # three dashes here and below.
@@ -40,7 +24,7 @@ CMD="$CMD -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX"
 GENERATOR=${GENERATOR:-Ninja}
 CMD="$CMD -G \"$GENERATOR\""
 
-CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-RelWithDebInfo}
+export CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-RelWithDebInfo}
 CMD="$CMD -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
 
 LLVM_ENABLE_PROJECTS=${LLVM_ENABLE_PROJECTS:-lldb;clang;clang-tools-extra;lld;debuginfo-tests}
@@ -88,7 +72,6 @@ CMD="$CMD -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}"
 [[ "${LLVM_BUILD_LLVM_DYLIB}" != "" ]] && CMD="$CMD -DLLVM_BUILD_LLVM_DYLIB=${LLVM_BUILD_LLVM_DYLIB}"
 [[ "${LLVM_LINK_LLVM_DYLIB}" != "" ]] && CMD="$CMD -DLLVM_LINK_LLVM_DYLIB=${LLVM_LINK_LLVM_DYLIB}"
 [[ "${CLANG_LINK_CLANG_DYLIB}" != "" ]] && CMD="$CMD -DCLANG_LINK_CLANG_DYLIB=${CLANG_LINK_CLANG_DYLIB}"
-
 
 echo "--- Configure and Generate"
 eval "$CMD"
