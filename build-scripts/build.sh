@@ -65,18 +65,3 @@ echo "--- Clang Format"
 
 echo "--- Show CCache statistics" 
 ccache --show-stats 2>&1 | tee -a artifacts/ccache_stats.log
-
-if [ "${BUILDKITE_BRANCH}" != "" ]; then
-    echo "--- Reproduce build locally"
-    echo "Start a container:"
-    podman run -it --rm --entrypoint bash ${CONTAINER_IMAGE_REF}
-    echo "Inside the container run:"
-    echo "su buildkite-agent"
-    echo "cd /var/lib/buildkite-agent/builds"
-    echo "mkdir -p mybuild"
-    echo "cd mybuild"
-    echo "git clone ${BUILDKITE_REPO} llvm-project"
-    echo "cd llvm-project"
-    echo "git checkout ${BUILDKITE_COMMIT}"
-    echo "/build-scripts/build.sh"
-fi
