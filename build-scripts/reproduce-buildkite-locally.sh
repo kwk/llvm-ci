@@ -1,6 +1,5 @@
 #!/bin/bash 
 
-set -x
 set -e
 
 # Ensure Bash pipelines (e.g. cmd | othercmd) return a non-zero status if any of
