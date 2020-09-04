@@ -1,26 +1,13 @@
 FROM registry.redhat.io/ubi8
 
-# Let's use one image for all RHEL8 out there
-ARG os_version=8.2
-
 FROM registry.redhat.io/rhel8/llvm-toolset
-
-# Keep the following os_version ARG. For an explanation see:
-# https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG os_version
 
 ARG git_revision=master
 ARG arch=x86_64
 
-LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
-LABEL author="Konrad Kleine <kkleine@redhat.com>"
-LABEL description="An image to build and test LLVM on RHEL8 (${os_version}) ${arch}"
-LABEL git_repo="https://github.com/kwk/llvm-ci"
-LABEL git_revision="${git_revision}"
 ENV LANG=en_US.utf8
 
 USER root
-
 
 RUN dnf install -y --setopt=tsflags=nodocs \
     clang \
@@ -60,6 +47,12 @@ RUN dnf install -y \
 # RUN dnf install -y --nogpgcheck https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 # RUN dnf install -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
 
+LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
+LABEL author="Konrad Kleine <kkleine@redhat.com>"
+LABEL description="An image to build and test LLVM on RHEL8 ${arch}"
+LABEL git_repo="https://github.com/kwk/llvm-ci"
+LABEL git_revision="${git_revision}"
+
 ENTRYPOINT ["bash"]
 #  
 #  # Enable EPEL and install missing packages from RHEL base repo
@@ -96,7 +89,7 @@ ENTRYPOINT ["bash"]
 #  ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
 #  
 #  # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-#  ENV BUILDKITE_AGENT_TAGS="os=rhel,os_version=${osversion},arch=${arch},git_revision=${git_revision}"
+#  ENV BUILDKITE_AGENT_TAGS="os=rhel,os_version=8,arch=${arch},git_revision=${git_revision}"
 #  
 #  # Ensure we only download the latest version and not more
 #  ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
@@ -137,6 +130,10 @@ ENTRYPOINT ["bash"]
 #      chmod -R g=u /var/lib/buildkite-agent/builds /ccache
 #  VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
 #  
+#  # Needed for when you want to run the build the build locally
+#  ARG container_image_ref
+#  ENV CONTAINER_IMAGE_REF=${container_image_ref}
+#
 #  ENTRYPOINT ["/usr/bin/buildkite-agent"]
 #  
 #  CMD ["start"]

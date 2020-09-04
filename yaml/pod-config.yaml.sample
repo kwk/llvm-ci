@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: llvm-ci-fedora-32-x8664-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-af7225e
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-d1e8ed8-dirty
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -68,12 +68,14 @@ spec:
 
         - name: LLVM_TARGETS_TO_BUILD
           value: "X86"
+        - name: CMAKE_EXPORT_COMPILE_COMMANDS
+          value: "1" 
 
         # To be more close to our build pipeline we build with GCC
         - name: CXX
-          value: g++
+          value: "g++"
         - name: CC
-          value: gcc
+          value: "gcc"
         - name: LLVM_ENABLE_PROJECTS
           value: "clang;clang-tools-extra;compiler-rt;lld;debuginfo-tests;mlir" # TODO(kwk): re-enable lldb
         # - name: LD

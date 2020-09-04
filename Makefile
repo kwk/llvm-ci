@@ -31,6 +31,7 @@ fedora-32-image: Dockerfile.fedora32
 	$(Q)podman build $(Q_FLAG) \
 		--build-arg git_revision=$(GIT_COMMIT_ID) \
 		--build-arg arch=$(ARCH) \
+		--build-arg container_image_ref=${FEDORA_32_IMAGE_NAME} \
 		. \
 		-f Dockerfile.fedora32 \
 		-t ${FEDORA_32_IMAGE_NAME}
@@ -41,9 +42,9 @@ fedora-32-image: Dockerfile.fedora32
 centos-8-image: Dockerfile.centos8
 	@echo Building image ${CENTOS_8_IMAGE_NAME}
 	$(Q)podman build $(Q_FLAG) \
-		--build-arg os_version=8 \
 		--build-arg git_revision=$(GIT_COMMIT_ID) \
 		--build-arg arch=$(ARCH) \
+		--build-arg container_image_ref=${CENTOS_8_IMAGE_NAME} \
 		. \
 		-f Dockerfile.centos8 \
 		-t ${CENTOS_8_IMAGE_NAME}
@@ -54,9 +55,9 @@ centos-8-image: Dockerfile.centos8
 rhel-8-image: Dockerfile.rhel8
 	@echo Building image ${RHEL_8_IMAGE_NAME}
 	$(Q)podman build $(Q_FLAG) \
-		--build-arg os_version=8.2 \
 		--build-arg git_revision=$(GIT_COMMIT_ID) \
 		--build-arg arch=$(ARCH) \
+		--build-arg container_image_ref=${RHEL_8_IMAGE_NAME} \
 		. \
 		-f Dockerfile.rhel8 \
 		-t ${RHEL_8_IMAGE_NAME}

@@ -1,20 +1,8 @@
-# Let's use one image for all RHEL8 out there
-ARG os_version=8.2
-
-FROM centos:centos${os_version}
-
-# Keep the following os_version ARG. For an explanation see:
-# https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG os_version
+FROM centos:centos8
 
 ARG git_revision=master
 ARG arch=x86_64
 
-LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
-LABEL author="Konrad Kleine <kkleine@redhat.com>"
-LABEL description="An image to build and test LLVM on CentOS (${os_version}) ${arch}"
-LABEL git_repo="https://github.com/kwk/llvm-ci"
-LABEL git_revision="${git_revision}"
 ENV LANG=en_US.utf8
 
 USER root
@@ -68,11 +56,17 @@ RUN dnf install -y --setopt=tsflags=nodocs \
 COPY scripts/configure_build_test.sh /configure_build_test.sh
 RUN chmod +x /configure_build_test.sh
 
+LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
+LABEL author="Konrad Kleine <kkleine@redhat.com>"
+LABEL description="An image to build and test LLVM on CentOS (8) ${arch}"
+LABEL git_repo="https://github.com/kwk/llvm-ci"
+LABEL git_revision="${git_revision}"
+
 # This is the secret you should set from outside
 ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
 
 # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-ENV BUILDKITE_AGENT_TAGS="os=centos,os_version=${osversion},arch=${arch},git_revision=${git_revision}"
+ENV BUILDKITE_AGENT_TAGS="os=centos,os_version=8,arch=${arch},git_revision=${git_revision}"
 
 # Ensure we only download the latest version and not more
 ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
@@ -112,6 +106,10 @@ RUN mkdir -p /var/lib/buildkite-agent/builds /ccache \
     && chgrp -R 0 /var/lib/buildkite-agent/builds /ccache \
     && chmod -R g=u /var/lib/buildkite-agent/builds /ccache
 VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
+
+# Needed for when you want to run the build the build locally
+ARG container_image_ref
+ENV CONTAINER_IMAGE_REF=${container_image_ref}
 
 ENTRYPOINT ["/usr/bin/buildkite-agent"]
 
