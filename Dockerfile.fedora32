@@ -67,14 +67,11 @@ ENV BUILDKITE_AGENT_TAGS="os=fedora,os_version=32,arch=${arch},git_revision=${gi
 # Ensure we only download the latest version and not more
 ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
 
-# Prepend timestamps on each line of output.
-ENV BUILDKITE_TIMESTAMP_LINES=1
-
 # Don't automatically run ssh-keyscan before checkout
 ENV BUILDKITE_NO_SSH_KEYSCAN=1
 
 # Don't show colors in logging
-ENV BUILDKITE_AGENT_NO_COLOR=0
+ENV BUILDKITE_AGENT_NO_COLOR=1
 
 # Start an HTTP server on this addr:port that returns whether the agent is healthy, disabled by default
 ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
