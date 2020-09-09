@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: llvm-ci-fedora-32-x8664-container
-      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-2778fa1
+      image: quay.io/kkleine/llvm-ci:fedora-32-x86_64-4f01115
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       QoS Tier:
         # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -47,49 +47,26 @@ spec:
         # Google builds with these settings:
         # cmake ../llvm -D LLVM_ENABLE_PROJECTS="clang;compiler-rt;llvm" -G Ninja -D CMAKE_BUILD_TYPE=Release -D LLVM_ENABLE_ASSERTIONS=ON -D LLVM_BUILD_EXAMPLES=ON -D LLVM_LIT_ARGS="-v --xunit-xml-output test-results.xml" -D LLVM_ENABLE_LLD=ON -D CMAKE_CXX_FLAGS=-gmlt -D LLVM_CCACHE_BUILD=ON -D LLVM_CCACHE_DIR=/mnt/disks/ssd0/agent/ccache -D LLVM_CCACHE_MAXSIZE=20G
         # See: https://github.com/google/llvm-premerge-checks/blob/dc1080fc4ce21f12a8015090683884c540680f3f/scripts/run_cmake_config.yaml#L5-L9
-        - name: CMAKE_BUILD_TYPE
-          value: "Release"
-        - name: LLVM_ENABLE_ASSERTIONS
-          value: "On"
-        - name: LLVM_BUILD_EXAMPLES
-          value: "On"
-        - name: LLVM_LIT_ARGS
-          value: -v --xunit-xml-output test-results.xml
-        # - name: LLVM_ENABLE_LLD
-        #   value: "On" # TODO(kwk): Are we cool with this?
-        # - name: CMAKE_CXX_FLAGS
-        #   value: -gmlt # TODO(kwk): Are we cool with this?
-        - name: LLVM_CCACHE_BUILD
-          value: "On"
-        - name: LLVM_CCACHE_DIR
-          value: "/ccache"
-        - name: LLVM_CCACHE_MAXSIZE
-          value: "20G"
-
-        - name: LLVM_TARGETS_TO_BUILD
-          value: "X86"
-        - name: CMAKE_EXPORT_COMPILE_COMMANDS
-          value: "1" 
-
-        # To be more close to our build pipeline we build with GCC
+        
         - name: CXX
           value: "g++"
         - name: CC
           value: "gcc"
-        - name: LLVM_ENABLE_PROJECTS
-          value: "clang;clang-tools-extra;compiler-rt;lld;debuginfo-tests;mlir" # TODO(kwk): re-enable lldb
+        - name: MY_CMAKE_DEFINES
+          value: "-G \"Ninja\" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On -DLLVM_BUILD_EXAMPLES=On -DLLVM_LIT_ARGS=\"-v --xunit-xml-output test-results.xml\" -DLLVM_CCACHE_BUILD=On -DLLVM_CCACHE_DIR=/ccache -DLLVM_CCACHE_MAXSIZE=20G -DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DLLVM_BUILD_LLVM_DYLIB=On -DLLVM_LINK_LLVM_DYLIB=On -DCLANG_LINK_CLANG_DYLIB=On -DBUILD_SHARED_LIBS=Off -DLLVM_ENABLE_PROJECTS=\"clang;clang-tools-extra;compiler-rt;lld;debuginfo-tests;mlir\""
+          # BUILD_SHARED_LIBS is a dev-only setting
+           # TODO(kwk): re-enable lldb
+
+        # - name: LLVM_ENABLE_LLD
+        #   value: "On" # TODO(kwk): Are we cool with this?
+        # - name: CMAKE_CXX_FLAGS
+        #   value: -gmlt # TODO(kwk): Are we cool with this?
+        # To be more close to our build pipeline we build with GCC
+        
         # - name: LD
         #   value: "ldd" # TODO(kwk): Are we cool with this?
         #                # This helps us not to allocate too much memory.
         
-        - name: LLVM_BUILD_LLVM_DYLIB
-          value: "On"
-        - name: LLVM_LINK_LLVM_DYLIB  
-          value: "On"
-        - name: CLANG_LINK_CLANG_DYLIB
-          value: "On"
-        - name: BUILD_SHARED_LIBS
-          value: "Off" # dev-only setting
 
         - name: BUILDKITE_AGENT_TOKEN
           valueFrom:

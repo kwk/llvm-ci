@@ -2,7 +2,17 @@ FROM fedora:32
 
 ENV LANG=en_US.utf8
 
+RUN echo -e "\
+[buildkite-agent] \n\
+name            = Buildkite Pty Ltd \n\
+baseurl         = https://yum.buildkite.com/buildkite-agent/stable/$(arch)/ \n\
+enabled         = 1 \n\
+priority        = 1 \n\
+gpgcheck        = 0\
+" > /etc/yum.repos.d/buildkite-agent.repo
+
 RUN dnf install -y --setopt=tsflags=nodocs \
+    buildkite-agent \
     ccache \
     clang \
     cmake \
@@ -29,61 +39,13 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     zip \
    && yum clean all
 
-ARG git_revision=master
-ARG arch=x86_64
+ARG ci_git_revision=master
 
-LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
-LABEL author="Konrad Kleine <kkleine@redhat.com>"
-LABEL description="An image to build and test LLVM on Fedora 32 ${arch}"
-LABEL git_repo="https://github.com/kwk/llvm-ci"
-LABEL git_revision="${git_revision}"
-
-# We split the installation of the buildkite-agend to allow cache utilization
-# for all the packages before.
-# See https://docs.docker.com/engine/reference/builder/#impact-on-build-caching 
-RUN echo -e "\
-[buildkite-agent] \n\
-name            = Buildkite Pty Ltd \n\
-baseurl         = https://yum.buildkite.com/buildkite-agent/stable/${arch}/ \n\
-enabled         = 1 \n\
-priority        = 1 \n\
-gpgcheck        = 0\
-" > /etc/yum.repos.d/buildkite-agent.repo
-
-RUN dnf install -y --setopt=tsflags=nodocs \
-    buildkite-agent \
-   && yum clean all
-
-RUN mkdir -pv /build-scripts
-COPY build-scripts/* /build-scripts
-RUN chmod +x /build-scripts/*
-
-# This is the secret you should set from outside
-ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
-
-# Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-ENV BUILDKITE_AGENT_TAGS="os=fedora,os_version=32,arch=${arch},git_revision=${git_revision}"
-
-# Ensure we only download the latest version and not more
-ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
-
-# Don't automatically run ssh-keyscan before checkout
-ENV BUILDKITE_NO_SSH_KEYSCAN=1
-
-# Don't show colors in logging
-ENV BUILDKITE_AGENT_NO_COLOR=1
-
-# Start an HTTP server on this addr:port that returns whether the agent is healthy, disabled by default
-ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
-
-# 9090 health port (see BUILDKITE_AGENT_HEALTH_CHECK_ADDR)
-EXPOSE \
-  9090/tcp \
-
-# We check the health of the container by checking the BUILDKITE_AGENT_HEALTH_CHECK_ADDR
-# https://docs.docker.com/engine/reference/builder/#healthcheck)
-HEALTHCHECK --interval=5m --timeout=3s \
-  CMD curl -f http://0.0.0.0:9090/ || exit 1
+################################################################################
+#
+#       BUILDKITE SPECIFICS
+#
+################################################################################
 
 # WORKAROUND FOR OPENSHIFT BECAUSE "USER" COMMAND WILL BE IGNORED
 # See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
@@ -100,11 +62,32 @@ RUN mkdir -p /var/lib/buildkite-agent/builds /ccache \
     && chmod -R g=u /var/lib/buildkite-agent/builds /ccache
 VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
 
-# Needed for when you want to run the build the build locally
-ARG container_image_ref
-ENV CONTAINER_IMAGE_REF=${container_image_ref}
+################################################################################
+#
+#       BUILDBOT SPECIFICS
+#
+################################################################################
 
-ENTRYPOINT ["/usr/bin/buildkite-agent"]
+# 9090 is supposed to be our health port
+EXPOSE \
+  9090/tcp
 
-CMD ["start"]
+# We check the health of the container by checking the
+# https://docs.docker.com/engine/reference/builder/#healthcheck)
+HEALTHCHECK --interval=5m --timeout=3s \
+  CMD curl -f http://0.0.0.0:9090/ || exit 1
+
+# Needed for when you want to run the build locally
+ARG ci_container_image_ref
+ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
+
+################################################################################
+
+RUN mkdir -pv /build-scripts
+COPY build-scripts/* /build-scripts
+RUN chmod +x /build-scripts/*
+
+ENTRYPOINT ["bash", "-c"]
+
+CMD ["/build-scripts/buildkite.sh"]
 
