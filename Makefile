@@ -62,5 +62,5 @@ push-rhel-8-image:
 deploy:
 	echo -n "Logged in as "
 	oc whoami -c
-	oc apply --dry-run=true --overwrite=true -o  -f yaml/pod-config.yaml.sample
+	oc apply --dry-run=false --overwrite=true -f yaml/pod-config.yaml.sample
 
