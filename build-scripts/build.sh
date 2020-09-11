@@ -81,10 +81,6 @@ source ${REPRODUCER_SCRIPT}
 
 # TODO(kwk): also output steps to reproduce when running on buildbot
 if [ "${BUILDKITE_AGENT_ACCESS_TOKEN}" != "" ]; then
-    cat <<EOT
-#!/bin/bash
-podman run -it --rm --entrypoint bash ${CI_CONTAINER_IMAGE_REF}
-EOT
 cat <<EOT
 --- Reproduce build locally"
 # Download $(basename ${ARTIFACTS_DIR})/reproduce.sh
