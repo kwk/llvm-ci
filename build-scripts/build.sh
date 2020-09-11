@@ -26,9 +26,6 @@ ENV_SETTINGS=$(declare -p | grep -v BUILDKITE_AGENT_ACCESS_TOKEN | grep -v --reg
 cat >> ${REPRODUCER_SCRIPT} <<EOL
 #!/bin/bash
 
-echo "--- Double check the correct revision is checked out"
-git checkout ${GIT_REV}
-
 # Output all environment variables to reproducer script
 echo "--- Set environment variables"
 # TODO(kwk): Based on Serge's suggestion I should start with a fresh env (see env -i bash)
@@ -85,6 +82,8 @@ cat <<EOT
 --- Reproduce build locally"
 # Download $(basename ${ARTIFACTS_DIR})/reproduce.sh
 # TODO(kwk): Maybe utilize BUILDKITE_BUILD_URL to generate wget-table URL to reproduce.sh script
+
+git -C "<PATH_TO_LLVM_TREE>" checkout ${GIT_REV}
 
 # Run container and mount the LLVM codebase as well as the the reproduce script.
 podman run -it --rm \
