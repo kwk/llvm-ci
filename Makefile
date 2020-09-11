@@ -66,5 +66,5 @@ deploy:
 	echo -n "Logged in as "
 	oc whoami -c
 	sed 's|PLACE_IMAGE_HERE|${FEDORA_32_IMAGE_NAME}|g' yaml/pod-config.yaml.sample > ./out/pod-config.yaml
-	oc apply --dry-run=false --overwrite=true -f ./out/yaml/pod-config.yaml
+	oc apply --dry-run=false --overwrite=true -f ./out/pod-config.yaml
 
