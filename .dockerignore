@@ -4,3 +4,4 @@ yaml/**
 
 .git
 .cache
+out/**

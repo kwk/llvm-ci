@@ -1,6 +1,9 @@
 # It's necessary to set this because some environments don't link sh -> bash.
 SHELL := /bin/bash
 
+# Create output directory for artifacts and test results
+$(shell mkdir -p ./out);
+
 CI_GIT_COMMIT_ID := $(shell git rev-parse --short HEAD)
 ifneq ($(shell git status --porcelain --untracked-files=no),)
        CI_GIT_COMMIT_ID := $(CI_GIT_COMMIT_ID)-dirty
@@ -62,5 +65,6 @@ push-rhel-8-image:
 deploy:
 	echo -n "Logged in as "
 	oc whoami -c
-	oc apply --dry-run=false --overwrite=true -f yaml/pod-config.yaml.sample
+	sed 's|PLACE_IMAGE_HERE|${FEDORA_32_IMAGE_NAME}|g' yaml/pod-config.yaml.sample > ./out/pod-config.yaml
+	oc apply --dry-run=false --overwrite=true -f ./out/yaml/pod-config.yaml
 
