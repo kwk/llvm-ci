@@ -4,7 +4,7 @@
 export BUILDKITE_AGENT_TOKEN=${BUILDKITE_AGENT_TOKEN:-"<REPLACE_ME>"}
 
 # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-export BUILDKITE_AGENT_TAGS=${BUILDKITE_AGENT_TAGS:-"os=fedora,os_version=32,arch=${arch},ci_git_revision=${ci_git_revision}"}
+export BUILDKITE_AGENT_TAGS=${BUILDKITE_AGENT_TAGS:-"arch=$(arch),ci_git_revision=${CI_GIT_REVISION}"}
 
 # Ensure we only download the latest version and not more
 export BUILDKITE_GIT_CLONE_FLAGS=${BUILDKITE_GIT_CLONE_FLAGS:-"-v --depth=1"}

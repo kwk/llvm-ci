@@ -40,6 +40,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
    && yum clean all
 
 ARG ci_git_revision=master
+ENV CI_GIT_REVISION=${ci_git_revision}
 
 ################################################################################
 #
