@@ -31,7 +31,7 @@ git checkout ${GIT_REV}
 
 # Output all environment variables to reproducer script
 echo "--- Set environment variables"
-# TODO(kwk): Based on Serge's suggestion I should start with a fresh env (see `env -i bash`)
+# TODO(kwk): Based on Serge's suggestion I should start with a fresh env (see env -i bash)
 ${ENV_SETTINGS}
 
 echo "--- Prepare build and artifacts directories"
