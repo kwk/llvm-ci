@@ -1,12 +1,11 @@
-stages:
-  - build
+# Validate at https://gitlab.com/kwk/llvm-ci/-/ci/lint
+
 build:
-  image: fedora:32
   stage: build
-  script:
-    - dnf install -y podman make
-    - podman login -u="kkleine+llvm_ci_gilab_account" -p="${QUAY_IO_LLVM_CI_GITHUB_ACCOUNT_PASSWORD}" quay.io
-    - make VERBOSE=1 fedora-32-image
-    - make VERBOSE=1 push-fedora-32-image
+  image: docker:latest
   interruptible: true
   timeout: 30 minutes
+  script:
+    - docker login -u="kkleine+llvm_ci_gilab_account" -p="${QUAY_IO_LLVM_CI_GITHUB_ACCOUNT_PASSWORD}" quay.io
+    - make VERBOSE=1 fedora-32-image
+    - make VERBOSE=1 push-fedora-32-image
