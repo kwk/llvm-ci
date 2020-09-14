@@ -6,8 +6,7 @@ build:
   script:
     - echo "Building container image"
     - >-
-      docker login -u="kkleine+llvm_ci_github_account" -p="${{
-      secrets.QUAY_IO_LLVM_CI_GITHUB_ACCOUNT_PASSWORD }}" quay.io
+      docker login -u="kkleine+llvm_ci_gilab_account" -p="${QUAY_IO_LLVM_CI_GITHUB_ACCOUNT_PASSWORD}" quay.io
     - echo "Building container image"
     - make VERBOSE=1 fedora-32-image
     - echo "Pushing container image to quay.io"
