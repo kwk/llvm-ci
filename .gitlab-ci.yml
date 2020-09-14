@@ -2,7 +2,7 @@ stages:
   - build
 build:
   image: ubuntu-20.04
-  stage: Build and push container image
+  stage: build
   script:
     - echo "Building container image"
     - >-
