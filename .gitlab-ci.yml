@@ -1,5 +1,5 @@
 stages:
-  - Build docker image
+  - build
 build:
   image: ubuntu-20.04
   stage: Build and push container image
