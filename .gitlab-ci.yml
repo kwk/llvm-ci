@@ -1,7 +1,7 @@
 stages:
   - build
 build:
-  image: ubuntu-20.04
+  image: fedora:32
   stage: build
   script:
     - echo "Building container image"
