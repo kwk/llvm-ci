@@ -1,0 +1,41 @@
+#!/bin/bash 
+
+(
+    # General
+    echo "system_information|$(uname -a)";
+    echo "cpu_model|$(cat /proc/cpuinfo | grep "model name" | head -n1 | cut -d " " -f 3-)";
+    echo "num_cpu_cores|$(nproc)";
+    echo "operating_system|$(lsb_release -d | cut -f 2-)";
+    echo "bash_version|$(bash --version | head -n1)";
+    echo "architecture|$(arch)";
+    
+    # Compilers
+    [ -x "$(command -v gcc)" ] && echo "gcc_version|$(gcc --version | head -n1)";
+    [ -x "$(command -v clang)" ] && echo "clang_version|$(clang --version | head -n1)";
+    [ -x "$(command -v ccache)" ] && echo "ccache_version|$(ccache --version | head -n1)";
+    [ -x "$(command -v distcc)" ] && echo "distcc_version|$(distcc --version | head -n1)";
+    
+    # Debuggers
+    [ -x "$(command -v gdb)" ] && echo "gdb_version|$(gdb --version | head -n1)";
+    [ -x "$(command -v lldb)" ] && echo "lldb_version|$(lldb --version | head -n1)";
+    
+    # Linkers
+    echo "ld_version|$(ld --version | head -n1)";
+    [ -x "$(command -v lld)" ] && echo "ldd_version|$(ldd --version | head -n1)";
+    [ -x "$(command -v ld.gold)" ] && echo "gold_version|$(ld.gold --version | head -n1)";
+    
+    # Python
+    echo "python_version|$(python --version | tr -d '[:alpha:][:blank:]')";
+    echo "pip_version|$(pip --version)";
+    
+    # Configure/CMake
+    echo "autoconf_version|$(autoconf --version | head -n1 | tr -c -d '[0-9.]')";
+    echo "cmake_version|$(cmake --version | head -n1 | tr -d '[:alpha:][:blank:]')";
+    
+    # Other
+    echo "git_version|$(git --version | head -n1 | tr -d '[:alpha:][:blank:]')";
+
+    # GPU stuff
+    [ -x "$(command -v vulkaninfo)" ] && echo "vulkan_instance_version|$(vulkaninfo 2>/dev/null | grep "Vulkan Instance" | cut -d " " -f 4-)"; 
+    [ -x "$(command -v vulkaninfo)" ] && echo "nvidia_vulkan_icd_version|$(vulkaninfo 2>/dev/null | grep "apiVersion" | cut -d= -f2 | awk '{printf $2}' | tr -d '()')";
+) | column -s '|' -t --table-name "worker_information" --table-columns "key,value" -o "  " --json
