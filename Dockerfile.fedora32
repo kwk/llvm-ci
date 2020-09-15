@@ -46,8 +46,9 @@ ENV CI_GIT_REVISION=${ci_git_revision}
 
 # See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
 RUN useradd --create-home worker \
-    && chmod -R g=u /home/worker /etc/passwd \
-    && mkdir -pv /home/worker/bin
+    && mkdir -pv /home/worker/bin \
+    && chmod -R g=u /home/worker /etc/passwd
+    
 COPY bin/* /home/worker/bin
 ENV PATH="/home/worker/bin:${PATH}" HOME=/home/worker
 RUN chmod +x /home/worker/bin/*
