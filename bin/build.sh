@@ -21,7 +21,10 @@ rm -f ${REPRODUCER_SCRIPT}
 touch ${REPRODUCER_SCRIPT}
 chmod +x ${REPRODUCER_SCRIPT}
 
-ENV_SETTINGS=$(declare -p | grep -v BUILDKITE_AGENT_ACCESS_TOKEN | grep -v --regexp="^declare -[^ ]*r") 
+ENV_SETTINGS=$(declare -p \
+    | grep -v "BUILDKITE_AGENT_ACCESS_TOKEN"\
+    | grep -v "BUILDBOT_WORKER_PASSWORD" \
+    | grep -v --regexp="^declare -[^ ]*r")
 
 cat >> ${REPRODUCER_SCRIPT} <<EOL
 #!/bin/bash

@@ -13,17 +13,17 @@ spec:
     - name: llvm-ci-fedora-32-x8664-container
       image: PLACE_IMAGE_HERE
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
-      QoS Tier:
-        # A Guaranteed CPU container is guaranteed to get the amount requested
-        # and no more, even if there are additional CPU cycles available. This
-        # provides a consistent level of performance independent of other
-        # activity on the node.
-        cpu:  "Guaranteed"
-        # A Burstable memory container is scheduled on the node to get the
-        # amount of memory requested, but it may consume more. If there is an
-        # out of memory event on the node, Burstable containers are killed after
-        # BestEffort containers when attempting to recover memory.
-        memory: "Burstable"
+      # QoS Tier:
+      #   # A Guaranteed CPU container is guaranteed to get the amount requested
+      #   # and no more, even if there are additional CPU cycles available. This
+      #   # provides a consistent level of performance independent of other
+      #   # activity on the node.
+      #   cpu:  "Guaranteed"
+      #   # A Burstable memory container is scheduled on the node to get the
+      #   # amount of memory requested, but it may consume more. If there is an
+      #   # out of memory event on the node, Burstable containers are killed after
+      #   # BestEffort containers when attempting to recover memory.
+      #   memory: "Burstable"
       resources:
         requests:
           # Memory is measured in bytes. In addition, it may be used with SI

@@ -1,1 +1,4 @@
 out/*
+info/*
+artifacts/*
+buildbot.tac

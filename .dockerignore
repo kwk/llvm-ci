@@ -6,3 +6,5 @@ Makefile
 .git
 .cache
 out/**
+artifacts/**
+info/**

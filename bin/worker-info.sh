@@ -1,5 +1,10 @@
 #!/bin/bash 
 
+# This script shows information about the worker in a machine-consumable JSON
+# output.
+
+# You can pass --json to this script to output the information in JSON format.
+
 (
     # General
     echo "system_information|$(uname -a)";
@@ -14,10 +19,15 @@
     [ -x "$(command -v clang)" ] && echo "clang_version|$(clang --version | head -n1)";
     [ -x "$(command -v ccache)" ] && echo "ccache_version|$(ccache --version | head -n1)";
     [ -x "$(command -v distcc)" ] && echo "distcc_version|$(distcc --version | head -n1)";
+    [ -x "$(command -v go)" ] && echo "go_version|$(go version)";
     
     # Debuggers
     [ -x "$(command -v gdb)" ] && echo "gdb_version|$(gdb --version | head -n1)";
     [ -x "$(command -v lldb)" ] && echo "lldb_version|$(lldb --version | head -n1)";
+    
+    # CI tools
+    [ -x "$(command -v buildbot-worker)" ] && echo "buildbot_version|$(buildbot-worker --version | head -n1 | tr -c -d '[0-9.]')";
+    [ -x "$(command -v buildkite-agent)" ] && echo "buildkite_agent_version|$(buildkite-agent --version | head -n1)";
     
     # Linkers
     echo "ld_version|$(ld --version | head -n1)";
@@ -29,8 +39,10 @@
     echo "pip_version|$(pip --version)";
     
     # Configure/CMake
-    echo "autoconf_version|$(autoconf --version | head -n1 | tr -c -d '[0-9.]')";
+    [ -x "$(command -v autoconf)" ] && echo "autoconf_version|$(autoconf --version | head -n1 | tr -c -d '[0-9.]')";
     echo "cmake_version|$(cmake --version | head -n1 | tr -d '[:alpha:][:blank:]')";
+    [ -x "$(command -v make)" ] && echo "make_version|$(make --version | head -n1)";
+    [ -x "$(command -v ninja)" ] && echo "ninja_version|$(ninja --version | head -n1)";
     
     # Other
     echo "git_version|$(git --version | head -n1 | tr -d '[:alpha:][:blank:]')";
@@ -38,4 +50,10 @@
     # GPU stuff
     [ -x "$(command -v vulkaninfo)" ] && echo "vulkan_instance_version|$(vulkaninfo 2>/dev/null | grep "Vulkan Instance" | cut -d " " -f 4-)"; 
     [ -x "$(command -v vulkaninfo)" ] && echo "nvidia_vulkan_icd_version|$(vulkaninfo 2>/dev/null | grep "apiVersion" | cut -d= -f2 | awk '{printf $2}' | tr -d '()')";
-) | column -s '|' -t --table-name "worker_information" --table-columns "key,value" -o "  " --json
+) | column \
+    -s '|' \
+    -t \
+    --table-name "worker_information" \
+    --table-columns "key,value" \
+    -o "  " \
+    "$@"
