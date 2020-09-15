@@ -89,7 +89,7 @@ git -C "<PATH_TO_LLVM_TREE>" checkout ${GIT_REV}
 podman run -it --rm \
     -v <PATH_TO_LLVM_TREE>:${BUILDKITE_BUILD_CHECKOUT_PATH}:Z \
     -w ${BUILDKITE_BUILD_CHECKOUT_PATH} \
-    -v ${PWD}/build-scripts/buildbot.sh:/reproduce.sh:Z \
+    -v ${PWD}/bin/buildbot.sh:/reproduce.sh:Z \
     -u \$(shell id -u \$(USER)):\$(shell id -g \$(USER)) \
     ${CI_CONTAINER_IMAGE_REF} \
     /reproduce.sh

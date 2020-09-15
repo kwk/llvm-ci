@@ -12,6 +12,7 @@ gpgcheck        = 0\
 " > /etc/yum.repos.d/buildkite-agent.repo
 
 RUN dnf install -y --setopt=tsflags=nodocs \
+    buildbot-worker \
     buildkite-agent \
     ccache \
     clang \
@@ -69,6 +70,8 @@ VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
 #
 ################################################################################
 
+################################################################################
+
 # 9090 is supposed to be our health port
 EXPOSE \
   9090/tcp
@@ -82,13 +85,17 @@ HEALTHCHECK --interval=5m --timeout=3s \
 ARG ci_container_image_ref
 ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
 
-################################################################################
+# See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
+ENV HOME_DIR=/home/ci-worker
+RUN useradd --create-home --home-dir ${HOME_DIR} ci-worker \
+    && chmod -R g=u ${HOME_DIR} /etc/passwd
+    && mkdir -pv ${HOME_DIR}/bin \
+COPY bin/* ${HOME_DIR}/bin
+ENV PATH=${HOME_DIR}/bin:${PATH} HOME=${HOME_DIR}
+RUN chmod +x ${HOME_DIR}/bin/*
+USER 10001
 
-RUN mkdir -pv /build-scripts
-COPY build-scripts/* /build-scripts
-RUN chmod +x /build-scripts/*
+ENTRYPOINT [ "uid_entrypoint.sh" ]
 
-ENTRYPOINT ["bash", "-c"]
-
-CMD ["/build-scripts/buildkite.sh"]
+CMD [ "${HOME_DIR}/bin/buildkite.sh" ]
 

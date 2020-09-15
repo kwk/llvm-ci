@@ -34,4 +34,4 @@ echo "buildbot"
     # GPU stuff
     [ -x "$(command -v vulkaninfo)" ] && echo "Vulkan Instance Version|$(vulkaninfo 2>/dev/null | grep "Vulkan Instance" | cut -d " " -f 4-)"; 
     [ -x "$(command -v vulkaninfo)" ] && echo "NVIDIA Vulkan ICD Version|$(vulkaninfo 2>/dev/null | grep "apiVersion" | cut -d= -f2 | awk '{printf $2}' | tr -d '()')";
-) | column -s '|' -t --table-name "worker_information" --table-columns "Key,Value" -o "  "
+) | column -s '|' -t --table-name "worker_information" --table-columns "key,value" -o "  " --json
