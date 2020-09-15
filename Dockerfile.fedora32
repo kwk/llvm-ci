@@ -51,21 +51,6 @@ RUN useradd --create-home worker \
 COPY bin/* /home/worker/bin
 ENV PATH="/home/worker/bin:${PATH}" HOME=/home/worker
 RUN chmod +x /home/worker/bin/*
-USER 10001
-WORKDIR /home/worker
-
-# Needed for when you want to run the build locally
-ARG ci_container_image_ref
-ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
-
-# 9090 is supposed to be our health port
-EXPOSE \
-  9090/tcp
-
-# We check the health of the container by checking the
-# https://docs.docker.com/engine/reference/builder/#healthcheck)
-HEALTHCHECK --interval=5m --timeout=3s \
-  CMD curl -f http://0.0.0.0:9090/ || exit 1
 
 ################################################################################
 #
@@ -128,6 +113,22 @@ ENV BUILDBOT_CREATE_WORKER_OPTS="--numcpus=\$(nproc)"
 ENV BUILDBOT_INFO_ADMIN="Your Name <your@email.com>"
 
 ################################################################################
+
+# Needed for when you want to run the build locally
+ARG ci_container_image_ref
+ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
+
+USER 10001
+WORKDIR /home/worker
+
+# 9090 is supposed to be our health port
+EXPOSE \
+  9090/tcp
+
+# We check the health of the container by checking the
+# https://docs.docker.com/engine/reference/builder/#healthcheck)
+HEALTHCHECK --interval=5m --timeout=3s \
+  CMD curl -f http://0.0.0.0:9090/ || exit 1
 
 ENTRYPOINT [ "uid_entrypoint.sh" ]
 
