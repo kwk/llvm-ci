@@ -31,7 +31,7 @@ push-fedora-32-image:
 deploy:
 	echo -n "Logged in as "
 	oc whoami -c
-	oc delete pod llvm-ci-fedora-32-x8664-pod
+	oc delete pod --force=true --grace-period=1 llvm-ci-fedora-32-x8664-pod
 	sed 's|PLACE_IMAGE_HERE|${FEDORA_32_IMAGE_NAME}|g' yaml/pod-config.yaml.sample > ./out/pod-config.yaml
 	oc apply --dry-run=false --overwrite=true -f ./out/pod-config.yaml
 
