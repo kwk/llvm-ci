@@ -109,7 +109,7 @@ ENV BUILDBOT_MASTER="lab.llvm.org:9994"
 ENV BUILDBOT_BASEDIR="/home/worker/buildbot-basedir"
 
 # Options passed to buildbot-worker create-worker
-ENV BUILDBOT_CREATE_WORKER_OPTS="--numcpus=\$(nproc)"
+ENV BUILDBOT_CREATE_WORKER_OPTS=""
 
 ENV BUILDBOT_INFO_ADMIN="Your Name <your@email.com>"
 

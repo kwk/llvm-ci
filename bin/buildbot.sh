@@ -24,6 +24,8 @@ buildbot-worker create-worker \
     "${BUILDBOT_WORKER_NAME}" \
     "${BUILDBOT_WORKER_PASSWORD}"
 
+trap "tail ${BUILDBOT_WORKER_BASE_DIR}/twistd.log" EXIT
+
 # This command returns immediately
 buildbot-worker start "${BUILDBOT_WORKER_BASE_DIR}"
 
