@@ -12,7 +12,6 @@ gpgcheck        = 0\
 " > /etc/yum.repos.d/buildkite-agent.repo
 
 RUN dnf install -y --setopt=tsflags=nodocs \
-    buildbot-worker \
     buildkite-agent \
     ccache \
     clang \
@@ -99,6 +98,11 @@ ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
 #
 ################################################################################
 
+# For now, use old version of buildbot because of protocol incompatibility with
+# the buildbot master.
+# (See https://lists.llvm.org/pipermail/lldb-dev/2020-June/016296.html)
+RUN pip install --progress-bar=off buildbot-slave==0.8.11
+
 ENV BUILDBOT_WORKER_NAME="<REPLACE_ME>"
 ENV BUILDBOT_WORKER_PASSWORD="<YOUR_SECRET>"
 # 9994 = staging
@@ -111,7 +115,9 @@ ENV BUILDBOT_BASEDIR="/home/worker/buildbot-basedir"
 # Options passed to buildbot-worker create-worker
 ENV BUILDBOT_CREATE_WORKER_OPTS=""
 
-ENV BUILDBOT_INFO_ADMIN="Your Name <your@email.com>"
+# Will be visible from the build status page. So you may wish to munge it a bit
+# if address-harvesting spambots are a concern.
+ENV BUILDBOT_INFO_ADMIN="Your Name <yourname at email dot com>"
 
 ################################################################################
 
