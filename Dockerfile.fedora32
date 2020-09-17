@@ -107,11 +107,15 @@ ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
 # (See https://lists.llvm.org/pipermail/lldb-dev/2020-June/016296.html)
 # TODO(kwk): Once migrated to buildbot 2, you should install the buildbot-worker package and get rid of this:
 USER 10001
-RUN cd ~/ \
-    && curl -L https://github.com/buildbot/buildbot/archive/v0.8.5.tar.gz | tar xzf - \
-    && cd buildbot-0.8.5/slave \
-    && export PYTHONPATH=\$HOME/lib/python2.7/site-packages;python2 \
-    && ./setup.py install --prefix=\$HOME
+WORKDIR /home/worker
+RUN curl -L -s https://github.com/buildbot/buildbot/archive/v0.8.5.tar.gz -o v0.8.5.tar.gz
+RUN echo "80d287a40b9287aa20e82fbcb63fe047e73b041e  v0.8.5.tar.gz" > v0.8.5.tar.gz.sha256
+RUN sha256sum --check v0.8.5.tar.gz.sha256
+RUN tar xzf v0.8.5.tar.gz 
+RUN cd buildbot-0.8.5/slave 
+RUN export PYTHONPATH=/home/worker/lib/python2.7/site-packages
+RUN python2 ./setup.py install --prefix=/home/worker 
+RUN rm -f v0.8.5.tar.gz*
 
 ENV BUILDBOT_WORKER_NAME="<REPLACE_ME>"
 ENV BUILDBOT_WORKER_PASSWORD="<YOUR_SECRET>"
