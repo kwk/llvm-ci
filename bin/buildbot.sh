@@ -17,12 +17,23 @@ echo ${BUILDBOT_INFO_ADMIN} > "${BUILDBOT_WORKER_INFO_DIR}/admin"
 
 worker-info.sh --json | tee ${BUILDBOT_WORKER_INFO_DIR}/host
 
-buildbot-worker create-worker \
+~/bin/buildslave create-slave \
     ${BUILDBOT_CREATE_WORKER_OPTS} \
     "${BUILDBOT_WORKER_BASE_DIR}" \
-    "${BUILDBOT_MASTER}" \
+    "${BUILDBOT_MASTER}"  \
     "${BUILDBOT_WORKER_NAME}" \
     "${BUILDBOT_WORKER_PASSWORD}"
+
+# TODO(kwk): Don't know if that could be useful
+# ulimit -S -n 2048
+
+# TODO(kwk): Once migrated to buildbot 2, this could be used instead
+# buildbot-worker create-worker \
+#     ${BUILDBOT_CREATE_WORKER_OPTS} \
+#     "${BUILDBOT_WORKER_BASE_DIR}" \
+#     "${BUILDBOT_MASTER}" \
+#     "${BUILDBOT_WORKER_NAME}" \
+#     "${BUILDBOT_WORKER_PASSWORD}"
 
 trap "tail ${BUILDBOT_WORKER_BASE_DIR}/twistd.log" EXIT
 

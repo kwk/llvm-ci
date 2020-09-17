@@ -30,6 +30,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     make \
     ncurses-devel \
     ninja-build \
+    python27 \
     python3-psutil \
     python3 \
     python3-devel \
@@ -39,6 +40,9 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     xz-devel \
     zip \
    && yum clean all
+
+# TODO(kwk): Once buildbot on LLVM master is using version 2 we can get rid of
+#            the python27 package.
 
 ARG ci_git_revision=master
 ENV CI_GIT_REVISION=${ci_git_revision}
@@ -101,7 +105,13 @@ ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
 # For now, use old version of buildbot because of protocol incompatibility with
 # the buildbot master.
 # (See https://lists.llvm.org/pipermail/lldb-dev/2020-June/016296.html)
-RUN pip install --progress-bar=off buildbot-slave==0.8.11
+# TODO(kwk): Once migrated to buildbot 2, you should install the buildbot-worker package and get rid of this:
+USER 10001
+RUN cd ~/ \
+    && curl -L https://github.com/buildbot/buildbot/archive/v0.8.5.tar.gz | tar xzf - \
+    && cd buildbot-0.8.5/slave \
+    && export PYTHONPATH=\$HOME/lib/python2.7/site-packages;python2 \
+    && ./setup.py install --prefix=\$HOME
 
 ENV BUILDBOT_WORKER_NAME="<REPLACE_ME>"
 ENV BUILDBOT_WORKER_PASSWORD="<YOUR_SECRET>"
