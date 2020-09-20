@@ -17,12 +17,14 @@ echo ${BUILDBOT_INFO_ADMIN} > "${BUILDBOT_WORKER_INFO_DIR}/admin"
 
 worker-info.sh --json | tee ${BUILDBOT_WORKER_INFO_DIR}/host
 
-~/bin/buildslave create-slave \
+# set +x
+buildslave create-slave \
     ${BUILDBOT_CREATE_WORKER_OPTS} \
     "${BUILDBOT_WORKER_BASE_DIR}" \
     "${BUILDBOT_MASTER}"  \
     "${BUILDBOT_WORKER_NAME}" \
     "${BUILDBOT_WORKER_PASSWORD}"
+# set -x
 
 # TODO(kwk): Don't know if that could be useful
 # ulimit -S -n 2048
@@ -35,10 +37,8 @@ worker-info.sh --json | tee ${BUILDBOT_WORKER_INFO_DIR}/host
 #     "${BUILDBOT_WORKER_NAME}" \
 #     "${BUILDBOT_WORKER_PASSWORD}"
 
-trap "tail ${BUILDBOT_WORKER_BASE_DIR}/twistd.log" EXIT
-
 # This command returns immediately
-buildbot-worker start "${BUILDBOT_WORKER_BASE_DIR}"
+buildslave start "${BUILDBOT_WORKER_BASE_DIR}" || (tail ${BUILDBOT_WORKER_BASE_DIR}/twistd.log && exit 1)
 
 echo "Following worker log..."
 tail -f ${BUILDBOT_WORKER_BASE_DIR}/twistd.log
