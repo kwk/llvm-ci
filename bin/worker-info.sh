@@ -26,7 +26,8 @@
     [ -x "$(command -v lldb)" ] && echo "lldb_version|$(lldb --version | head -n1)";
     
     # CI tools
-    [ -x "$(command -v buildbot-worker)" ] && echo "buildbot_version|$(buildbot-worker --version | head -n1 | tr -c -d '[0-9.]')";
+    [ -x "$(command -v buildbot-worker)" ] && echo "buildbot_worker_version|$(buildbot-worker --version | head -n1 | tr -c -d '[0-9.]')";
+    [ -x "$(command -v buildslave)" ] && echo "buildslave_version|$(buildslave --version | head -n1 | tr -c -d '[0-9.]')";
     [ -x "$(command -v buildkite-agent)" ] && echo "buildkite_agent_version|$(buildkite-agent --version | head -n1)";
     
     # Linkers
