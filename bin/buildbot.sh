@@ -17,6 +17,8 @@ echo ${BUILDBOT_INFO_ADMIN} > "${BUILDBOT_WORKER_INFO_DIR}/admin"
 
 worker-info.sh --json | tee ${BUILDBOT_WORKER_INFO_DIR}/host
 
+[[ "${BUILDBOT_ACCESS_URI}" != "" ]] && (echo ${BUILDBOT_ACCESS_URI} | tee ${BUILDBOT_WORKER_INFO_DIR}/access_uri)
+
 # set +x
 buildslave create-slave \
     ${BUILDBOT_CREATE_WORKER_OPTS} \

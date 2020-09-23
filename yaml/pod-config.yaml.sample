@@ -87,6 +87,8 @@ spec:
           value: "fedora-llvm-x86_64"
         - name: BUILDBOT_INFO_ADMIN
           value: "Konrad Kleine <kkleine AT redhat DOT com>"
+        - name: BUILDBOT_ACCESS_URI
+          value: https://console-openshift-console.apps.ocp.prod.psi.redhat.com/k8s/ns/llvm-pre-merge/pods/llvm-ci-fedora-32-x8664-pod
         - name: BUILDBOT_WORKER_PASSWORD
           valueFrom:
             secretKeyRef:

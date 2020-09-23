@@ -164,6 +164,8 @@ ENV BUILDBOT_CREATE_WORKER_OPTS=""
 # if address-harvesting spambots are a concern.
 ENV BUILDBOT_INFO_ADMIN="Your Name <yourname at email dot com>"
 
+ENV BUILDBOT_ACCESS_URI=""
+
 ################################################################################
 
 COPY bin/* /home/worker/bin
