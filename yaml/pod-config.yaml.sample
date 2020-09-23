@@ -45,6 +45,9 @@ spec:
       ports:
         - containerPort: 9090
       env:
+        ########################################################################
+        # BUILDKITE SPECIFICS
+        ########################################################################
         # Google builds with these settings:
         # cmake ../llvm -D LLVM_ENABLE_PROJECTS="clang;compiler-rt;llvm" -G Ninja -D CMAKE_BUILD_TYPE=Release -D LLVM_ENABLE_ASSERTIONS=ON -D LLVM_BUILD_EXAMPLES=ON -D LLVM_LIT_ARGS="-v --xunit-xml-output test-results.xml" -D LLVM_ENABLE_LLD=ON -D CMAKE_CXX_FLAGS=-gmlt -D LLVM_CCACHE_BUILD=ON -D LLVM_CCACHE_DIR=/mnt/disks/ssd0/agent/ccache -D LLVM_CCACHE_MAXSIZE=20G
         # See: https://github.com/google/llvm-premerge-checks/blob/dc1080fc4ce21f12a8015090683884c540680f3f/scripts/run_cmake_config.yaml#L5-L9
@@ -55,6 +58,11 @@ spec:
           value: "gcc"
         - name: MY_CMAKE_DEFINES
           value: "-G 'Ninja' -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On -DLLVM_BUILD_EXAMPLES=On -DLLVM_LIT_ARGS='-v --xunit-xml-output test-results.xml' -DLLVM_CCACHE_BUILD=On -DLLVM_CCACHE_DIR=/ccache -DLLVM_CCACHE_MAXSIZE=20G -DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DLLVM_BUILD_LLVM_DYLIB=On -DLLVM_LINK_LLVM_DYLIB=On -DCLANG_LINK_CLANG_DYLIB=On -DBUILD_SHARED_LIBS=Off -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;lld;mlir'"
+        - name: BUILDKITE_AGENT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: buildkite-agent-token
+              key: WebHookSecretKey
           # BUILD_SHARED_LIBS is a dev-only setting
            # TODO(kwk): re-enable lldb
 
@@ -68,11 +76,21 @@ spec:
         #   value: "ldd" # TODO(kwk): Are we cool with this?
         #                # This helps us not to allocate too much memory.
         
-
-        - name: BUILDKITE_AGENT_TOKEN
+        ########################################################################
+        # BUILDBOT SPECIFICS
+        #
+        # NOTE: The whole CMake configuration is done in the llvm-zorg reporitory.
+        #       Here's a commit which adds my first builder and slave/worker:
+        # https://github.com/llvm/llvm-zorg/commit/d5933da06ce30de8cfec8ea57f8ecce0d094cb9c
+        ########################################################################
+        - name: BUILDBOT_WORKER_NAME
+          value: "fedora-llvm-x86_64"
+        - name: BUILDBOT_INFO_ADMIN
+          value: "Konrad Kleine <kkleine AT redhat DOT com>"
+        - name: BUILDBOT_WORKER_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: buildkite-agent-token
+              name: buildbot-worker-password
               key: WebHookSecretKey
       # volumeMounts:
       # - mountPath: /ccache
