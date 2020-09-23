@@ -12,6 +12,7 @@ spec:
   containers:
     - name: llvm-ci-fedora-32-x8664-container
       image: PLACE_IMAGE_HERE
+      command: ["buildbot.sh"] # buildbot.sh or buildkite.sh depending on your usage
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       # QoS Tier:
       #   # A Guaranteed CPU container is guaranteed to get the amount requested
