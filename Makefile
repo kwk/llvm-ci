@@ -36,10 +36,7 @@ deploy-secrets:
 
 .PHONY: deploy
 deploy: deploy-secrets
-	echo -n "Logged in as "
-	kubectl whoami -c
 	-kubectl delete pod --force=true --grace-period=0 llvm-ci-fedora-32-x8664-pod
-
 	sed 's|PLACE_IMAGE_HERE|${FEDORA_32_IMAGE_NAME}|g' kubernetes/pod-config.yaml.sample > ./out/pod-config.yaml
 	kubectl apply --dry-run=false --overwrite=true -f ./out/pod-config.yaml
 
