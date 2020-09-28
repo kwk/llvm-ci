@@ -9,4 +9,5 @@ set -o pipefail
 
 BUILDKITE_AGENT_TOKEN=$(cat /buildkite-secret-volume/buildkite-agent-token)
 
-/usr/bin/buildkite-agent start --token ${BUILDKITE_AGENT_TOKEN}
+/usr/bin/buildkite-agent start \
+    --token ${BUILDKITE_AGENT_TOKEN}

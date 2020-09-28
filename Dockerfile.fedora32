@@ -67,12 +67,15 @@ RUN chgrp -R 0 /etc/buildkite-agent /var/lib/buildkite-agent && \
 # ATTENTION: "USER" WILL BE IGNORED BY OPENSHIFT (see above)
 # USER buildkite-agent
 
+ENV BUILDKITE_BUILD_PATH=/home/worker/buildkite/builds
+RUN mkdir -p ${BUILDKITE_BUILD_PATH}
+
 # This allows you to split the build cache and the builds itself into different
 # volumes.
-RUN mkdir -p /var/lib/buildkite-agent/builds /ccache \
-    && chgrp -R 0 /var/lib/buildkite-agent/builds /ccache \
-    && chmod -R g=u /var/lib/buildkite-agent/builds /ccache
-VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
+RUN mkdir -p ${BUILDKITE_BUILD_PATH} /ccache \
+    && chgrp -R 0 ${BUILDKITE_BUILD_PATH} /ccache \
+    && chmod -R g=u ${BUILDKITE_BUILD_PATH} /ccache
+VOLUME ["${BUILDKITE_BUILD_PATH}", "/ccache"]
 
 # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
 ENV BUILDKITE_AGENT_TAGS="ci_git_revision=${CI_GIT_REVISION}"
@@ -145,8 +148,6 @@ RUN cd /home/worker \
 #      && rm -rfv /home/worker/zope*
 
 ENV PYTHONPATH="/home/worker/lib/python2.7/site-packages:/home/worker/lib64/python2.7/site-packages:\$PYTHONPATH"
-
-ENV BUILDBOT_WORKER_NAME="<REPLACE_ME>"
 
 # 9994 = staging
 # 9990 = production
