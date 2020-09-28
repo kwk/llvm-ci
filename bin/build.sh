@@ -15,10 +15,8 @@ rm -f ${REPRODUCER_SCRIPT}
 touch ${REPRODUCER_SCRIPT}
 chmod +x ${REPRODUCER_SCRIPT}
 
-ENV_SETTINGS=$(declare -p \
-    | grep -v "BUILDKITE_AGENT_ACCESS_TOKEN"\
-    | grep -v "BUILDBOT_WORKER_PASSWORD" \
-    | grep -v --regexp="^declare -[^ ]*r")
+# Save the current environment for reproduction later and comment out all read-only variables.
+ENV_SETTINGS=$(declare -p | sed 's/^declare -\([^ ]\)r/#READONLY declare -\1r/g')
 
 cat >> ${REPRODUCER_SCRIPT} <<EOL
 #!/bin/bash

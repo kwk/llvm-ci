@@ -89,19 +89,26 @@ spec:
           value: "Konrad Kleine <kkleine AT redhat DOT com>"
         - name: BUILDBOT_ACCESS_URI
           value: https://console-openshift-console.apps.ocp.prod.psi.redhat.com/k8s/ns/llvm-pre-merge/pods/llvm-ci-fedora-32-x8664-pod
-        - name: BUILDBOT_WORKER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: buildbot-worker-password
-              key: WebHookSecretKey
-      # volumeMounts:
-      # - mountPath: /ccache
-      #   name: cache-volume
-      # - mountPath: /var/lib/buildkite-agent/builds
-      #   name: pvol
-  # volumes:
-  # - name: cache-volume
-  #   emptyDir: {}
-  # - name: pvol
-  #   persistentVolumeClaim:
-  #     claimName: llvm-storage-claim
+      volumeMounts:
+        - name: buildbot-secret-volume
+          mountPath: /buildbot-secret-volume
+          readOnly: true
+        - name: buildkite-secret-volume
+          mountPath: /buildkite-secret-volume
+          readOnly: true
+        # - mountPath: /ccache
+        #   name: cache-volume
+        # - mountPath: /var/lib/buildkite-agent/builds
+        #   name: pvol
+  volumes:
+    - name: buildbot-secret-volume
+      secret:
+        secretName: buildbot-secret
+    - name: buildkite-secret-volume
+      secret:
+        secretName: buildkite-secret
+    # - name: cache-volume
+    #   emptyDir: {}
+    # - name: pvol
+    #   persistentVolumeClaim:
+    #     claimName: llvm-storage-claim

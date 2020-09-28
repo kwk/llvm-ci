@@ -2,3 +2,7 @@ out/*
 info/*
 artifacts/*
 buildbot.tac
+
+# Let's not version the actual credentials
+kubernetes/buildbot-secret.yaml
+kubernetes/buildkite-secret.yaml

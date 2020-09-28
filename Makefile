@@ -27,11 +27,20 @@ push-fedora-32-image:
 	@echo Pushing image ${FEDORA_32_IMAGE_NAME}
 	podman push ${FEDORA_32_IMAGE_NAME}
 
+.PHONY: deploy-secrets
+deploy-secrets:
+	-kubectl delete secret --force=true --grace-period=0 buildkite-secret
+	-kubectl delete secret --force=true --grace-period=0 buildbot-secret
+	kubectl apply --dry-run=false --overwrite=true -f ./kubernetes/buildkite-secret.yaml
+	kubectl apply --dry-run=false --overwrite=true -f ./kubernetes/buildbot-secret.yaml
+
 .PHONY: deploy
-deploy:
+deploy: deploy-secrets
 	echo -n "Logged in as "
-	oc whoami -c
-	-oc delete pod --force=true --grace-period=0 llvm-ci-fedora-32-x8664-pod
-	sed 's|PLACE_IMAGE_HERE|${FEDORA_32_IMAGE_NAME}|g' yaml/pod-config.yaml.sample > ./out/pod-config.yaml
-	oc apply --dry-run=false --overwrite=true -f ./out/pod-config.yaml
+	kubectl whoami -c
+	-kubectl delete pod --force=true --grace-period=0 llvm-ci-fedora-32-x8664-pod
+
+	sed 's|PLACE_IMAGE_HERE|${FEDORA_32_IMAGE_NAME}|g' kubernetes/pod-config.yaml.sample > ./out/pod-config.yaml
+	kubectl apply --dry-run=false --overwrite=true -f ./out/pod-config.yaml
+
 

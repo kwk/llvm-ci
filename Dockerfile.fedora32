@@ -74,9 +74,6 @@ RUN mkdir -p /var/lib/buildkite-agent/builds /ccache \
     && chmod -R g=u /var/lib/buildkite-agent/builds /ccache
 VOLUME ["/var/lib/buildkite-agent/builds", "/ccache"]
 
-# This is the secret you should set from outside
-ENV BUILDKITE_AGENT_TOKEN="<REPLACE_ME>"
-
 # Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
 ENV BUILDKITE_AGENT_TAGS="ci_git_revision=${CI_GIT_REVISION}"
 
@@ -118,7 +115,8 @@ ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
 RUN cd /home/worker \
     && curl -L -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python2 get-pip.py \
-    && pip2 install buildbot-slave==0.8.5
+    && pip2 install buildbot-slave==0.8.5 \
+    && rm -f get-pip.py
 
 # ENV BUILDBOT_VERSION=0.8.11
 # RUN cd /home/worker \
@@ -149,7 +147,7 @@ RUN cd /home/worker \
 ENV PYTHONPATH="/home/worker/lib/python2.7/site-packages:/home/worker/lib64/python2.7/site-packages:\$PYTHONPATH"
 
 ENV BUILDBOT_WORKER_NAME="<REPLACE_ME>"
-ENV BUILDBOT_WORKER_PASSWORD="<YOUR_SECRET>"
+
 # 9994 = staging
 # 9990 = production
 ENV BUILDBOT_MASTER="lab.llvm.org:9994"
@@ -178,6 +176,10 @@ ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
 
 USER 10001
 WORKDIR /home/worker
+
+# Volumes to mount secrets into the container
+VOLUME /buildbot-secret-volume
+VOLUME /buildkite-secret-volume
 
 # 9090 is supposed to be our health port
 EXPOSE \
