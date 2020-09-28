@@ -93,7 +93,9 @@ spec:
           readOnly: true
         # - mountPath: /ccache
         #   name: cache-volume
-        # - mountPath: /var/lib/buildkite-agent/builds
+        # - mountPath: /home/worker/buildkite/builds
+        #   name: pvol
+        # - mountPath: /home/worker/buildbot
         #   name: pvol
   volumes:
     - name: buildbot-secret-volume
