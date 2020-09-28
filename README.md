@@ -1,5 +1,3 @@
-![Container Image CI](https://github.com/kwk/llvm-ci/workflows/Container%20Image%20CI/badge.svg)
-
 # Welcome
 
 to an interesting approach to testing LLVM.
