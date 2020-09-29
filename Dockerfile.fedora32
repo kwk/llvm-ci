@@ -122,36 +122,9 @@ RUN cd /home/worker \
     && pip2 install buildbot-slave==0.8.5 \
     && rm -f get-pip.py
 
-# Alternatively:
-#
-# ENV BUILDBOT_VERSION=0.8.11
-# RUN cd /home/worker \
-#     && curl -L -s https://github.com/buildbot/buildbot/archive/v${BUILDBOT_VERSION}.tar.gz -o buildbot.tar.gz \
-#      && echo "f7b9a3b13fa26b6f5268930906fafa3bd5b72978bf7f0032869d1fddee487e55  buildbot.tar.gz" > buildbot.tar.gz.sha256 \
-#      && sha256sum --check buildbot.tar.gz.sha256 \
-#      && tar xzf buildbot.tar.gz \
-#      && cd buildbot-${BUILDBOT_VERSION}/slave \
-#      && python2 ./setup.py install --prefix=/home/worker  \
-#      && rm -rfv /home/worker/buildbot.tar.gz* /home/worker/buildbot-${BUILDBOT_VERSION} \
-#     && cd /home/worker \
-#     && curl -L -s https://github.com/twisted/twisted/archive/twisted-12.1.0.tar.gz -o twisted-12.1.0.tar.gz \
-#      && echo "9547d7343df120e6f9f87a264a78c7889ae5b6eeebf086d211d46427059264e6  twisted-12.1.0.tar.gz" > twisted-12.1.0.tar.gz.sha256 \
-#      && sha256sum --check twisted-12.1.0.tar.gz.sha256 \
-#      && tar xzf twisted-12.1.0.tar.gz \
-#      && cd twisted-twisted-12.1.0 \
-#      && python2 ./setup.py install --prefix=/home/worker \
-#      && rm -rfv /home/worker/twisted-12.1.0.tar.gz* /home/worker/twisted-twisted-12.1.0 \
-#     && cd /home/worker \
-#     && curl -L -s https://github.com/zopefoundation/zope.interface/archive/3.6.8.tar.gz -o zope.tar.gz \
-#      && echo "9a8048aef646817952f8e48b225d4b270e632952a44193df3910cb2546f02f2f  zope.tar.gz" > zope.tar.gz.sha256 \
-#      && sha256sum --check zope.tar.gz.sha256 \
-#      && tar xzf zope.tar.gz \
-#      && cd zope.interface-3.6.8 \
-#      && python2 ./setup.py install --prefix=/home/worker \
-#      && rm -rfv /home/worker/zope*
-
 ENV PYTHONPATH="/home/worker/lib/python2.7/site-packages:/home/worker/lib64/python2.7/site-packages:\$PYTHONPATH"
 
+# Port choices
 # 9994 = staging
 # 9990 = production
 ENV BUILDBOT_MASTER="lab.llvm.org:9994"
@@ -187,7 +160,7 @@ WORKDIR /home/worker
 VOLUME /buildbot-secret-volume
 VOLUME /buildkite-secret-volume
 
-# 9090 is supposed to be our health port
+# 9090 is supposed to be our health port for buildkite
 EXPOSE \
   9090/tcp
 
