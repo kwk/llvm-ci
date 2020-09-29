@@ -21,6 +21,7 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     gcc \
     gdb \
     git \
+    glibc-all-langpacks \
     golang \
     jq \
     libatomic \
