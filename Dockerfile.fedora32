@@ -177,6 +177,8 @@ RUN chmod +x /home/worker/bin/*
 ARG ci_container_image_ref
 ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
 
+RUN dnf debuginfo-install -y libgcc-10.2.1-1.fc32.x86_64 glibc-2.31-2.fc32.x86_64 
+
 USER 10001
 WORKDIR /home/worker
 
@@ -195,5 +197,7 @@ HEALTHCHECK --interval=5m --timeout=3s \
 
 ENTRYPOINT [ "uid_entrypoint.sh" ]
 
-CMD [ "buildkite.sh" ]
+CMD [ "buildbot.sh" ]
+
+
 
