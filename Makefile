@@ -12,10 +12,15 @@ endif
 ARCH=$(shell arch)
 FEDORA_32_IMAGE_NAME := quay.io/kkleine/llvm-ci:fedora-32-$(ARCH)-$(CI_GIT_COMMIT_ID)
 
+# Find out which container tool to use (currently only podman and docker are supported)
+DOCKER_BIN := $(shell command -v docker 2> /dev/null)
+PODMAN_BIN := $(shell command -v podman 2> /dev/null)
+CONTAINER_TOOL := $(shell [[ -z "$(PODMAN_BIN)" ]] && echo $(DOCKER_BIN) || echo $(PODMAN_BIN))
+
 .PHONY: fedora-32-image
 fedora-32-image: Dockerfile.fedora32
 	@echo Building image ${FEDORA_32_IMAGE_NAME}
-	podman build \
+	$(CONTAINER_TOOL) build \
 		--build-arg ci_git_revision=$(CI_GIT_COMMIT_ID) \
 		--build-arg ci_container_image_ref=${FEDORA_32_IMAGE_NAME} \
 		. \
@@ -25,7 +30,7 @@ fedora-32-image: Dockerfile.fedora32
 .PHONY: push-fedora-32-image
 push-fedora-32-image:
 	@echo Pushing image ${FEDORA_32_IMAGE_NAME}
-	podman push ${FEDORA_32_IMAGE_NAME}
+	$(CONTAINER_TOOL) push ${FEDORA_32_IMAGE_NAME}
 
 .PHONY: deploy-secrets
 deploy-secrets:
