@@ -1,4 +1,4 @@
-FROM fedora:32
+FROM fedora:33
 
 ENV LANG=en_US.utf8
 
@@ -11,8 +11,9 @@ priority        = 1 \n\
 gpgcheck        = 0\
 " > /etc/yum.repos.d/buildkite-agent.repo
 
-RUN dnf install -y --setopt=tsflags=nodocs \
+RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     buildkite-agent \
+    buildbot-worker \
     ccache \
     clang \
     cmake \
@@ -23,15 +24,15 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     git \
     glibc-all-langpacks \
     golang \
-    jq \
+    lld \
     libatomic \
     libedit-devel \
     libstdc++-static \
     libxml2-devel \
     make \
+    nano \
     ncurses-devel \
     ninja-build \
-    python27 \
     python3-psutil \
     python3 \
     python3-devel \
@@ -41,12 +42,6 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     xz-devel \
     zip \
    && yum clean all
-
-# TODO(kwk): Once buildbot on LLVM master is using version 2 we can get rid of
-#            the python27 package.
-
-ARG ci_git_revision=master
-ENV CI_GIT_REVISION=${ci_git_revision}
 
 # See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
 RUN useradd --create-home worker \
@@ -75,11 +70,10 @@ RUN mkdir -p ${BUILDKITE_BUILD_PATH}
 # volumes.
 RUN mkdir -p ${BUILDKITE_BUILD_PATH} /ccache \
     && chgrp -R 0 ${BUILDKITE_BUILD_PATH} /ccache \
-    && chmod -R g=u ${BUILDKITE_BUILD_PATH} /ccache
+    && chmod -R g=u ${BUILDKITE_BUILD_PATH} /ccache /etc/passwd
 VOLUME ["${BUILDKITE_BUILD_PATH}", "/ccache"]
 
-# Adapt this to whatever docker base image this builds on and what settings you have configured LLVM with
-ENV BUILDKITE_AGENT_TAGS="ci_git_revision=${CI_GIT_REVISION}"
+ENV BUILDKITE_AGENT_TAGS=""
 
 # Ensure we only download the latest version and not more
 ENV BUILDKITE_GIT_CLONE_FLAGS="-v --depth=1"
@@ -98,31 +92,6 @@ ENV BUILDKITE_AGENT_HEALTH_CHECK_ADDR="0.0.0.0:9090"
 #       BUILDBOT SPECIFICS
 #
 ################################################################################
-
-# For now, use old version of buildbot because of protocol incompatibility with
-# the buildbot master.
-# (See https://lists.llvm.org/pipermail/lldb-dev/2020-June/016296.html)
-# TODO(kwk): Once migrated to buildbot 2, you should install the buildbot-worker package and get rid of this:
-# USER 10001
-# WORKDIR /home/worker
-
-# Install pip for Python2
-
-# WARNING:
-# --------
-# DEPRECATION: Python 2.7 reached the end of its life on January 1st, 2020.
-# Please upgrade your Python as Python 2.7 is no longer maintained. pip 21.0
-# will drop support for Python 2.7 in January 2021. More details about Python 2
-# support in pip can be found at https://pip.pypa.io/en/latest/development/release-process/#python-2-support
-# pip 21.0 will remove support for this functionality.
-
-RUN cd /home/worker \
-    && curl -L -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
-    && python2 get-pip.py \
-    && pip2 install buildbot-slave==0.8.5 \
-    && rm -f get-pip.py
-
-ENV PYTHONPATH="/home/worker/lib/python2.7/site-packages:/home/worker/lib64/python2.7/site-packages:\$PYTHONPATH"
 
 # Port choices
 # 9994 = staging
@@ -147,17 +116,8 @@ COPY bin/* /home/worker/bin
 ENV PATH="/home/worker/bin:${PATH}" HOME=/home/worker
 RUN chmod +x /home/worker/bin/*
 
-# Needed for when you want to run the build locally
-ARG ci_container_image_ref
-ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
-
-RUN dnf debuginfo-install -y libgcc-10.2.1-1.fc32.x86_64 glibc-2.31-2.fc32.x86_64 
-
-USER 10001
-WORKDIR /home/worker
-
 # Volumes to mount secrets into the container
-VOLUME /buildbot-secret-volume
+VOLUME /buildbot-worker-secret-volume
 VOLUME /buildkite-secret-volume
 
 # 9090 is supposed to be our health port for buildkite
@@ -169,9 +129,34 @@ EXPOSE \
 HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl -f http://0.0.0.0:9090/ || exit 1
 
+USER 10001
+WORKDIR /home/worker
+
+ARG ci_git_revision=master
+ENV CI_GIT_REVISION=${ci_git_revision}
+
+# Needed for when you want to run the build locally
+ARG ci_container_image_ref
+ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
+
+LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
+# Build-time metadata as defined at http://label-schema.org
+ARG build_date
+LABEL org.label-schema.build-date=$build_date \
+      org.label-schema.name="LLVM CI" \
+      org.label-schema.description="A container for running LLVM CI bots (e.g. buildbot or buildkite) jobs" \
+      org.label-schema.url="https://github.com/kwk/llvm-ci" \
+      org.label-schema.vcs-ref=$ci_container_image_ref \
+      org.label-schema.vcs-url="https://github.com/kwk/llvm-ci" \
+      org.label-schema.version=$ci_container_image_ref \
+      org.label-schema.schema-version="1.0" \
+      org.label-schema.docker.cmd="docker run -it --rm --env YOURBUILDBOTCONFIG -v -v BUILDBOTSECRET:/buildbot-secret-volume $ci_container_image_ref buildbot.sh" \
+      org.label-schema.docker.debug="docker exec -it $CONTAINER bash" \
+      org.label-schema.docker.params="BUILDBOT_MASTER=URL to buildbot master (e.g. lab.llvm.org:9994)"
+
 ENTRYPOINT [ "uid_entrypoint.sh" ]
 
-CMD [ "buildbot.sh" ]
+CMD [ "buildbot-worker.sh" ]
 
 
 

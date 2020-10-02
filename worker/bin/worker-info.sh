@@ -32,12 +32,13 @@
     
     # Linkers
     echo "ld_version|$(ld --version | head -n1)";
-    [ -x "$(command -v lld)" ] && echo "ldd_version|$(ldd --version | head -n1)";
+    [ -x "$(command -v ld.lld)" ] && echo "ldd_version|$(ld.lld --version | head -n1)";
     [ -x "$(command -v ld.gold)" ] && echo "gold_version|$(ld.gold --version | head -n1)";
     
     # Python
-    echo "python_version|$(python --version | tr -d '[:alpha:][:blank:]')";
-    echo "pip_version|$(pip --version)";
+    [ -x "$(command -v python)" ] && echo "python_version|$(python --version | tr -d '[:alpha:][:blank:]')";
+    [ -x "$(command -v pip)" ] && echo "pip_version|$(pip --version)";
+    [ -x "$(command -v swig)" ] && echo "swig_version|$(swig -version | head -n2 | tr -d \"\n\")";
     
     # Configure/CMake
     [ -x "$(command -v autoconf)" ] && echo "autoconf_version|$(autoconf --version | head -n1 | tr -c -d '[0-9.]')";

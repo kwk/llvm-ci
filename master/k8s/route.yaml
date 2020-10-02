@@ -1,0 +1,11 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: master-route
+spec:
+  path: /
+  to:
+    kind: Service
+    name: master-service
+  port:
+    targetPort: 8010

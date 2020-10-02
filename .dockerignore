@@ -1,5 +1,6 @@
 README.md
-yaml/**
+worker/k8s/**
+master/k8s/**
 Makefile
 
 

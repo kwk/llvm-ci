@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: master-pod
+  labels:
+    os: "fedora"
+    os_version: "33"
+    arch: "x86_64"
+    buildbot: "master"
+    # Add your own key-value pairs
+spec:
+  containers:
+    - name: master-container
+      image: "${BUILDBOT_MASTER_IMAGE}"
+      command: ["master.sh"]
+      resources:
+        requests:
+          memory: "8Gi"
+          cpu: "16000m"
+        limits:
+          memory: "32Gi" # e.g. 64 Gigabytes = 64 Gi
+          cpu: "16000m" # e.g. 32 cores = 32000m
+      volumeMounts:
+        - name: master-secret-volume
+          mountPath: /master-secret-volume
+          readOnly: true
+      env:
+        - name: BUILDBOT_WWW_URL
+          value: "${BUILDBOT_WWW_URL}"
+  volumes:
+    - name: master-secret-volume
+      secret:
+        secretName: master-secret
