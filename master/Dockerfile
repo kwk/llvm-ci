@@ -35,21 +35,10 @@ ARG ci_container_image_ref
 ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
 
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
-# Build-time metadata as defined at http://label-schema.org
-ARG build_date
-LABEL org.label-schema.build-date=$build_date \
-      org.label-schema.name="Buildbot master" \
-      org.label-schema.description="A container for running a buildbot master" \
-      org.label-schema.url="https://github.com/kwk/llvm-ci" \
-      org.label-schema.vcs-ref=$ci_container_image_ref \
-      org.label-schema.vcs-url="https://github.com/kwk/llvm-ci" \
-      org.label-schema.version=$ci_container_image_ref \
-      org.label-schema.schema-version="1.0"
 
 ENV BUILDBOT_MASTER_PORT=9989
 ENV BUILDBOT_WWW_PORT=8010
-ENV BUILDBOT_MASTER_TITLE="My Buildbot CI"
-
+ENV BUILDBOT_MASTER_TITLE="Buildbot on PSI"
 
 ENTRYPOINT [ "uid_entrypoint.sh" ]
 
