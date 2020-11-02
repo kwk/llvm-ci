@@ -38,16 +38,21 @@ run-local-master: master-image
 delete-master-deployment:
 	-kubectl delete pod,service,route,secret -l app=buildbot-master
 
+.PHONY: deploy-master-misc
+## Creates the master secret, service, and route on a Kubernetes cluster 
+deploy-master-misc:
+	kubectl apply -f ./master/k8s/secret.yaml
+	kubectl apply -f ./master/k8s/service.yaml
+	kubectl apply -f ./master/k8s/route.yaml
+
 .PHONY: deploy-master
 ## Deletes and recreates the buildbot master container image as a pod on a Kubernetes cluster.
 ## Once completed, the master UI will be opened in a browser. Refresh the webpage if
 ## it doesn't work immediately. It might be that the cluster isn't ready yet.
-deploy-master: delete-master-deployment
-	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/secret.yaml
-	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/service.yaml
-	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/route.yaml
+deploy-master: delete-master-deployment deploy-master-misc
+	kubectl get route master-route -o json | jq -j '"http://"+.spec.host+.spec.path'
 	export BUILDBOT_MASTER_IMAGE=$(BUILDBOT_MASTER_IMAGE) \
 	&& export BUILDBOT_WWW_URL="$(shell kubectl get route master-route -o json | jq -j '"http://"+.spec.host+.spec.path')" \
 	&& envsubst '$${BUILDBOT_MASTER_IMAGE} $${BUILDBOT_WWW_URL}' < ./master/k8s/pod.yaml > ./out/master-pod.yaml \
-	&& kubectl apply --dry-run=false --overwrite=true -f ./out/master-pod.yaml \
+	&& kubectl apply -f ./out/master-pod.yaml \
 	&& xdg-open $${BUILDBOT_WWW_URL}
