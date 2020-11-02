@@ -1,4 +1,4 @@
-BUILDBOT_MASTER_IMAGE := quay.io/kkleine/lvm-ci:buildbot-master-$(CI_GIT_COMMIT_ID)
+BUILDBOT_MASTER_IMAGE := quay.io/kkleine/llvm-ci:buildbot-master-$(CI_GIT_COMMIT_ID)
 
 .PHONY: master-image
 ## Generates a container image that functions as a buildbot master.
