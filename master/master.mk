@@ -1,4 +1,4 @@
-BUILDBOT_MASTER_IMAGE := quay.io/kkleine/lvm-ci:buildbot-master-fedora-33-$(ARCH)-$(CI_GIT_COMMIT_ID)
+BUILDBOT_MASTER_IMAGE := quay.io/kkleine/lvm-ci:buildbot-master-$(CI_GIT_COMMIT_ID)
 
 .PHONY: master-image
 ## Generates a container image that functions as a buildbot master.
@@ -43,7 +43,7 @@ delete-master-deployment:
 ## Once completed, the master UI will be opened in a browser. Refresh the webpage if
 ## it doesn't work immediately. It might be that the cluster isn't ready yet.
 deploy-master: delete-master-deployment
- 	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/secret.yaml
+	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/secret.yaml
 	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/service.yaml
 	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/route.yaml
 	export BUILDBOT_MASTER_IMAGE=$(BUILDBOT_MASTER_IMAGE) \
