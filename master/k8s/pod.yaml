@@ -7,6 +7,7 @@ metadata:
     os_version: "33"
     arch: "x86_64"
     buildbot: "master"
+    app: "buildbot-master"
     # Add your own key-value pairs
 spec:
   containers:

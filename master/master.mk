@@ -33,30 +33,19 @@ run-local-master: master-image
 		--env BUILDBOT_MASTER_TITLE="My LOCAL Buildbot CI" \
 		${BUILDBOT_MASTER_IMAGE} $(filter-out $@,$(MAKECMDGOALS))
 
-.PHONY: deploy-master-secrets
-## Deletes and recreates the secrets of the buildbot master on a Kubernetes cluster.
-deploy-master-secrets:
-	-kubectl delete secret --force=true --grace-period=0 master-secret
-	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/secret.yaml
-
-.PHONY: deploy-master-service
-## Deletes and recreates the service of the buildbot master on a Kubernetes cluster.
-deploy-master-service:
-	-kubectl delete service --force=true --grace-period=0 master-service
-	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/service.yaml
-
-.PHONY: deploy-master-route
-## Deletes and recreates the route of the buildbot master www on a Kubernetes cluster.
-deploy-master-route:
-	-kubectl delete route --force=true --grace-period=0 master-route
-	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/route.yaml
+.PHONY: delete-master-deployment
+## Removes all parts of the buildbot master deployment from the cluster
+delete-master-deployment:
+	-kubectl delete pod,service,route,secret -l app=buildbot-master
 
 .PHONY: deploy-master
 ## Deletes and recreates the buildbot master container image as a pod on a Kubernetes cluster.
 ## Once completed, the master UI will be opened in a browser. Refresh the webpage if
 ## it doesn't work immediately. It might be that the cluster isn't ready yet.
-deploy-master: deploy-master-secrets deploy-master-service deploy-master-route
-	-kubectl delete pod --force=true --grace-period=0 master-pod
+deploy-master: delete-master-deployment
+ 	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/secret.yaml
+	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/service.yaml
+	kubectl apply --dry-run=false --overwrite=true -f ./master/k8s/route.yaml
 	export BUILDBOT_MASTER_IMAGE=$(BUILDBOT_MASTER_IMAGE) \
 	&& export BUILDBOT_WWW_URL="$(shell kubectl get route master-route -o json | jq -j '"http://"+.spec.host+.spec.path')" \
 	&& envsubst '$${BUILDBOT_MASTER_IMAGE} $${BUILDBOT_WWW_URL}' < ./master/k8s/pod.yaml > ./out/master-pod.yaml \
