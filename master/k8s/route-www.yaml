@@ -1,7 +1,7 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: master-route
+  name: master-route-www
   labels:
     app: "buildbot-master"
 spec:

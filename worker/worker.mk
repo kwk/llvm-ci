@@ -31,7 +31,7 @@ delete-worker-deployment:
 
 .PHONY: deploy-worker
 ## Deletes and recreates the worker container image as a pod on a Kubernetes cluster.
-deploy-worker: delete-worker-deployment
+deploy-worker: worker-image push-worker-image delete-worker-deployment
 	kubectl apply -f ./worker/k8s/buildbot-secret.yaml
 	kubectl apply -f ./worker/k8s/buildkite-secret.yaml
 	export WORKER_IMAGE=$(WORKER_IMAGE) \

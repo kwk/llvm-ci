@@ -1,0 +1,13 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: master-route-workers
+  labels:
+    app: "buildbot-master"
+spec:
+  path: /
+  to:
+    kind: Service
+    name: master-service
+  port:
+    targetPort: 9989
