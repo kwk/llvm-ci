@@ -28,6 +28,9 @@ spec:
       env:
         - name: BUILDBOT_WWW_URL
           value: "${BUILDBOT_WWW_URL}"
+      ports:
+        - containerPort: 8010
+        - containerPort: 9989        
   volumes:
     - name: master-secret-volume
       secret:
