@@ -13,7 +13,7 @@ metadata:
 spec:
   containers:
     - name: worker-container
-      image: ${WORKER_IMAGE}
+      image: "${WORKER_IMAGE}"
       command: ["buildbot-worker.sh"] # buildbot-worker.sh or buildkite.sh depending on your usage
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       # QoS Tier:

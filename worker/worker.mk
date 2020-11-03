@@ -34,5 +34,6 @@ delete-worker-deployment:
 deploy-worker: delete-worker-deployment
 	kubectl apply -f ./worker/k8s/buildbot-secret.yaml
 	kubectl apply -f ./worker/k8s/buildkite-secret.yaml
-	envsubst '$${WORKER_IMAGE}' < ./worker/k8s/pod.yaml > ./out/worker-pod.yaml
+	export WORKER_IMAGE=$(WORKER_IMAGE) \
+	&& envsubst '$${WORKER_IMAGE}' < ./worker/k8s/pod.yaml > ./out/worker-pod.yaml
 	kubectl apply -f ./out/worker-pod.yaml
