@@ -42,7 +42,7 @@ spec:
           # (see https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#dev-compute-resources)
           cpu: "16000m"
         limits:
-          memory: "32Gi" # e.g. 64 Gigabytes = 64 Gi
+          memory: "16Gi" # e.g. 64 Gigabytes = 64 Gi
           cpu: "16000m" # e.g. 32 cores = 32000m
       ports:
         - containerPort: 9090
