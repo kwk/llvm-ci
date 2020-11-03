@@ -40,10 +40,10 @@ spec:
           # capacity would be represented as 2000m. If you wanted to use 1/10 of
           # a single core, it would be represented as 100m.
           # (see https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#dev-compute-resources)
-          cpu: "16000m"
+          cpu: "10000m"
         limits:
           memory: "16Gi" # e.g. 64 Gigabytes = 64 Gi
-          cpu: "16000m" # e.g. 32 cores = 32000m
+          cpu: "10000m" # e.g. 32 cores = 32000m
       ports:
         - containerPort: 9090
       env:
