@@ -38,7 +38,7 @@
     # Python
     [ -x "$(command -v python)" ] && echo "python_version|$(python --version | tr -d '[:alpha:][:blank:]')";
     [ -x "$(command -v pip)" ] && echo "pip_version|$(pip --version)";
-    [ -x "$(command -v swig)" ] && echo "swig_version|$(swig -version | head -n2 | tr -d \"\n\")";
+    [ -x "$(command -v swig)" ] && echo "swig_version|$(swig -version | head -n2 | tr -c -d '[0-9.]')";
     
     # Configure/CMake
     [ -x "$(command -v autoconf)" ] && echo "autoconf_version|$(autoconf --version | head -n1 | tr -c -d '[0-9.]')";
