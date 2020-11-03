@@ -28,7 +28,7 @@ run-local-worker: worker-image
 	&& echo 'password' > $${SECRET_DIR}/buildbot-worker-password \
 	&& $(CONTAINER_TOOL) run -it --rm \
 	-v $${SECRET_DIR}:/buildbot-worker-secret-volume:Z \
-	--env BUILDBOT_MASTER="master-route-workers-llvm-pre-merge.apps.ocp.prod.psi.redhat.com" \
+	--env BUILDBOT_MASTER="master-route-workers-llvm-pre-merge.apps.ocp.prod.psi.redhat.com:80" \
 	${WORKER_IMAGE} bash
 
 PREFIX=$(shell basename $(CURDIR))

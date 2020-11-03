@@ -26,14 +26,14 @@ BUILDBOT_ACCESS_URI=${BUILDBOT_ACCESS_URI:-""}
 BUILDBOT_MASTER=${BUILDBOT_MASTER:-"lab.llvm.org:9994"}
 BUILDBOT_CREATE_WORKER_OPTS=${BUILDBOT_CREATE_WORKER_OPTS:-}
 
-buildbot-worker create-worker \
+buildbot-worker --verbose create-worker \
     ${BUILDBOT_CREATE_WORKER_OPTS} \
     "${BUILDBOT_WORKER_BASE_DIR}" \
     "${BUILDBOT_MASTER}" \
     "${BUILDBOT_WORKER_NAME}" \
     "${BUILDBOT_WORKER_PASSWORD}"
 
-buildbot-worker start \
+buildbot-worker --verbose start \
     "${BUILDBOT_WORKER_BASE_DIR}" \
     || (tail ${BUILDBOT_WORKER_BASE_DIR}/twistd.log && exit 1)
 

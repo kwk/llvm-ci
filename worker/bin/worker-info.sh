@@ -36,7 +36,7 @@
     [ -x "$(command -v ld.gold)" ] && echo "gold_version|$(ld.gold --version | head -n1)";
     
     # Python
-    [ -x "$(command -v python)" ] && echo "python_version|$(python --version | tr -d '[:alpha:][:blank:]')";
+    [ -x "$(command -v python3)" ] && echo "python_version|$(python3 --version | tr -d '[:alpha:][:blank:]')";
     [ -x "$(command -v pip)" ] && echo "pip_version|$(pip --version)";
     [ -x "$(command -v swig)" ] && echo "swig_version|$(swig -version | head -n2 | tr -c -d '[0-9.]')";
     

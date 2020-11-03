@@ -42,8 +42,7 @@ delete-master-deployment:
 ## Creates the master secret, service, and route on a Kubernetes cluster 
 deploy-master-misc:
 	kubectl apply -f ./master/k8s/secret.yaml
-	kubectl apply -f ./master/k8s/service-www.yaml
-	kubectl apply -f ./master/k8s/service-workers.yaml
+	kubectl apply -f ./master/k8s/service.yaml
 	kubectl apply -f ./master/k8s/route-www.yaml
 	kubectl apply -f ./master/k8s/route-workers.yaml
 
