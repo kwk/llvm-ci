@@ -22,7 +22,20 @@ push-worker-image:
 .PHONY: run-local-worker
 ## Runs the worker container image locally for quick testing.
 run-local-worker: worker-image
-	$(CONTAINER_TOOL) run -it --rm ${WORKER_IMAGE} bash 
+	export SECRET_DIR=$(shell mktemp -d -p $(OUT_DIR)) \
+	&& chmod a+rwx $${SECRET_DIR} \
+	&& echo "example-worker" > $${SECRET_DIR}/buildbot-worker-name \
+	&& echo 'password' > $${SECRET_DIR}/buildbot-worker-password \
+	&& $(CONTAINER_TOOL) run -it --rm \
+	-v $${SECRET_DIR}:/buildbot-worker-secret-volume:Z \
+	--env BUILDBOT_MASTER="master-route-workers-llvm-pre-merge.apps.ocp.prod.psi.redhat.com" \
+	${WORKER_IMAGE} bash
+
+PREFIX=$(shell basename $(CURDIR))
+
+.PHONY: show-dir
+show-dir:
+	echo $(PREFIX)
 
 .PHONY: delete-worker-deployment
 ## Removes all parts of the buildbot worker deployment from the cluster

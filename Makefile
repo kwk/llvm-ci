@@ -2,9 +2,10 @@
 SHELL := /bin/bash
 
 PROJECT_DIR=$(shell pwd)
+OUT_DIR=$(PROJECT_DIR)/out
 
 # Create output directory for artifacts and test results
-$(shell mkdir -p ./out);
+$(shell mkdir -p $(OUT_DIR));
 
 CI_GIT_COMMIT_ID := $(shell git rev-parse --short HEAD)
 ifneq ($(shell git status --porcelain --untracked-files=no),)
