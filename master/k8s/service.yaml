@@ -8,11 +8,9 @@ spec:
   selector:
     buildbot: master
   ports:
-    # WWW UI
     - protocol: TCP
       port: 8010
       targetPort: 8010
-    # Worker port
     - protocol: TCP
       port: 9989
       targetPort: 9989
