@@ -75,7 +75,7 @@ spec:
         - name: BUILDBOT_ACCESS_URI
           value: https://console-openshift-console.apps.ocp.prod.psi.redhat.com/k8s/ns/llvm-pre-merge/pods/worker-pod
         - name: BUILDBOT_MASTER
-          value: "master-route-llvm-pre-merge.apps.ocp.prod.psi.redhat.com:9989"
+          value: "master-route-workers-llvm-pre-merge.apps.ocp.prod.psi.redhat.com"
       volumeMounts:
         - name: buildbot-worker-secret-volume
           mountPath: /buildbot-worker-secret-volume

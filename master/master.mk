@@ -53,7 +53,7 @@ deploy-master-misc:
 deploy-master: master-image push-master-image delete-master-deployment deploy-master-misc
 	kubectl get route master-route -o json | jq -j '"http://"+.spec.host+.spec.path'
 	export BUILDBOT_MASTER_IMAGE=$(BUILDBOT_MASTER_IMAGE) \
-	&& export BUILDBOT_WWW_URL="$(shell kubectl get route master-route -o json | jq -j '"http://"+.spec.host+.spec.path')" \
+	&& export BUILDBOT_WWW_URL="$(shell kubectl get route master-route-www -o json | jq -j '"http://"+.spec.host+.spec.path')" \
 	&& envsubst '$${BUILDBOT_MASTER_IMAGE} $${BUILDBOT_WWW_URL}' < ./master/k8s/pod.yaml > ./out/master-pod.yaml \
 	&& kubectl apply -f ./out/master-pod.yaml \
 	&& xdg-open $${BUILDBOT_WWW_URL}
