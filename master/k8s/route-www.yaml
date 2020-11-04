@@ -8,7 +8,7 @@ spec:
   path: /
   to:
     kind: Service
-    name: master-service-www
+    name: master-service
   port:
     targetPort: 8010
     
