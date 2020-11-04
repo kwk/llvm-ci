@@ -15,7 +15,7 @@ ifneq ($(shell git status --porcelain --untracked-files=no),)
 endif
 
 .PHONY: ready-to-deploy
-## Will issue a warning when the repo is not ready to be deployed
+## Will issue an error when the repo is not ready to be deployed
 ready-to-deploy:
 ifeq ($(IS_DIRTY),yes)
 	$(error CAUTION: The repository is dirty, meaning you have uncommitted changes. \
