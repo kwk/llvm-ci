@@ -30,7 +30,9 @@ spec:
           value: "${BUILDBOT_WWW_URL}"
       ports:
         - containerPort: 8010
-        - containerPort: 9989        
+          name: www
+        - containerPort: 9989
+          name: workers
   volumes:
     - name: master-secret-volume
       secret:

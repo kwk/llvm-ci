@@ -15,4 +15,4 @@ spec:
     - protocol: TCP
       port: 9989
       targetPort: 9989
-      name: worker
+      name: workers

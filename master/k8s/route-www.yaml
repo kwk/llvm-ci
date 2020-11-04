@@ -11,3 +11,4 @@ spec:
     name: master-service-www
   port:
     targetPort: 8010
+    

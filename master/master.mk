@@ -24,13 +24,20 @@ push-master-image:
 ## QUICK TIP: To start a bash and not the actual buildbot master run "make run-local-master bash"
 run-local-master: master-image
 	@echo "Go to http://localhost:8010 to visit the buildbot"
-	$(CONTAINER_TOOL) run -it --rm \
+	export SECRET_DIR=$(shell mktemp -d -p $(OUT_DIR)) \
+	&& chmod a+rwx $${SECRET_DIR} \
+	&& echo "worker1" > $${SECRET_DIR}/worker1-name \
+	&& echo 'password1' > $${SECRET_DIR}/worker1-password \
+	&& echo "worker2" > $${SECRET_DIR}/worker2-name \
+	&& echo 'password2' > $${SECRET_DIR}/worker2-password \
+	&& $(CONTAINER_TOOL) run -it --rm \
 		--env BUILDBOT_MASTER_PORT=9989 \
 		-p 9989:9989 \
 		--env BUILDBOT_WWW_PORT=8010 \
 		-p 8010:8010 \
 		--env BUILDBOT_WWW_URL="http://localhost:8010/" \
-		--env BUILDBOT_MASTER_TITLE="My LOCAL Buildbot CI" \
+		--env BUILDBOT_MASTER_TITLE="Buildbot LOCAL" \
+		-v $${SECRET_DIR}:/master-secret-volume:Z \
 		${BUILDBOT_MASTER_IMAGE} $(filter-out $@,$(MAKECMDGOALS))
 
 .PHONY: delete-master-deployment
