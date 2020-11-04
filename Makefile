@@ -8,8 +8,21 @@ OUT_DIR=$(PROJECT_DIR)/out
 $(shell mkdir -p $(OUT_DIR));
 
 CI_GIT_COMMIT_ID := $(shell git rev-parse --short HEAD)
+IS_DIRTY := no
 ifneq ($(shell git status --porcelain --untracked-files=no),)
        CI_GIT_COMMIT_ID := $(CI_GIT_COMMIT_ID)-dirty
+	   IS_DIRTY := yes
+endif
+
+.PHONY: ready-to-deploy
+## Will issue a warning when the repo is not ready to be deployed
+ready-to-deploy:
+ifeq ($(IS_DIRTY),yes)
+	$(error CAUTION: The repository is dirty, meaning you have uncommitted changes. \
+	When you keep changing the same dirty container image and push it to the container image registry, \
+	the cluster will not pull it because it thinks it already has it. \
+	Commit your changes and then deploy it. This will force the Kubernetes cluster to \
+	always grab the fresh copy of your container image.)
 endif
 
 ARCH=$(shell arch)

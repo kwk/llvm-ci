@@ -57,7 +57,7 @@ deploy-master-misc:
 ## Deletes and recreates the buildbot master container image as a pod on a Kubernetes cluster.
 ## Once completed, the master UI will be opened in a browser. Refresh the webpage if
 ## it doesn't work immediately. It might be that the cluster isn't ready yet.
-deploy-master: master-image push-master-image delete-master-deployment deploy-master-misc
+deploy-master: ready-to-deploy master-image push-master-image delete-master-deployment deploy-master-misc
 	kubectl get route master-route -o json | jq -j '"http://"+.spec.host+.spec.path'
 	export BUILDBOT_MASTER_IMAGE=$(BUILDBOT_MASTER_IMAGE) \
 	&& export BUILDBOT_WWW_URL="$(shell kubectl get route master-route-www -o json | jq -j '"http://"+.spec.host+.spec.path')" \
