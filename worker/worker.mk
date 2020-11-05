@@ -21,6 +21,7 @@ push-worker-image:
 
 .PHONY: run-local-worker
 ## Runs the worker container image locally for quick testing.
+## QUICK TIP: To start a bash and not the actual worker run "make run-local-worker bash"
 run-local-worker: worker-image
 	export SECRET_DIR=$(shell mktemp -d -p $(OUT_DIR)) \
 	&& chmod a+rwx $${SECRET_DIR} \
