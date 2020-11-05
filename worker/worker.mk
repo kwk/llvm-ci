@@ -32,12 +32,6 @@ run-local-worker: worker-image
 	--env BUILDBOT_MASTER="master-route-workers-llvm-pre-merge.apps.ocp.prod.psi.redhat.com:80" \
 	${WORKER_IMAGE} bash
 
-PREFIX=$(shell basename $(CURDIR))
-
-.PHONY: show-dir
-show-dir:
-	echo $(PREFIX)
-
 .PHONY: delete-worker-deployment
 ## Removes all parts of the buildbot worker deployment from the cluster
 delete-worker-deployment:
