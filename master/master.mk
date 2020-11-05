@@ -48,10 +48,10 @@ delete-master-deployment:
 .PHONY: deploy-master-misc
 ## Creates the master secret, service, and route on a Kubernetes cluster 
 deploy-master-misc:
-	kubectl apply -f ./master/k8s/secret.yaml
-	kubectl apply -f ./master/k8s/service.yaml
-	kubectl apply -f ./master/k8s/route-www.yaml
-	kubectl apply -f ./master/k8s/route-workers.yaml
+	kubectl apply -f --overwrite=true ./master/k8s/secret.yaml
+	kubectl apply -f --overwrite=true ./master/k8s/service.yaml
+	kubectl apply -f --overwrite=true ./master/k8s/route-www.yaml
+	kubectl apply -f --overwrite=true ./master/k8s/route-workers.yaml
 
 .PHONY: deploy-master
 ## Deletes and recreates the buildbot master container image as a pod on a Kubernetes cluster.
@@ -62,5 +62,5 @@ deploy-master: ready-to-deploy master-image push-master-image delete-master-depl
 	export BUILDBOT_MASTER_IMAGE=$(BUILDBOT_MASTER_IMAGE) \
 	&& export BUILDBOT_WWW_URL="$(shell kubectl get route master-route-www -o json | jq -j '"http://"+.spec.host+.spec.path')" \
 	&& envsubst '$${BUILDBOT_MASTER_IMAGE} $${BUILDBOT_WWW_URL}' < ./master/k8s/pod.yaml > ./out/master-pod.yaml \
-	&& kubectl apply -f ./out/master-pod.yaml \
+	&& kubectl apply -f --overwrite=true ./out/master-pod.yaml \
 	&& xdg-open $${BUILDBOT_WWW_URL}
