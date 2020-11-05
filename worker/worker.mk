@@ -40,7 +40,7 @@ show-dir:
 .PHONY: delete-worker-deployment
 ## Removes all parts of the buildbot worker deployment from the cluster
 delete-worker-deployment:
-	-kubectl delete pod,secret -l app=worker
+	-kubectl delete pod,secret --grace-period=0 --force -l app=worker
 
 .PHONY: deploy-worker
 ## Deletes and recreates the worker container image as a pod on a Kubernetes cluster.
