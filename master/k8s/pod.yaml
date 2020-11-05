@@ -14,13 +14,6 @@ spec:
     - name: master-container
       image: "${BUILDBOT_MASTER_IMAGE}"
       command: ["master.sh"]
-      resources:
-        requests:
-          memory: "8Gi"
-          cpu: "16000m"
-        limits:
-          memory: "32Gi" # e.g. 64 Gigabytes = 64 Gi
-          cpu: "16000m" # e.g. 32 cores = 32000m
       volumeMounts:
         - name: master-secret-volume
           mountPath: /master-secret-volume
