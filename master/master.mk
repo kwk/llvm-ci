@@ -48,6 +48,8 @@ delete-master-deployment:
 .PHONY: deploy-master-misc
 ## Creates the master secret, service, and route on a Kubernetes cluster 
 deploy-master-misc: ready-to-deploy
+	export SECRET_FILE=$(shell test -f ./master/k8s/secret.yaml && echo ./master/k8s/secret.yaml || echo ./master/k8s/secret.yaml.sample)\
+	&& kubectl apply -f $${SECRET_FILE}
 	kubectl apply -f ./master/k8s/secret.yaml
 	kubectl apply -f ./master/k8s/service.yaml
 	kubectl apply -f ./master/k8s/route.yaml
