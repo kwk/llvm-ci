@@ -129,6 +129,9 @@ EXPOSE \
 HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl -f http://0.0.0.0:9090/ || exit 1
 
+RUN yum install -y iputils traceroute net-tools nmap && yum clean all
+
+
 USER 10001
 WORKDIR /home/worker
 
