@@ -42,7 +42,7 @@ delete-worker-deployment:
 deploy-worker: ready-to-deploy worker-image push-worker-image delete-worker-deployment
 	kubectl apply -f ./worker/k8s/secret.yaml
 	export WORKER_IMAGE=$(WORKER_IMAGE) \
-	&& export BUILDBOT_MASTER="$(shell kubectl get route master-route-workers -o json | jq -j '"http://"+.spec.host+.spec.path')" \
+	&& export BUILDBOT_MASTER="$(shell kubectl get route master-route-workers -o json | jq -j '.spec.host+":9989"')" \
 	&& export BUILDBOT_ACCESS_URI="https://console-openshift-console.apps.ocp.prod.psi.redhat.com/k8s/ns/llvm-pre-merge/pods/worker-pod" \
 	&& envsubst '$${WORKER_IMAGE} $${BUILDBOT_MASTER} $${BUILDBOT_ACCESS_URI}' < ./worker/k8s/pod.yaml > ./out/worker-pod.yaml
 	kubectl apply -f ./out/worker-pod.yaml
