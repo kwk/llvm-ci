@@ -35,7 +35,7 @@ buildbot-worker --verbose create-worker \
 
 buildbot-worker --verbose start \
     "${BUILDBOT_WORKER_BASE_DIR}" \
-    || (tail ${BUILDBOT_WORKER_BASE_DIR}/twistd.log && exit 1)
+    || (tail -f ${BUILDBOT_WORKER_BASE_DIR}/twistd.log && exit 1)
 
 echo "Following worker log..."
 tail -f ${BUILDBOT_WORKER_BASE_DIR}/twistd.log
