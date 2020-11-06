@@ -50,8 +50,7 @@ delete-master-deployment:
 deploy-master-misc:
 	kubectl apply -f ./master/k8s/secret.yaml
 	kubectl apply -f ./master/k8s/service.yaml
-	kubectl apply -f ./master/k8s/route-www.yaml
-	kubectl apply -f ./master/k8s/route-workers.yaml
+	kubectl apply -f ./master/k8s/route.yaml
 
 .PHONY: deploy-master
 ## Deletes and recreates the buildbot master container image as a pod on a Kubernetes cluster.
