@@ -27,23 +27,23 @@ spec:
       #   # out of memory event on the node, Burstable containers are killed after
       #   # BestEffort containers when attempting to recover memory.
       #   memory: "Burstable"
-      resources:
-        requests:
-          # Memory is measured in bytes. In addition, it may be used with SI
-          # suffices (E, P, T, G, M, K) or their power-of-two-equivalents
-          # (Ei, Pi, Ti, Gi, Mi, Ki).
-          memory: "8Gi"
-          # CPU is measured in units called millicores. Each node in a cluster
-          # inspects the operating system to determine the amount of CPU cores
-          # on the node, then multiplies that value by 1000 to express its total
-          # capacity. For example, if a node has 2 cores, the node’s CPU
-          # capacity would be represented as 2000m. If you wanted to use 1/10 of
-          # a single core, it would be represented as 100m.
-          # (see https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#dev-compute-resources)
-          cpu: "10000m"
-        limits:
-          memory: "16Gi" # e.g. 64 Gigabytes = 64 Gi
-          cpu: "10000m" # e.g. 32 cores = 32000m
+      # resources:
+      #   requests:
+      #     # Memory is measured in bytes. In addition, it may be used with SI
+      #     # suffices (E, P, T, G, M, K) or their power-of-two-equivalents
+      #     # (Ei, Pi, Ti, Gi, Mi, Ki).
+      #     memory: "8Gi"
+      #     # CPU is measured in units called millicores. Each node in a cluster
+      #     # inspects the operating system to determine the amount of CPU cores
+      #     # on the node, then multiplies that value by 1000 to express its total
+      #     # capacity. For example, if a node has 2 cores, the node’s CPU
+      #     # capacity would be represented as 2000m. If you wanted to use 1/10 of
+      #     # a single core, it would be represented as 100m.
+      #     # (see https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#dev-compute-resources)
+      #     cpu: "10000m"
+      #   limits:
+      #     memory: "16Gi" # e.g. 64 Gigabytes = 64 Gi
+      #     cpu: "10000m" # e.g. 32 cores = 32000m
       ports:
         - containerPort: 9989
           name: worker
