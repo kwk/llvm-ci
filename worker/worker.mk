@@ -1,7 +1,7 @@
 WORKER_IMAGE := quay.io/kkleine/llvm-ci:fedora-33-$(ARCH)-$(CI_GIT_COMMIT_ID)
 
 .PHONY: worker-image
-## Generates a container image to be used as a worker for buildbot or buildkite.
+## Generates a container image to be used as a worker for buildbot.
 worker-image: worker/Dockerfile
 	@echo Building image ${WORKER_IMAGE}
 	cd worker \
