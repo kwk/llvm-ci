@@ -44,6 +44,10 @@ spec:
       #   limits:
       #     memory: "16Gi" # e.g. 64 Gigabytes = 64 Gi
       #     cpu: "10000m" # e.g. 32 cores = 32000m
+      resources:
+        limits:
+          memory: "3Gi" # e.g. 64 Gigabytes = 64 Gi
+          cpu: "10000m" # e.g. 32 cores = 32000m
       ports:
         - containerPort: 9989
           name: worker
