@@ -6,7 +6,8 @@ metadata:
     app: "buildbot-master"
 spec:
   selector:
-    buildbot: master
+    app: "buildbot"
+    tier: "master"
   ports:
     - protocol: TCP
       port: 8010

@@ -6,8 +6,8 @@ metadata:
     os: "fedora"
     os_version: "33"
     arch: "x86_64"
-    buildbot: "worker"
-    app: "worker"
+    app: "buildbot"
+    tier: "worker"
     # Add your own key-value pairs
     ccache: "yes"
 spec:
@@ -45,7 +45,8 @@ spec:
           memory: "16Gi" # e.g. 64 Gigabytes = 64 Gi
           cpu: "10000m" # e.g. 32 cores = 32000m
       ports:
-        - containerPort: 9090
+        - containerPort: 9989
+          name: worker
       env:
         ########################################################################
         # BUILDBOT SPECIFICS

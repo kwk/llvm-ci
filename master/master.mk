@@ -43,7 +43,7 @@ run-local-master: master-image
 .PHONY: delete-master-deployment
 ## Removes all parts of the buildbot master deployment from the cluster
 delete-master-deployment:
-	-kubectl delete pod,service,route,secret --grace-period=0 --force -l app=buildbot-master
+	-kubectl delete pod,service,route,secret --grace-period=0 --force -l app=buildbot -l tier=master
 
 .PHONY: deploy-master-misc
 ## Creates the master secret, service, and route on a Kubernetes cluster 

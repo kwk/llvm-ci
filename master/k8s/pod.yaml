@@ -6,8 +6,8 @@ metadata:
     os: "fedora"
     os_version: "33"
     arch: "x86_64"
-    buildbot: "master"
-    app: "buildbot-master"
+    app: "buildbot"
+    tier: "master"
     # Add your own key-value pairs
 spec:
   containers:

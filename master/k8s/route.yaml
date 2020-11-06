@@ -3,7 +3,8 @@ kind: Route
 metadata:
   name: master-route-www
   labels:
-    app: "buildbot-master"
+    app: "buildbot"
+    tier: "master"
 spec:
   path: /
   to:
