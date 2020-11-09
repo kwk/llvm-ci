@@ -3,11 +3,12 @@ kind: Service
 metadata:
   name: master-service-www
   labels:
-    app: "buildbot-master"
+    app: buildbot
+    tier: master
 spec:
   selector:
-    app: "buildbot"
-    tier: "master"
+    app: buildbot
+    tier: master
   ports:
     - protocol: TCP
       port: 8010
@@ -19,7 +20,8 @@ kind: Service
 metadata:
   name: master-service-workers
   labels:
-    app: "buildbot-master"
+    app: buildbot
+    tier: master
 spec:
   selector:
     buildbot: master
