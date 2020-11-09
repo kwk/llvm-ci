@@ -20,7 +20,8 @@ kind: Route
 metadata:
   name: master-route-workers
   labels:
-    app: "buildbot-master"
+    app: "buildbot"
+    tier: "master"
 spec:
   path: /
   to:
