@@ -13,5 +13,8 @@ buildbot create-master "${BUILDBOT_MASTER_BASEDIR}"
 
 buildbot start "${BUILDBOT_MASTER_BASEDIR}" || (tail ${BUILDBOT_MASTER_BASEDIR}/twistd.log && exit 1)
 
+crossbar init
+crossbar start
+
 echo "Following master log..."
 tail -f ${BUILDBOT_MASTER_BASEDIR}/twistd.log

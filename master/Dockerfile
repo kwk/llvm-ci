@@ -25,6 +25,8 @@ RUN chmod +x /home/buildbot-master/bin/*
 VOLUME /master-secret-volume
 
 RUN yum install -y iputils traceroute net-tools nmap && yum clean all
+RUN yum install -y python3-pip patch gcc python3-devel
+RUN pip install crossbar
 
 USER 10001
 WORKDIR /home/buildbot-master
