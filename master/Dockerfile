@@ -24,6 +24,8 @@ RUN chmod +x /home/buildbot-master/bin/*
 # Volumes to mount secrets into the container
 VOLUME /master-secret-volume
 
+RUN yum install -y iputils traceroute net-tools nmap && yum clean all
+
 USER 10001
 WORKDIR /home/buildbot-master
 
