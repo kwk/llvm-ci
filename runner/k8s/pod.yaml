@@ -23,7 +23,7 @@ spec:
           readOnly: true
       env:
         - name: RUNNER_NAME
-          value: "Runner on OpenShift"
+          value: "Runner-on-OpenShift"
         - name: RUNNER_LABELS
           value: "k8s,fedora33,openshift,kubernetes"
   volumes:
