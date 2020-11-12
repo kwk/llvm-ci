@@ -12,7 +12,7 @@ spec:
   containers:
     - name: runner-container
       image: "${RUNNER_IMAGE}"
-      command: ["start-runner.sh"]
+      command: ["/home/runner/start-runner.sh"]
       resources:
         limits:
           memory: "3Gi" # e.g. 64 Gigabytes = 64 Gi
