@@ -20,9 +20,8 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     && chmod -R g=u /home/runner /etc/passwd \
     && yum clean all
 
-COPY bin/* /home/runner/bin
-ENV PATH="/home/runner/bin:${PATH}" HOME=/home/runner
-RUN chmod +x /home/runner/bin/*
+COPY bin/* /home/runner
+RUN chmod +x -v /home/runner/*.sh
 
 # Volumes to mount secrets into the container
 VOLUME /runner-secret-volume
@@ -42,9 +41,9 @@ ENV RUNNER_NAME = "my-github-actions-runner"
 
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 
-ENTRYPOINT [ "uid_entrypoint.sh" ]
+ENTRYPOINT [ "/home/runner/uid_entrypoint.sh" ]
 
-CMD [ "start-runner.sh" ]
+CMD [ "/home/runner/start-runner.sh" ]
 
 
 
