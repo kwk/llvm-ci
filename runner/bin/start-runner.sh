@@ -14,8 +14,10 @@ RUNNER_URL=$(cat /runner-secret-volume/runner-url)
 RUNNER_NAME=${RUNNER_NAME:-"Default Runner Name"}
 RUNNER_LABELS=${RUNNER_LABELS:-"default-runner-label"}
 
+cd actions-runner
+
 # Create the runner and start the configuration experience
-actions-runner/config.sh \
+./config.sh \
     --url ${RUNNER_URL} \
     --token ${RUNNER_TOKEN} \
     --replace \
@@ -24,4 +26,4 @@ actions-runner/config.sh \
     --name ${RUNNER_NAME}
 
 # Last step, run it!
-actions-runner/run.sh
+./run.sh
