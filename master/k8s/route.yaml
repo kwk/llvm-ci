@@ -12,20 +12,3 @@ spec:
     name: master-service-www
   port:
     targetPort: 8010
-
----
-
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: master-route-workers
-  labels:
-    app: "buildbot"
-    tier: "master"
-spec:
-  path: /
-  to:
-    kind: Service
-    name: master-service-workers
-  port:
-    targetPort: 9989

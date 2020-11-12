@@ -6,6 +6,7 @@ metadata:
     app: buildbot
     tier: master
 spec:
+  type: ClusterIP
   selector:
     app: buildbot
     tier: master
@@ -18,15 +19,18 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: master-service-workers
+  name: master-workers-node-port
   labels:
     app: buildbot
     tier: master
 spec:
+  type: NodePort
   selector:
-    buildbot: master
+    app: buildbot
+    tier: master
   ports:
     - protocol: TCP
       port: 9989
       targetPort: 9989
       name: workers
+      nodePort: 30007
