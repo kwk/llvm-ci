@@ -12,7 +12,7 @@ RUNNER_TOKEN=$(cat /runner-secret-volume/runner-token)
 RUNNER_URL=$(cat /runner-secret-volume/runner-url)
 
 # Create the runner and start the configuration experience
-./config.sh --url ${RUNNER_URL} --token ${RUNNER_TOKEN}
+actions-runner/config.sh --url ${RUNNER_URL} --token ${RUNNER_TOKEN}
 
 # Last step, run it!
-./run.sh
+actions-runner/run.sh
