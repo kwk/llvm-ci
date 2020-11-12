@@ -20,7 +20,7 @@ push-worker-image:
 	$(CONTAINER_TOOL) push ${WORKER_IMAGE}
 
 .PHONY: run-local-worker
-## Runs the worker container image locally for quick testing.
+## Runs the worker container image locally for quick testing against upstream master
 ## QUICK TIP: To start a bash and not the actual worker run "make run-local-worker bash"
 run-local-worker: worker-image
 	export SECRET_DIR=$(shell mktemp -d -p $(OUT_DIR)) \
@@ -29,7 +29,7 @@ run-local-worker: worker-image
 	&& echo 'password' > $${SECRET_DIR}/buildbot-worker-password \
 	&& $(CONTAINER_TOOL) run -it --rm \
 	-v $${SECRET_DIR}:/buildbot-worker-secret-volume:Z \
-	--env BUILDBOT_MASTER="master-route-workers-llvm-pre-merge.apps.ocp.prod.psi.redhat.com:80" \
+	--env BUILDBOT_MASTER=$(BUILDBOT_MASTER) \
 	${WORKER_IMAGE} bash
 
 .PHONY: delete-worker-deployment
@@ -43,8 +43,6 @@ deploy-worker: ready-to-deploy worker-image push-worker-image delete-worker-depl
 	export SECRET_FILE=$(shell test -f ./worker/k8s/secret.yaml && echo ./worker/k8s/secret.yaml || echo ./worker/k8s/secret.yaml.sample)\
 	&& kubectl apply -f $${SECRET_FILE}
 	export WORKER_IMAGE=$(WORKER_IMAGE) \
-	&& export PROJECT_NAME="$(shell kubectl config view --minify --output 'jsonpath={..namespace}')" \
-	&& export BUILDBOT_MASTER="$${PROJECT_NAME}.apps.ocp.prod.psi.redhat.com:30007" \
-	&& export BUILDBOT_ACCESS_URI="https://console-openshift-console.apps.ocp.prod.psi.redhat.com/k8s/ns/llvm-pre-merge/pods/worker-pod" \
-	&& envsubst '$${WORKER_IMAGE} $${BUILDBOT_MASTER} $${BUILDBOT_ACCESS_URI}' < ./worker/k8s/pod.yaml > ./out/worker-pod.yaml
+	&& export BUILDBOT_MASTER="$(BUILDBOT_MASTER)" \
+	&& envsubst '$${WORKER_IMAGE} $${BUILDBOT_MASTER}' < ./worker/k8s/pod.yaml > ./out/worker-pod.yaml
 	kubectl apply -f ./out/worker-pod.yaml

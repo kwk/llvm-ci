@@ -1,2 +1,4 @@
 k8s/**
 master.mk
+out/**
+../out/**

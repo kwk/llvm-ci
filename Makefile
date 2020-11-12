@@ -32,11 +32,20 @@ DOCKER_BIN := $(shell command -v docker 2> /dev/null)
 PODMAN_BIN := $(shell command -v podman 2> /dev/null)
 CONTAINER_TOOL := $(shell [[ -z "$(PODMAN_BIN)" ]] && echo $(DOCKER_BIN) || echo $(PODMAN_BIN))
 
+# This is the default URL:PORT address to the master on your cluster
+K8S_NAMESPACE := $(shell kubectl config view --minify --output 'jsonpath={..namespace}')
+BUILDBOT_MASTER := "$(K8S_PROJECT).apps.ocp.prod.psi.redhat.com:30007"
+
 .PHONY: show-container-tool
 ## Show which container tool was automatically selected to be used by make: podman (preferred) or docker.
 ## QUICK TIP: To overwrite container tool "make CONTAINER_TOOL=/path/to/podman/or/docker <TARGET>"
 show-container-tool:
 	@echo $(CONTAINER_TOOL)
+
+.PHONY: show-buildbot-master
+## Shows the URL:PORT to that will be used to point to the buildbot master
+show-buildbot-master:
+	@echo $(BUILDBOT_MASTER)
 
 include ./help.mk
 include ./worker/worker.mk
