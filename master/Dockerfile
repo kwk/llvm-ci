@@ -26,11 +26,6 @@ VOLUME /master-secret-volume
 
 RUN yum install -y iputils traceroute net-tools nmap && yum clean all
 
-# When the master runs behind a firewall you can use smee.io to
-# proxy github webhooks events to local host.
-RUN yum install -y npm --setopt=tsflags=nodocs --setopt=install_weak_deps=False && yum clean all
-RUN npm install --global smee-client
-
 USER 10001
 WORKDIR /home/buildbot-master
 

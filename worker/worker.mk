@@ -1,4 +1,4 @@
-WORKER_IMAGE := quay.io/kkleine/llvm-ci:worker-fedora-33-$(ARCH)-$(CI_GIT_COMMIT_ID)
+WORKER_IMAGE := quay.io/kkleine/llvm-ci:fedora-33-$(ARCH)-$(CI_GIT_COMMIT_ID)
 
 .PHONY: worker-image
 ## Generates a container image to be used as a worker for buildbot.
