@@ -12,10 +12,9 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
         tar \
     && mkdir -pv /home/runner/actions-runner \
     && cd /home/runner/actions-runner \
-    && export ACTIONS_RUNNER_VERSION=2.274.1 \
-    && curl -O -L https://github.com/actions/runner/releases/download/v${ACTIONS-RUNNER_VERSION}/actions-runner-linux-x64-${ACTIONS-RUNNER_VERSION}.tar.gz \
-    && tar xzf ./actions-runner-linux-x64-${ACTIONS-RUNNER_VERSION}.tar.gz \
-    && rm -v actions-runner-linux-x64-${ACTIONS-RUNNER_VERSION}.tar.gz \
+    && curl -O -L https://github.com/actions/runner/releases/download/v2.274.1/actions-runner-linux-x64-2.274.1.tar.gz \
+    && tar xzf ./actions-runner-linux-x64-2.274.1.tar.gz \
+    && rm -v actions-runner-linux-x64-2.274.1.tar.gz \
     && ./bin/installdependencies.sh \
     && chgrp -R 0 /home/runner \
     && chmod -R g=u /home/runner /etc/passwd \
