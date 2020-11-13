@@ -2,6 +2,12 @@
 
 to an interesting approach to testing LLVM.
 
+# Deployment
+
+![Deployment](http://www.plantuml.com/plantuml/proxy?idx=0&src=https://raw.githubusercontent.com/kwk/llvm-ci/trybot-setup/deployment.puml&fmt=svg)
+
+# Some background
+
 As you may or may not know, LLVM has different kind of test systems.
 For example, for post-merge tests, we're using [buildbot](https://llvm.org/docs/HowToAddABuilder.html)
 and for pre-merge tests we're using a hosted service called
