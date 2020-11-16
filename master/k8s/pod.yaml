@@ -30,6 +30,8 @@ spec:
           name: www
         - containerPort: 9989
           name: workers
+        - containerPort: 8031
+          name: try
       livenessProbe:
         httpGet:
           path: /
