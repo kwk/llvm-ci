@@ -33,6 +33,7 @@ spec:
       port: 9989
       targetPort: 9989
       name: workers
+      # Noteports are typically above 30000, when assigned automatically
       nodePort: 30007
 ---
 apiVersion: v1
@@ -52,5 +53,6 @@ spec:
       port: 8031
       targetPort: 8031
       name: try
+      # Noteports are typically above 30000, when assigned automatically
       nodePort: 30008
       

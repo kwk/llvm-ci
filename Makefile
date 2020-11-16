@@ -34,7 +34,9 @@ CONTAINER_TOOL := $(shell [[ -z "$(PODMAN_BIN)" ]] && echo $(DOCKER_BIN) || echo
 
 # This is the default URL:PORT address to the master on your cluster
 K8S_NAMESPACE := $(shell kubectl config view --minify --output 'jsonpath={..namespace}')
-BUILDBOT_MASTER := "$(K8S_NAMESPACE).apps.ocp.prod.psi.redhat.com:30007"
+BUILDBOT_WORKER_PORT := 30007
+BUILDBOT_TRY_PORT := 30008
+BUILDBOT_MASTER := "$(K8S_NAMESPACE).apps.ocp.prod.psi.redhat.com$(BUILDBOT_WORKER_PORT)"
 
 .PHONY: show-container-tool
 ## Show which container tool was automatically selected to be used by make: podman (preferred) or docker.
@@ -43,7 +45,7 @@ show-container-tool:
 	@echo $(CONTAINER_TOOL)
 
 .PHONY: show-buildbot-master
-## Shows the URL:PORT to that will be used to point to the buildbot master
+## Shows the URL:PORT to that will be used to point workers to the buildbot master
 show-buildbot-master:
 	@echo $(BUILDBOT_MASTER)
 
