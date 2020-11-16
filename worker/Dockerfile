@@ -65,8 +65,6 @@ RUN chmod +x /home/worker/bin/*
 # Volumes to mount secrets into the container
 VOLUME /buildbot-worker-secret-volume
 
-RUN yum install -y iputils traceroute net-tools nmap && yum clean all
-
 USER 10001
 WORKDIR /home/worker
 
@@ -78,19 +76,6 @@ ARG ci_container_image_ref
 ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
 
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
-# Build-time metadata as defined at http://label-schema.org
-ARG build_date
-LABEL org.label-schema.build-date=$build_date \
-      org.label-schema.name="LLVM CI" \
-      org.label-schema.description="A container for running LLVM CI bots (e.g. buildbot) jobs" \
-      org.label-schema.url="https://github.com/kwk/llvm-ci" \
-      org.label-schema.vcs-ref=$ci_container_image_ref \
-      org.label-schema.vcs-url="https://github.com/kwk/llvm-ci" \
-      org.label-schema.version=$ci_container_image_ref \
-      org.label-schema.schema-version="1.0" \
-      org.label-schema.docker.cmd="docker run -it --rm --env YOURBUILDBOTCONFIG -v -v BUILDBOTSECRET:/buildbot-secret-volume $ci_container_image_ref buildbot.sh" \
-      org.label-schema.docker.debug="docker exec -it $CONTAINER bash" \
-      org.label-schema.docker.params="BUILDBOT_MASTER=URL to buildbot master (e.g. lab.llvm.org:9994)"
 
 ENTRYPOINT [ "uid_entrypoint.sh" ]
 
