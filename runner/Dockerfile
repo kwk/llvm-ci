@@ -10,6 +10,7 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
         curl \
         git \
         jq \
+        strace \
         tar \
     && mkdir -pv /home/runner/actions-runner/ \
     && cd /home/runner/actions-runner \
@@ -17,11 +18,12 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     && tar xzf ./actions-runner-linux-x64-2.274.1.tar.gz \
     && rm -v actions-runner-linux-x64-2.274.1.tar.gz \
     && ./bin/installdependencies.sh \
-    && chown -RHLv runner:runner /home/runner \
     && chgrp -R 0 /home/runner \
     && chmod -R g=u /home/runner /etc/passwd \
     && dnf clean all
 
+#&& chown -RHLv runner:runner /home/runner \
+    
 # TODO(kwk): Use this to get the latest actions-runner:
 # && GITHUB_RUNNER_VERSION=$(\
 #         curl --silent "https://api.github.com/repos/actions/runner/releases/latest" \
@@ -33,6 +35,9 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
 
 COPY bin/* /home/runner
 RUN chmod +x -v /home/runner/*.sh
+RUN chgrp -R 0 /home/runner \
+    && chmod -R g=u /home/runner /etc/passwd
+    
 
 # Volumes to mount secrets into the container
 VOLUME /runner-secret-volume
