@@ -7,8 +7,13 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     buildbot-www \
     git \
     nano \
+    patch \
     python3-service-identity \
    && yum clean all
+
+# TODO(kwk): HACK: Manually apply path-modified buildbot patch of PR buildbot/buildbot#5623 
+COPY buildbot-pr-5623.patch /
+RUN patch -p1 -d / --backup --batch  < /buildbot-pr-5623.patch
 
 # See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
 # RUN useradd --create-home buildbot-master \
