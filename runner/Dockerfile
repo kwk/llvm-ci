@@ -9,16 +9,27 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
         buildbot-worker \
         curl \
         git \
+        jq \
         tar \
-    && mkdir -pv /home/runner/actions-runner \
+    && mkdir -pv /home/runner/actions-runner/ \
     && cd /home/runner/actions-runner \
     && curl -O -L https://github.com/actions/runner/releases/download/v2.274.1/actions-runner-linux-x64-2.274.1.tar.gz \
     && tar xzf ./actions-runner-linux-x64-2.274.1.tar.gz \
     && rm -v actions-runner-linux-x64-2.274.1.tar.gz \
     && ./bin/installdependencies.sh \
+    && chown -RHLv runner:runner /home/runner \
     && chgrp -R 0 /home/runner \
     && chmod -R g=u /home/runner /etc/passwd \
-    && yum clean all
+    && dnf clean all
+
+# TODO(kwk): Use this to get the latest actions-runner:
+# && GITHUB_RUNNER_VERSION=$(\
+#         curl --silent "https://api.github.com/repos/actions/runner/releases/latest" \
+#         | jq -r '.tag_name[1:]'\
+#     ) \
+# && curl -Ls https://github.com/actions/runner/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-${GITHUB_RUNNER_VERSION}.tar.gz \
+#     | tar xz \
+
 
 COPY bin/* /home/runner
 RUN chmod +x -v /home/runner/*.sh
