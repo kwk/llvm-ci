@@ -28,4 +28,4 @@ cd actions-runner
 
 
 # Last step, run it!
-sudo ./run.sh
+./run.sh
