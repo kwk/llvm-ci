@@ -4,6 +4,6 @@ artifacts/*
 buildbot.tac
 
 # Let's not version the actual credentials
-worker/k8s/buildbot-secret.yaml
+worker/k8s/secret.yaml
 master/k8s/secret.yaml
 runner/k8s/secret.yaml
