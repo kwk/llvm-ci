@@ -101,9 +101,10 @@ In case you wonder to which Kubernetes cluster things will be deployed you have 
 
 All components have a `Dockerfile` which describes the container image to be created. The `master` directory also features `k8s` files to create a pod, routes, services and secrets.
 
-# Deployment
+# Some pictures...
 
-![Deployment](http://www.plantuml.com/plantuml/proxy?idx=0&src=https://raw.githubusercontent.com/kwk/llvm-ci/trybot-setup/deployment.puml&fmt=svg)
+
+![Deployment](http://www.plantuml.com/plantuml/proxy?idx=0&src=https://raw.githubusercontent.com/kwk/llvm-ci/trybot-setup/docsZ/images/master_www.puml&fmt=svg)
 
 # Some background
 
