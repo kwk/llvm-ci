@@ -14,7 +14,13 @@ At Red Hat we want to contribute to the developer workflow of [LLVM's upstream c
 
 ## How? By Focusssing on the workflow not the technology
 
-This `llvm-ci` repository is meant to provide a greenfield setup on which we can try out new workflow ideas without modifying the upstream buildbot installations. The idea is to provide the tools we already have at our exposure (buildbot master and workers) and focus on the actual workflows inside of github pull requests with respect to: pre-commit testing.
+This `llvm-ci` repository is meant to provide a greenfield setup on which we can try out new workflow ideas without modifying the upstream buildbot installations. The idea is to provide the tools we already have at our exposure (buildbot master and workers) and focus on the actual workflows inside of github pull requests with respect to:
+
+* pre-commit testing
+* ease of use
+* flexibility
+* reporting
+* *put your idea here*
 
 ## Is this repository useful for you?
 
@@ -31,7 +37,7 @@ If you have an OpenShift 4 cluster yourself, you should be good. Maybe other Kub
 
 # Do you need to be a Kubernetes/OpenShift expert?
 
-No, you absolutely don't have to be an expert in any of the tools involved and I cannot stress this enough! I use the bare minimum concept of Kubernetes or OpenShift (pod, secret, service, route). As long as you have heard of containers, you should be fine. I learned most of it on the go but I set out to not use any of the advanced concepts in Kubernetes to auto-scale pods or restart them for example. The philosophy behind this approach is to make debugging easier.
+No, you absolutely don't have to be an expert in any of the tools involved and I cannot stress this enough! I use the bare minimum concepts of Kubernetes or OpenShift (pod, secret, service, route). As long as you have heard of containers, you should be fine. I learned most of it on the go but I set out to not use any of the advanced concepts in Kubernetes to auto-scale pods or restart them for example. The philosophy behind this approach is to make debugging easier.
 
 # Directory structure
 
