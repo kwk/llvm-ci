@@ -1,4 +1,4 @@
-RUNNER_IMAGE := quay.io/kkleine/llvm-ci:runner-fedora-33-$(ARCH)-$(CI_GIT_COMMIT_ID)
+RUNNER_IMAGE := $(CONTAINER_IMAGE_REPO):runner-fedora-33-$(ARCH)-$(CI_GIT_COMMIT_ID)
 
 .PHONY: runner-image
 ## Generates a container image to be used as a github self-hosted runner.

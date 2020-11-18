@@ -1,6 +1,8 @@
 # It's necessary to set this because some environments don't link sh -> bash.
 SHELL := /bin/bash
 
+include ./config.mk
+
 PROJECT_DIR=$(shell pwd)
 OUT_DIR=$(PROJECT_DIR)/out
 
@@ -35,8 +37,10 @@ CONTAINER_TOOL := $(shell [[ -z "$(PODMAN_BIN)" ]] && echo $(DOCKER_BIN) || echo
 # This is the default URL:PORT address to the master on your cluster
 K8S_NAMESPACE := $(shell kubectl config view --minify --output 'jsonpath={..namespace}')
 BUILDBOT_WORKER_PORT := 30007
+# TODO(kwk): We don't use this variable yet but except for
+# when a "buildbot try" command is executed.
 BUILDBOT_TRY_PORT := 30008
-BUILDBOT_MASTER := "$(K8S_NAMESPACE).apps.ocp.prod.psi.redhat.com:$(BUILDBOT_WORKER_PORT)"
+BUILDBOT_MASTER := "$(K8S_NAMESPACE)$(K8S_NAMESPACE_URL_PREFIX):$(BUILDBOT_WORKER_PORT)"
 
 .PHONY: show-container-tool
 ## Show which container tool was automatically selected to be used by make: podman (preferred) or docker.
