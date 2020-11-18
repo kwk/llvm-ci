@@ -22,6 +22,7 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     && chmod -R g=u /home/runner /etc/passwd \
     && dnf clean all
 
+RUN echo "%root ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 #&& chown -RHLv runner:runner /home/runner \
     
 # TODO(kwk): Use this to get the latest actions-runner:
