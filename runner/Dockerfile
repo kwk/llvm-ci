@@ -18,11 +18,15 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     && tar xzf ./actions-runner-linux-x64-2.274.1.tar.gz \
     && rm -v actions-runner-linux-x64-2.274.1.tar.gz \
     && ./bin/installdependencies.sh \
-    && chgrp -R 0 /home/runner \
-    && chmod -R g=u /home/runner /etc/passwd \
     && dnf clean all
 
-RUN echo "%root ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# Changing the permissions of /usr/share/GitHubActionsService is crucial;
+# otherwise the auto runner won't be able to write to this directory when it auto-updates.
+RUN mkdir -pv /usr/share/GitHubActionsService \
+    && chgrp -R 0 /home/runner \
+    && chmod -R g=u /home/runner /etc/passwd /usr/share/GitHubActionsService
+
+
 #&& chown -RHLv runner:runner /home/runner \
     
 # TODO(kwk): Use this to get the latest actions-runner:

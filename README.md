@@ -109,7 +109,6 @@ All components have a `Dockerfile` which describes the container image to be cre
 
 # Some pictures...
 
-
 ![Deployment](http://www.plantuml.com/plantuml/proxy?idx=0&src=https://raw.githubusercontent.com/kwk/llvm-ci/trybot-setup/docs/images/master_www.puml&fmt=svg)
 
 # Some background
