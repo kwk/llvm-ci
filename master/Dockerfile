@@ -15,19 +15,23 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
 COPY buildbot-pr-5623.patch /
 RUN patch -p1 -d / --backup --batch  < /buildbot-pr-5623.patch
 
-# See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
-# RUN useradd --create-home buildbot-master \
-RUN mkdir -pv /home/buildbot-master/bin /home/buildbot-master/basedir \
-    && chgrp -R 0 /home/buildbot-master \
-    && chmod -R g=u /home/buildbot-master /etc/passwd
+RUN mkdir -pv /home/buildbot-master/bin /home/buildbot-master/cfg /home/buildbot-master/basedir
 
 COPY bin/* /home/buildbot-master/bin
-COPY master.cfg /home/buildbot-master/basedir/master.cfg
+COPY cfg/* /home/buildbot-master/cfg
 ENV PATH="/home/buildbot-master/bin:${PATH}" HOME=/home/buildbot-master
 RUN chmod +x /home/buildbot-master/bin/*
 
+# See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
+RUN chgrp -R 0 /home/buildbot-master \
+    && chmod -R g=u /home/buildbot-master /etc/passwd
+
 # Volumes to mount secrets into the container
 VOLUME /master-secret-volume
+
+# Volume to mount config file into the container 
+# WARNING: Don't forget to mount the whole base dir instead of just the file. 
+VOLUME /home/buildbot-master/cfg
 
 USER 10001
 WORKDIR /home/buildbot-master
