@@ -18,12 +18,14 @@ cd actions-runner
 
 # Create the runner and start the configuration experience
 ./config.sh \
-    --url ${RUNNER_URL} \
-    --token ${RUNNER_TOKEN} \
+    --url "${RUNNER_URL}" \
+    --token "${RUNNER_TOKEN}" \
     --replace \
     --unattended \
-    --labels ${RUNNER_LABELS} \
-    --name ${RUNNER_NAME}
+    --labels "${RUNNER_LABELS}" \
+    --name "${RUNNER_NAME}"
+
+
 
 # Last step, run it!
-./run.sh
+sudo ./run.sh
