@@ -7,25 +7,30 @@ set -eu
 # in the pipeline.
 set -o pipefail
 
-# Read the worker name and password from a mounted file.
-RUNNER_TOKEN=$(cat /runner-secret-volume/runner-token)
-RUNNER_URL=$(cat /runner-secret-volume/runner-url)
+GH_PAT=$(cat /runner-secret-volume/github-pat)
 
-RUNNER_NAME=${RUNNER_NAME:-"Default Runner Name"}
-RUNNER_LABELS=${RUNNER_LABELS:-"default-runner-label"}
+# Request a new actions-runner token
+# (See https://developer.github.com/v3/actions/self-hosted-runners/#create-a-registration-token-for-a-repository)
+RUNNER_TOKEN=$(curl -s -XPOST -H "Authorization: token ${GH_PAT}" https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/runners/registration-token | jq .token --raw-output)
 
 cd actions-runner
 
+cleanup() {
+    echo "Removing runner..."
+    ./config.sh remove --unattended --token ${RUNNER_TOKEN}
+}
+
+cleanup
+
 # Create the runner and start the configuration experience
 ./config.sh \
-    --url "${RUNNER_URL}" \
+    --url "https://github.com/${GH_OWNER}/${GH_REPO}" \
     --token "${RUNNER_TOKEN}" \
     --replace \
-    --unattended \
-    --labels "${RUNNER_LABELS}" \
-    --name "${RUNNER_NAME}"
+    --unattended
 
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
+trap 'cleanup' EXIT
 
-
-# Last step, run it!
-./run.sh
+./run.sh & wait $!

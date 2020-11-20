@@ -1,7 +1,5 @@
 FROM fedora:33
 
-ENV LANG=en_US.utf8
-
 RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     buildbot-master \
     buildbot-www \
@@ -9,17 +7,28 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     nano \
     patch \
     python3-service-identity \
-   && yum clean all
+    python3-pip \
+   && dnf clean all
+
+RUN pip install install txrequests
+# RUN pip install buildbot_prometheus
+# ^ txrequests is needed for
+#    https://docs.buildbot.net/latest/manual/configuration/reporters/github_comment.html
+#    and
+#    https://docs.buildbot.net/latest/manual/configuration/reporters/github_status.html#githubstatuspush 
+
 
 # TODO(kwk): HACK: Manually apply path-modified buildbot patch of PR buildbot/buildbot#5623 
 COPY buildbot-pr-5623.patch /
 RUN patch -p1 -d / --backup --batch  < /buildbot-pr-5623.patch
 
-RUN mkdir -pv /home/buildbot-master/bin /home/buildbot-master/cfg /home/buildbot-master/basedir
+RUN mkdir -pv \
+    /home/buildbot-master/bin \
+    /home/buildbot-master/cfg \
+    /home/buildbot-master/basedir
 
-COPY bin/* /home/buildbot-master/bin
-COPY cfg/* /home/buildbot-master/cfg
-ENV PATH="/home/buildbot-master/bin:${PATH}" HOME=/home/buildbot-master
+COPY bin/* /home/buildbot-master/bin/
+# COPY cfg/* /home/buildbot-master/cfg/
 RUN chmod +x /home/buildbot-master/bin/*
 
 # See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
@@ -48,11 +57,8 @@ LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 ENV BUILDBOT_MASTER_PORT=9989
 ENV BUILDBOT_WWW_PORT=8010
 ENV BUILDBOT_MASTER_TRY_PORT=8031
-ENV BUILDBOT_MASTER_TITLE="Buildbot on PSI"
+ENV BUILDBOT_MASTER_TITLE="Default"
 
-ENTRYPOINT [ "uid_entrypoint.sh" ]
+ENTRYPOINT [ "/home/buildbot-master/bin/uid_entrypoint.sh" ]
 
-CMD [ "master.sh" ]
-
-
-
+CMD [ "/home/buildbot-master/bin/master.sh" ]

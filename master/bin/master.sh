@@ -9,7 +9,7 @@ set -o pipefail
 
 BUILDBOT_MASTER_BASEDIR=/home/buildbot-master/basedir
 
-buildbot create-master --config=/home/buildbot-master/cfg/master.cfg "${BUILDBOT_MASTER_BASEDIR}"
+buildbot create-master --force --config=/home/buildbot-master/cfg/master.cfg "${BUILDBOT_MASTER_BASEDIR}"
 
 buildbot start "${BUILDBOT_MASTER_BASEDIR}" || (tail ${BUILDBOT_MASTER_BASEDIR}/twistd.log && exit 1)
 

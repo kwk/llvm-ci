@@ -19,18 +19,6 @@ push-runner-image:
 	@echo Pushing image ${RUNNER_IMAGE}
 	$(CONTAINER_TOOL) push ${RUNNER_IMAGE}
 
-.PHONY: run-local-runner
-## Runs the runner container image locally for quick testing.
-## QUICK TIP: To start a bash and not the actual runner run "make run-local-runner bash"
-run-local-runner: runner-image
-	export SECRET_DIR=$(shell mktemp -d -p $(OUT_DIR)) \
-	&& chmod a+rwx $${SECRET_DIR} \
-	&& echo '<PUT_URL_TO_GITHUB_REPO_HERE>' > $${SECRET_DIR}/runner-url \
-	&& echo '<PUT_GITHUB_RUNNER_TOKEN_HERE>' > $${SECRET_DIR}/runner-token \
-	&& $(CONTAINER_TOOL) run -it --rm \
-	-v $${SECRET_DIR}:/runner-secret-volume:Z \
-	${RUNNER_IMAGE} bash
-
 .PHONY: delete-runner-deployment
 ## Removes all parts of the buildbot runner deployment from the cluster
 delete-runner-deployment:

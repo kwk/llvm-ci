@@ -19,19 +19,6 @@ push-worker-image:
 	@echo Pushing image ${WORKER_IMAGE}
 	$(CONTAINER_TOOL) push ${WORKER_IMAGE}
 
-.PHONY: run-local-worker
-## Runs the worker container image locally for quick testing against upstream master
-## QUICK TIP: To start a bash and not the actual worker run "make run-local-worker bash"
-run-local-worker: worker-image
-	export SECRET_DIR=$(shell mktemp -d -p $(OUT_DIR)) \
-	&& chmod a+rwx $${SECRET_DIR} \
-	&& echo "example-worker" > $${SECRET_DIR}/buildbot-worker-name \
-	&& echo 'password' > $${SECRET_DIR}/buildbot-worker-password \
-	&& $(CONTAINER_TOOL) run -it --rm \
-	-v $${SECRET_DIR}:/buildbot-worker-secret-volume:Z \
-	--env BUILDBOT_MASTER=$(BUILDBOT_MASTER) \
-	${WORKER_IMAGE} bash
-
 .PHONY: delete-worker-deployment
 ## Removes all parts of the buildbot worker deployment from the cluster
 delete-worker-deployment:

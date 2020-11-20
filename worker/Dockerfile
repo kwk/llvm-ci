@@ -1,7 +1,5 @@
 FROM fedora:33
 
-ENV LANG=en_US.utf8
-
 RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     buildbot-worker \
     ccache \
@@ -56,9 +54,13 @@ ENV BUILDBOT_INFO_ADMIN="Your Name <yourname at email dot com>"
 
 ENV BUILDBOT_ACCESS_URI=""
 
+# NOTE: When this is started with docker-compose,
+#       replace /buildbot-worker-secret-volume with /run/secrets.
+ENV BUILDBOT_WORKER_NAME_PATH="/buildbot-worker-secret-volume/buildbot-worker-name"
+ENV BUILDBOT_WORKER_PASSWORD_PATH="/buildbot-worker-secret-volume/buildbot-worker-password"
 ################################################################################
 
-COPY bin/* /home/worker/bin
+COPY bin/* /home/worker/bin/
 ENV PATH="/home/worker/bin:${PATH}" HOME=/home/worker
 RUN chmod +x /home/worker/bin/*
 

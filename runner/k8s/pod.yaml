@@ -22,10 +22,10 @@ spec:
           mountPath: /runner-secret-volume
           readOnly: true
       env:
-        - name: RUNNER_NAME
-          value: "Runner-on-OpenShift"
-        - name: RUNNER_LABELS
-          value: "k8s,fedora33,openshift,kubernetes"
+        - name: GH_OWNER
+          value: "kwk"
+        - name: GH_REPO
+          value: "llvm-ci-demo"
   volumes:
     - name: runner-secret-volume
       secret:

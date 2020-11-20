@@ -30,9 +30,15 @@ endif
 ARCH=$(shell arch)
 
 # Find out which container tool to use (currently only podman and docker are supported)
-DOCKER_BIN := $(shell command -v docker 2> /dev/null)
-PODMAN_BIN := $(shell command -v podman 2> /dev/null)
-CONTAINER_TOOL := $(shell [[ -z "$(PODMAN_BIN)" ]] && echo $(DOCKER_BIN) || echo $(PODMAN_BIN))
+# DOCKER_BIN := $(shell command -v docker 2> /dev/null)
+# DOCKER_COMPOSE_BIN := $(shell command -v docker-compose 2> /dev/null)
+# PODMAN_BIN := $(shell command -v podman 2> /dev/null)
+# PODMAN_COMPOSE_BIN := $(shell command -v podman-compose 2> /dev/null)
+# CONTAINER_TOOL := $(shell [[ -z "$(PODMAN_BIN)" ]] && echo $(DOCKER_BIN) || echo $(PODMAN_BIN))
+# COMPOSE_TOOL := $(shell [[ -z "$(PODMAN_COMPOSE_BIN)" ]] && echo $(DOCKER_COMPOSE_BIN) || echo $(PODMAN_COMPOSE_BIN))
+
+CONTAINER_TOOL := docker
+COMPOSE_TOOL := docker-compose
 
 # This is the default URL:PORT address to the master on your cluster
 K8S_NAMESPACE := $(shell kubectl config view --minify --output 'jsonpath={..namespace}')
@@ -48,6 +54,12 @@ BUILDBOT_MASTER := "$(K8S_NAMESPACE)$(K8S_NAMESPACE_URL_PREFIX):$(BUILDBOT_WORKE
 show-container-tool:
 	@echo $(CONTAINER_TOOL)
 
+.PHONY: show-compose-tool
+## Show which container tool was automatically selected to be used by make: podman-compose (preferred) or docker-compose.
+## QUICK TIP: To overwrite container tool "make COMPOSE_TOOL=/path/to/podman-compose/or/docker-compose <TARGET>"
+show-compose-tool:
+	@echo $(COMPOSE_TOOL)
+
 .PHONY: show-buildbot-master
 ## Shows the URL:PORT to that will be used to point workers to the buildbot master
 show-buildbot-master:
@@ -57,3 +69,10 @@ include ./help.mk
 include ./worker/worker.mk
 include ./master/master.mk
 include ./runner/runner.mk
+
+.PHONY: run-locally
+## Runs the buildbot master, two workers and a github actions-runner
+## on localhost using podman-compose or docker-compose.
+run-locally:
+	$(COMPOSE_TOOL) build
+	$(COMPOSE_TOOL) up

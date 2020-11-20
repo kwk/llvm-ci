@@ -87,9 +87,6 @@ At the root of the `master` directory you find a `README.md` file and a `master.
 ```
 master-image              - Generates a container image that functions as a buildbot master.
 push-master-image         - Pushes the buildbot master container image to a registry.
-run-local-master          - Runs the master container image locally for quick testing.
-                            QUICK TIP: To start a bash and not the actual buildbot master 
-                            run "make run-local-master bash"
 delete-master-deployment  - Removes all parts of the buildbot master deployment from the 
                             cluster
 deploy-master-misc        - Creates the master secret, service, and route on a Kubernetes 

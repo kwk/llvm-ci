@@ -1,7 +1,5 @@
 FROM fedora:33
 
-ENV LANG=en_US.utf8
-
 # See: https://docs.openshift.com/container-platform/3.3/creating_images/guidelines.html#openshift-container-platform-specific-guidelines
 RUN useradd --create-home runner
 
@@ -38,7 +36,7 @@ RUN mkdir -pv /usr/share/GitHubActionsService \
 #     | tar xz \
 
 
-COPY bin/* /home/runner
+COPY bin/* /home/runner/
 RUN chmod +x -v /home/runner/*.sh
 RUN chgrp -R 0 /home/runner \
     && chmod -R g=u /home/runner /etc/passwd

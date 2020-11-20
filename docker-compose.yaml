@@ -1,0 +1,72 @@
+version: "3.8"
+services:
+
+    # The buildbot master
+    master:
+        container_name: master-container
+        # user: buildbot-master:root
+        build:
+            context: ./master
+        ports:
+            # Web-Frontend
+            - "8010:8010"
+            # Port to Try-Scheduler
+            - "8031:8031"
+            # Prometheus exporter
+            - "9101:9101"
+        # Only workers must reach the workers-port,
+        # hence we only expose but not publish it on the host.
+        expose:
+            - "9989"
+        volumes:
+            - "./master/cfg:/home/buildbot-master/cfg:Z"
+            - "./master/compose-secrets/:/master-secret-volume/:Z"
+        environment:
+            BUILDBOT_MASTER_TITLE: "Compose"
+            BUILDBOT_MASTER_TRY_PORT: "8031"
+            BUILDBOT_MASTER_PORT: "9989"
+            BUILDBOT_WWW_PORT: "8010"
+            BUILDBOT_WWW_URL: https://localhost:8010/
+        networks:
+            - master
+            - worker
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8010"]
+            interval: 1m30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+    
+    # A buildbot worker
+    worker:
+        container_name: worker-container
+        build: ./worker
+        environment:
+            BUILDBOT_ACCESS_URI: localhost
+            BUILDBOT_WORKER_NAME: Local Worker
+            BUILDBOT_INFO_ADMIN: you@me.com
+            BUILDBOT_MASTER: master:9989
+        networks:
+            - worker
+        depends_on:
+            - master
+        volumes:
+          - "./worker/compose-secrets:/buildbot-worker-secret-volume:Z"
+    
+    # # Github self-hosted actions-runner
+    runner:
+        container_name: runner-container
+        build: ./runner
+        environment:
+            GH_OWNER: kwk
+            GH_REPO: llvm-ci-demo
+        networks:
+            - master
+        depends_on:
+            - master
+        volumes:
+          - "./runner/compose-secrets:/runner-secret-volume:Z"
+
+networks:
+    master:
+    worker:
