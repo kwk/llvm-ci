@@ -15,27 +15,24 @@ RUNNER_TOKEN=$(curl -s -XPOST -H "Authorization: token ${GH_PAT}" https://api.gi
 
 cd actions-runner
 
+config() {
+    # Create the runner and start the configuration experience
+    ./config.sh \
+        --url "https://github.com/${GH_OWNER}/${GH_REPO}" \
+        --token "${RUNNER_TOKEN}" \
+        --replace \
+        --unattended
+}
+
 cleanup() {
     echo "Removing runner..."
     ./config.sh remove --unattended --token ${RUNNER_TOKEN}
 }
 
+config
+
+trap 'cleanup";' EXIT
+
+./bin/runsvc.sh
+
 cleanup
-
-# Create the runner and start the configuration experience
-./config.sh \
-    --url "https://github.com/${GH_OWNER}/${GH_REPO}" \
-    --token "${RUNNER_TOKEN}" \
-    --replace \
-    --unattended
-
-trap 'echo "exiting with 130";  cleanup; exit 130' INT
-trap 'echo "exiting with 143"; cleanup; exit 143' TERM
-trap 'echo "EXITING with $?";' EXIT
-
-# In case the runner updates we need to restart it
-while true; do
-    set +e
-    ./run.sh
-    set -e
-done
