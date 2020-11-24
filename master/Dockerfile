@@ -4,14 +4,14 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     buildbot-master \
     buildbot-www \
     git \
+    inotify-tools \
     nano \
     patch \
     python3-service-identity \
     python3-pip \
    && dnf clean all
 
-RUN pip install install txrequests
-# RUN pip install buildbot_prometheus
+RUN pip install install txrequests buildbot_prometheus
 # ^ txrequests is needed for
 #    https://docs.buildbot.net/latest/manual/configuration/reporters/github_comment.html
 #    and

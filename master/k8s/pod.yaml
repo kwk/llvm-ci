@@ -32,6 +32,7 @@ spec:
           name: workers
         - containerPort: 8031
           name: try
+        # TODO(kwk): Add port for prometheus logger
       livenessProbe:
         httpGet:
           path: /
@@ -43,3 +44,4 @@ spec:
       type: File
       secret:
         secretName: master-secret
+    # TODO(kwk): Add volume for config dir

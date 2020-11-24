@@ -29,8 +29,13 @@ cleanup
     --replace \
     --unattended
 
-trap 'cleanup; exit 130' INT
-trap 'cleanup; exit 143' TERM
-trap 'cleanup' EXIT
+trap 'echo "exiting with 130";  cleanup; exit 130' INT
+trap 'echo "exiting with 143"; cleanup; exit 143' TERM
+trap 'echo "EXITING with $?";' EXIT
 
-./run.sh & wait $!
+# In case the runner updates we need to restart it
+while true; do
+    set +e
+    ./run.sh
+    set -e
+done

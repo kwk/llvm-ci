@@ -1,0 +1,23 @@
+name: give-tips-on-new-pr
+on:
+  pull_request:
+    types: [ opened ]
+
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: [self-hosted]
+    steps:
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          message: |
+            # Thank you @${{ github.event.pull_request.user.login }}
+            
+            for opening this Pull Request!
+            This is an automated message to help you better understand your possibilities.
+            of how to kick-off actions by sending commands through comments to this PR.
+            Please issue a comment like `/build-on <builder>`, where `<builder>` is a buildbot
+            builder name.
+            
+            You can find a list of all builders on [this Buildbot page](http://localhost:8010/#/builders).
