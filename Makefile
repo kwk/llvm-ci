@@ -5,6 +5,8 @@ include ./config.mk
 
 PROJECT_DIR=$(shell pwd)
 OUT_DIR=$(PROJECT_DIR)/out
+# For the global "prepare-secrets" target all targets in this variable will be executed
+PREPARE_SECRET_TARGETS =
 
 # Create output directory for artifacts and test results
 $(shell mkdir -p $(OUT_DIR));
@@ -80,4 +82,9 @@ include ./runner/runner.mk
 run-locally:
 	$(COMPOSE_TOOL) build
 	$(COMPOSE_TOOL) up
+
+# Keep this "prepare-secrets" target here at the bottom
+.PHONY: prepare-secrets
+## Runs all prepare-XY-secret targets.
+prepare-secrets: $(PREPARE_SECRET_TARGETS)
 

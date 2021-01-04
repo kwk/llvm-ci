@@ -32,3 +32,10 @@ deploy-runner: ready-to-deploy runner-image push-runner-image delete-runner-depl
 	export RUNNER_IMAGE=$(RUNNER_IMAGE) \
 	&& envsubst '$${RUNNER_IMAGE}' < ./runner/k8s/pod.yaml > ./out/runner-pod.yaml
 	kubectl apply -f ./out/runner-pod.yaml
+
+PREPARE_SECRET_TARGETS += prepare-runner-secrets
+.PHONY: prepare-runner-secrets
+## Copies secret templates for the runner (NOTE: existing secrets will be backed up).
+prepare-runner-secrets:
+	-cp -v --backup=numbered ./runner/k8s/secret.yaml.sample ./runner/k8s/secret.yaml
+	-cp -v --backup=numbered ./runner/compose-secrets/github-pat.sample ./runner/compose-secrets/github-pat

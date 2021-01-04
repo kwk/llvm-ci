@@ -25,11 +25,16 @@ This `llvm-ci` repository is meant to provide a greenfield and playground setup 
 ## Quick Setup
 
 1. Install or upgrade the github command line tools v1.4 for better reproduction: https://github.com/cli/cli#installation.
-2. Check you have at least version 1.4 or later by running: `$ gh version`.
-
-```
-git clone --origin=myfork  
-```
+1. Check you have at least version 1.4 or later by running: `gh version`.
+1. Login to github using: `gh auth login`
+1. Fork the llvm-ci repository under your own account: `gh repo fork kwk-org/llvm-ci --clone=true`.
+  1. **Please note that the whole setup relies on you to actually fork and not clone the original repository!**
+1. Enter the fork on the command line: `cd llvm-ci`.
+1. Prepare secret files by copying versioned templates into explicitly not versioned files: `make prepare-secrets`
+1. Create a [personal access token (PAT)](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) called `buildbot-write-discussion` here: https://github.com/settings/tokens/new.
+  1. Give it `write:discussion` permissions.
+  1. Copy secret files for master
+  1. Save the token under `master/compose/github-pat` and in `master/k8s/secret.yaml`
 
 ## Is this repository useful for you?
 
