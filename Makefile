@@ -40,6 +40,10 @@ ARCH=$(shell arch)
 CONTAINER_TOOL := docker
 COMPOSE_TOOL := docker-compose
 
+# Take the git "origin" remote's user part to determine a github user repository
+GIT_ORIGIN_USER := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 1)
+GIT_ORIGIN_REPO := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 2 | sed -s 's/\.git$//g')
+
 # This is the default URL:PORT address to the master on your cluster
 K8S_NAMESPACE := $(shell kubectl config view --minify --output 'jsonpath={..namespace}')
 BUILDBOT_WORKER_PORT := 30007
@@ -76,3 +80,4 @@ include ./runner/runner.mk
 run-locally:
 	$(COMPOSE_TOOL) build
 	$(COMPOSE_TOOL) up
+

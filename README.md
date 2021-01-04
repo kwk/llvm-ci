@@ -6,7 +6,7 @@ This repository contains bits to spin up and connect three things:
 2. a buildbot worker
 3. a github actions-runner
 
-All of these three components are meant to be deployed to a Kubernetes cluster. For each component we have a dedicated folder (`/master`, `/worker`, `/runner`) which contains `Makefile` bits, Kubernetes files, secrets and container image descriptions (`Dockerfile`s). Once you've understand the structure of one folder you should be able to work on the others as well.
+All of these three components are meant to be deployed to a Kubernetes cluster or locally using docker-compose. For each component we have a dedicated folder (`/master`, `/worker`, `/runner`) which contains `Makefile` bits, Kubernetes files, secrets and container image descriptions (`Dockerfile`s). Once you've understand the structure of one folder you should be able to work on the others as well.
 
 # Purpose
 
@@ -14,13 +14,22 @@ At Red Hat we want to contribute to the developer workflow of [LLVM's upstream c
 
 ## How? By Focusssing on the workflow not the technology
 
-This `llvm-ci` repository is meant to provide a greenfield setup on which we can try out new workflow ideas without modifying the upstream buildbot installations. The idea is to provide the tools we already have at our exposure (buildbot master and workers) and focus on the actual workflows inside of github pull requests with respect to:
+This `llvm-ci` repository is meant to provide a greenfield and playground setup on which we can try out new workflow ideas without modifying the upstream buildbot installations. The idea is to provide the tools we already have at our exposure (buildbot master, workers, and builders) and focus on the actual workflows inside of github pull requests with respect to:
 
 * pre-commit testing
 * ease of use
 * flexibility
 * reporting
 * *put your idea here*
+
+## Quick Setup
+
+1. Install or upgrade the github command line tools v1.4 for better reproduction: https://github.com/cli/cli#installation.
+2. Check you have at least version 1.4 or later by running: `$ gh version`.
+
+```
+git clone --origin=myfork  
+```
 
 ## Is this repository useful for you?
 
@@ -30,7 +39,7 @@ If you want to contribute and try out workflow ideas using github actions with y
 
 I (@kwk) can only tell what I use and think should work without too much gamma radiation involved ;)
 
-I have developer laptop with Fedora 32, podman, kubectl and oc binaries installed. Those tools will allow me to build the container images that I'm going to deploy to our Kubernetes cluster.
+I have developer laptop with Fedora 32, docker, docker-compose, podman, kubectl and oc binaries installed. Those tools will allow me to build the container images that I'm going to deploy to our Kubernetes cluster.
 
 I have access to an internal OpenShift 4 cluster that is not publically reachable. Hence, I have to be on the company's VPN in order to access the buildbot's web interface for example.
 If you have an OpenShift 4 cluster yourself, you should be good. Maybe other Kubernetes implementations work as well.
