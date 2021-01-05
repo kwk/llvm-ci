@@ -18,7 +18,7 @@ jobs:
   build:
     needs: check-comment
     # We need to run this on a self-hosted github actions-runner because
-    # the master in the test setup is only reachable from within VPN.
+    # the buildbot master in the test setup is not publically only reachable.
     runs-on: [self-hosted]
     steps:
       - name: Set job variables
