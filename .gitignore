@@ -15,3 +15,10 @@ runner/k8s/secret.yaml
 runner/compose-secrets/github-pat
 
 worker/compose-secrets/github-pat
+
+# Let's not version potential backups of actual credentials
+# For example:
+#   worker/compose-secrets/github-pat.~1~
+#   worker/compose-secrets/buildbot-worker-password.~3~
+**/compose-secrets/*.~*~
+**/k8s/*.~*~
