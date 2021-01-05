@@ -12,6 +12,14 @@ As humans we have intentions, motivations and memory and I believe we can use re
 
 # :thought_balloon: The Vision
 
+For general CI in most modern projects that have a dedicated target platform, architecture and operating system you have to answer just one question:
+
+* Wouldn't it be nice if we can test every commit before it goes in the codebase?
+
+In such a project you spin up a fast machine somewhere that matches the requirements and you're good to test on it. Then just test every commit before it hits the main branch.
+
+For LLVM this is a bit trickier and things cannot be fully automated.
+
 * As a reviewer or change author, wouldn't it be nice if you can **request to build a pull request (PR) using a certain buildbot builder** or using specific flags?
 * Wouldn't it be nice if you can **utilize the existing buildbot infrastructure** with its workers and builders if the owners opt-in?
 * Wouldn't it be nice if we can **educate LLVM contributors** by having a semi-automated **conversation** inside of PRs? For example we could greet contributors once they open a PR and tell them how to test it.
