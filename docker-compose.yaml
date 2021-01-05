@@ -39,7 +39,7 @@ services:
     
     # A buildbot worker
     worker1:
-        container_name: worker-container
+        container_name: worker-container1
         build: ./worker
         environment:
             BUILDBOT_ACCESS_URI: localhost
@@ -55,7 +55,7 @@ services:
     
     # Another buildbot worker
     worker2:
-        container_name: worker-container
+        container_name: worker-container2
         build: ./worker
         environment:
             BUILDBOT_ACCESS_URI: localhost
