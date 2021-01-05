@@ -3,6 +3,9 @@ info/*
 artifacts/*
 buildbot.tac
 
+# Let's not version your docker-compose environment file
+.env
+
 # Let's not version the actual credentials
 worker/k8s/secret.yaml
 worker/compose-secrets/buildbot-worker-name

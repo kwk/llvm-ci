@@ -38,12 +38,12 @@ services:
             start_period: 40s
     
     # A buildbot worker
-    worker:
+    worker1:
         container_name: worker-container
         build: ./worker
         environment:
             BUILDBOT_ACCESS_URI: localhost
-            BUILDBOT_WORKER_NAME: Local Worker
+            BUILDBOT_WORKER_NAME: Local Worker 1
             BUILDBOT_INFO_ADMIN: you@me.com
             BUILDBOT_MASTER: master:9989
         networks:
@@ -53,18 +53,39 @@ services:
         volumes:
           - "./worker/compose-secrets:/buildbot-worker-secret-volume:Z"
     
-    # # Github self-hosted actions-runner
+    # Another buildbot worker
+    worker2:
+        container_name: worker-container
+        build: ./worker
+        environment:
+            BUILDBOT_ACCESS_URI: localhost
+            BUILDBOT_WORKER_NAME: Local Worker 2
+            BUILDBOT_INFO_ADMIN: you@me.com
+            BUILDBOT_MASTER: master:9989
+        networks:
+            - worker
+        depends_on:
+            - master
+        volumes:
+          - "./worker/compose-secrets:/buildbot-worker-secret-volume:Z"
+    
+    # Github self-hosted actions-runner
     runner:
         container_name: runner-container
+        # TODO(kwk): Sadly I haven't figured out a way to get rid of this because the
+        # github actions runner binary requires quite some permissions when it upgrades it self.
+        # This self-upgrade cannot be stopped. 
         user: runner:root
         build: ./runner
         environment:
-            GH_OWNER: kwk
-            GH_REPO: llvm-ci-demo
+            GH_OWNER: ${GH_OWNER}
+            GH_REPO: ${GH_REPO}
         networks:
             - master
         depends_on:
             - master
+            - worker1
+            - worker2
         volumes:
           - "./runner/compose-secrets:/runner-secret-volume:Z"
 

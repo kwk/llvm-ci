@@ -10,12 +10,14 @@ jobs:
     steps:
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
+          # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
+          # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           message: |
             # Thank you @${{ github.event.pull_request.user.login }}
             
             for opening this Pull Request!
-            This is an automated message to help you better understand your possibilities.
+            This is an automated message to help you better understand your possibilities
             of how to kick-off actions by sending commands through comments to this PR.
             Please issue a comment like `/build-on <builder>`, where `<builder>` is a buildbot
             builder name.
