@@ -1,6 +1,7 @@
 # The setting
 
 This project is all about a continous integration approach for the LLVM project. At the time of writing, the LLVM code lives in Github but reviews are done in Phabricator. The assumption for this project is that we open up the possibility to submit patches, author reviews and run checks within Github as well, so that code and reviews sit side-by-side. Another assumption is we want to test patches *before* they are merged into the main or master branch of the LLVM codebase. With LLVM's buildbot infrastructure still in place but slightly modified I believe that we can create a very slick user experience for change authors and reviewers, that hides and at the same time exposes a lot of the possibilities already present with the current buildbot infrastructure.
+
 As humans we have intentions, motivations and memory and I believe we can use regular Github comments to utter, express and track our thoughts to control and drive the continous integration system. With a bit of clever comment formatting we can have github actions parse the comments and possible enter a dialogue.    
 
 # The Vision
