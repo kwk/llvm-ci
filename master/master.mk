@@ -45,7 +45,11 @@ deploy-master: ready-to-deploy master-image push-master-image delete-master-depl
 
 PREPARE_SECRET_TARGETS += prepare-master-secrets
 .PHONY: prepare-master-secrets
-## Copies secret templates for the master (NOTE: existing secrets will be backed up).
+## Copies secret templates for the buildbot master and adjusts permissions. 
+## NOTE: Existing secrets will be backed up.
 prepare-master-secrets:
-	-cp -v --backup=numbered ./master/k8s/secret.yaml.sample ./master/k8s/secret.yaml
-	-cp -v --backup=numbered ./master/compose-secrets/github-pat.sample ./master/compose-secrets/github-pat
+	@-cp -v --backup=numbered ./master/k8s/secret.yaml.sample ./master/k8s/secret.yaml
+	@-cp -v --backup=numbered ./master/compose-secrets/github-pat.sample ./master/compose-secrets/github-pat
+	## TODO(kwk): Security concertn? Without "others" being able to read the secrets, the master won't start.
+	@chmod a+r -v ./master/k8s/secret.yaml
+	@chmod a+r -v ./master/compose-secrets/github-pat

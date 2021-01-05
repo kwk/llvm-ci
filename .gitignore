@@ -8,7 +8,6 @@ buildbot.tac
 
 # Let's not version the actual credentials
 worker/k8s/secret.yaml
-worker/compose-secrets/buildbot-worker-name
 worker/compose-secrets/buildbot-worker-password
 
 master/k8s/secret.yaml

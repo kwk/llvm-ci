@@ -53,11 +53,6 @@ ENV BUILDBOT_CREATE_WORKER_OPTS=""
 ENV BUILDBOT_INFO_ADMIN="Your Name <yourname at email dot com>"
 
 ENV BUILDBOT_ACCESS_URI=""
-
-# NOTE: When this is started with docker-compose,
-#       replace /buildbot-worker-secret-volume with /run/secrets.
-ENV BUILDBOT_WORKER_NAME_PATH="/buildbot-worker-secret-volume/buildbot-worker-name"
-ENV BUILDBOT_WORKER_PASSWORD_PATH="/buildbot-worker-secret-volume/buildbot-worker-password"
 ################################################################################
 
 COPY bin/* /home/worker/bin/

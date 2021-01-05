@@ -29,7 +29,9 @@ This project tries to answer these simple questions by replicating the main comp
 
 # :question: The How
 
-**NOTE:** This project started and I used OpenShift for it but when I found out more about Github Actions and self-hosted runners I came up with the idea to lower the burden and use plain docker-compose to bring up the required applications locally. Here and there accross the project you'll find k8s (short for Kubernetes) folders and files or Makefile targets. Those can safely be ignored as it is completely sufficient to just use docker-compose. I hesitate to remove them yet because I still think the knowledge I gathered when writing them is burried inside of those files.  
+**NOTE:** This project started and I used OpenShift for it but when I found out more about Github Actions and self-hosted runners I came up with the idea to lower the burden and use plain docker-compose to bring up the required applications locally. Here and there accross the project you'll find k8s (short for Kubernetes) folders and files or Makefile targets. Those can safely be ignored as it is completely sufficient to just use docker-compose. I hesitate to remove them yet because I still think the knowledge I gathered when writing them is burried inside of those files. 
+
+I use `docker` and `docker-compose` to as my container and orchestration tool. I only have limited amount of testing capabilities due to time constraints. Feel free to experiment with `podman` and `podman-compose`. The `Makefile`s are agnostic to what tool you use. I try to not use any fancy features from `docker` or `docker-compose` for which there's no equivalent in `podman` or `podman-compose` but I cannot guarantee that everything will be working.
 
 # :notes: Setup
 

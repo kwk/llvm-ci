@@ -12,8 +12,6 @@ CONFIG_FILE=/home/buildbot-master/cfg/master.cfg
 
 buildbot create-master --force --config=${CONFIG_FILE} "${BUILDBOT_MASTER_BASEDIR}"
 
-ls -lha /master-secret-volume
-
 buildbot start "${BUILDBOT_MASTER_BASEDIR}" || (tail ${BUILDBOT_MASTER_BASEDIR}/twistd.log && exit 3)
 
 echo "Monitoring file changes to ${CONFIG_FILE} in the background"

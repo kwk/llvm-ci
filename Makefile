@@ -44,7 +44,7 @@ COMPOSE_TOOL := docker-compose
 
 # Take the git "origin" remote's user part to determine a github user repository
 GIT_ORIGIN_USER := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 1)
-GIT_ORIGIN_REPO := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 2 | sed -s 's/\.git$//g')
+GIT_ORIGIN_REPO := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 2 | sed -s 's/\.git$$//g')
 
 # This is the default URL:PORT address to the master on your cluster
 K8S_NAMESPACE := $(shell kubectl config view --minify --output 'jsonpath={..namespace}')
@@ -55,14 +55,14 @@ BUILDBOT_TRY_PORT := 30008
 BUILDBOT_MASTER := "$(K8S_NAMESPACE)$(K8S_NAMESPACE_URL_PREFIX):$(BUILDBOT_WORKER_PORT)"
 
 .PHONY: show-container-tool
-## Show which container tool was automatically selected to be used by make: podman (preferred) or docker.
-## QUICK TIP: To overwrite container tool "make CONTAINER_TOOL=/path/to/podman/or/docker <TARGET>"
+## Show which container tool was automatically selected to be used by make: docker (preferred) podman.
+## QUICK TIP: To overwrite container tool "make CONTAINER_TOOL=/path/to/docker/or/podman <TARGET>"
 show-container-tool:
 	@echo $(CONTAINER_TOOL)
 
 .PHONY: show-compose-tool
-## Show which container tool was automatically selected to be used by make: podman-compose (preferred) or docker-compose.
-## QUICK TIP: To overwrite container tool "make COMPOSE_TOOL=/path/to/podman-compose/or/docker-compose <TARGET>"
+## Show which container tool was automatically selected to be used by make: docker-compose (preferred) or podman-compose.
+## QUICK TIP: To overwrite container tool "make COMPOSE_TOOL=/path/to/docker-compose/or/podman-compose <TARGET>"
 show-compose-tool:
 	@echo $(COMPOSE_TOOL)
 
@@ -78,7 +78,7 @@ include ./runner/runner.mk
 
 .PHONY: run-locally
 ## Runs the buildbot master, two workers and a github actions-runner
-## on localhost using podman-compose or docker-compose.
+## on localhost using docker-compose or podman-compose.
 run-locally:
 	$(COMPOSE_TOOL) build
 	$(COMPOSE_TOOL) up --remove-orphans

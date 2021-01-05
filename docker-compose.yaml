@@ -4,7 +4,7 @@ services:
     # The buildbot master
     master:
         container_name: master-container
-        # user: buildbot-master:root
+        user: buildbot-master:root
         build:
             context: ./master
         ports:
@@ -37,38 +37,49 @@ services:
             retries: 3
             start_period: 40s
     
-    # A buildbot worker
+    # Spawn 3 buildbot workers one after another
+    worker0:
+        container_name: worker-container0
+        build: ./worker
+        environment:
+            BUILDBOT_WORKER_NAME: worker0
+            BUILDBOT_INFO_ADMIN: you@me.com
+            BUILDBOT_MASTER: master:9989
+        networks:
+            - worker
+        depends_on:
+            - master
+        volumes:
+          - "./worker/compose-secrets:/buildbot-worker-secret-volume:Z"
+    
     worker1:
         container_name: worker-container1
         build: ./worker
         environment:
-            BUILDBOT_ACCESS_URI: localhost
-            BUILDBOT_WORKER_NAME: Local Worker 1
+            BUILDBOT_WORKER_NAME: worker1
             BUILDBOT_INFO_ADMIN: you@me.com
             BUILDBOT_MASTER: master:9989
         networks:
             - worker
         depends_on:
-            - master
+            - worker0
         volumes:
           - "./worker/compose-secrets:/buildbot-worker-secret-volume:Z"
-    
-    # Another buildbot worker
+
     worker2:
         container_name: worker-container2
         build: ./worker
         environment:
-            BUILDBOT_ACCESS_URI: localhost
-            BUILDBOT_WORKER_NAME: Local Worker 2
+            BUILDBOT_WORKER_NAME: worker2
             BUILDBOT_INFO_ADMIN: you@me.com
             BUILDBOT_MASTER: master:9989
         networks:
             - worker
         depends_on:
-            - master
+            - worker1
         volumes:
           - "./worker/compose-secrets:/buildbot-worker-secret-volume:Z"
-    
+
     # Github self-hosted actions-runner
     runner:
         container_name: runner-container

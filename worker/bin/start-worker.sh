@@ -7,8 +7,9 @@ set -eu
 # in the pipeline.
 set -o pipefail
 
-# Read the worker name and password from a mounted file.
-BUILDBOT_WORKER_NAME=$(cat /buildbot-worker-secret-volume/buildbot-worker-name)
+BUILDBOT_WORKER_NAME=${BUILDBOT_WORKER_NAME:-"worker0"}
+
+# Read the worker password from a mounted file.
 BUILDBOT_WORKER_PASSWORD=$(cat /buildbot-worker-secret-volume/buildbot-worker-password)
 
 BUILDBOT_WORKER_BASE_DIR="${BUILDBOT_BASEDIR}/${BUILDBOT_WORKER_NAME}"
