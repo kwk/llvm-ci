@@ -80,9 +80,13 @@ include ./runner/runner.mk
 ## Runs the buildbot master, two workers and a github actions-runner
 ## on localhost using docker-compose or podman-compose.
 run-locally:
-	$(COMPOSE_TOOL) build
+	$(COMPOSE_TOOL) build --quiet
 	$(COMPOSE_TOOL) up --remove-orphans -d
-	xdg-open http://localhost:8080
+	@echo -n "Waiting until Buildbot master Web-UI is up."
+	@timeout 22 sh -c 'until curl -sSf http://localhost:8010/#/workers > /dev/null 2>&1; do echo -n "."; sleep 0.1; done'
+	@echo "DONE"
+	@echo "Opening Buildbot Workers Web UI (http://localhost:8010/#/workers)"
+	@xdg-open http://localhost:8010/#/workers
 
 # Keep this "prepare-secrets" target here at the bottom
 .PHONY: prepare-secrets

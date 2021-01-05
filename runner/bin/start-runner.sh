@@ -31,7 +31,7 @@ cleanup() {
 
 config
 
-trap 'cleanup";' EXIT
+trap 'cleanup;' EXIT
 
 ./bin/runsvc.sh
 
