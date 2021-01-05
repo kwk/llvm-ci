@@ -1,19 +1,29 @@
-# The setting
+# :octocat: The setting
 
-This project is all about a continous integration approach for the LLVM project. At the time of writing, the LLVM code lives in Github but reviews are done in Phabricator. The assumption for this project is that we open up the possibility to submit patches, author reviews and run checks within Github as well, so that code and reviews sit side-by-side. Another assumption is we want to test patches *before* they are merged into the main or master branch of the LLVM codebase. With LLVM's buildbot infrastructure still in place but slightly modified I believe that we can create a very slick user experience for change authors and reviewers, that hides and at the same time exposes a lot of the possibilities already present with the current buildbot infrastructure.
+This project is all about a continous integration approach for the LLVM project. At the time of writing, the LLVM code lives in Github but reviews are done in Phabricator.
+
+One assumption for this project is that we open up the possibility to submit patches, author reviews and run checks within Github as well, so that code and reviews sit side-by-side.
+
+Another assumption is we want to test patches *before* they are merged into the main or master branch of the LLVM codebase.
+
+With LLVM's buildbot infrastructure still in place but slightly modified I believe that we can create a very slick user experience for change authors and reviewers, that hides and at the same time exposes a lot of the possibilities already present with the current buildbot infrastructure.
 
 As humans we have intentions, motivations and memory and I believe we can use regular Github comments to utter, express and track our thoughts to control and drive the continous integration system. With a bit of clever comment formatting we can have github actions parse the comments and possible enter a dialogue.    
 
-# The Vision
+# :thought_balloon: The Vision
 
-* As a reviewer or change author, wouldn't it be nice if you can request to build a pull request (PR) using a certain buildbot builder or using specific flags?
-* Wouldn't it be nice if you can utilize the existing buildbot workers and builders if the owners opt-in?
-* Wouldn't it be nice if we can educate LLVM patch contributors by having a semi-automated conversation inside of PRs? For example we could greet contributors once they open a PR and tell them how to test it.
-* Wouldn't it be nice if the LLVM development workflow isn't complicated as in: you need to have the original infrastructure to propose changes?
+* As a reviewer or change author, wouldn't it be nice if you can **request to build a pull request (PR) using a certain buildbot builder** or using specific flags?
+* Wouldn't it be nice if you can **utilize the existing buildbot infrastructure** with its workers and builders if the owners opt-in?
+* Wouldn't it be nice if we can **educate LLVM contributors** by having a semi-automated **conversation** inside of PRs? For example we could greet contributors once they open a PR and tell them how to test it.
+* Wouldn't it be nice if the **LLVM development workflow isn't complicated** to get up and running as in: you need to have the original infrastructure to propose changes?
 
-This project tries to answer these simple questions by replicating the main components of the LLVM buildbot infrastructure and putting them into an a rather easy consumable composition of a few containers that directly hook into a github repository. We would like interested people to modify the actual workflow by providing them with this project and a set of ready-to-use and wired up github actions. 
+This project tries to answer these simple questions by replicating the main components of the LLVM buildbot infrastructure and putting them into an a rather easy consumable composition of a few containers that directly hook into a github repository. We would like interested people to modify the actual workflow by providing them with this project and a set of ready-to-use and wired up github actions.
 
-# Quick Setup
+# :question: The How
+
+**NOTE:** This project started and I used OpenShift for it but when I found out more about Github Actions and self-hosted runners I came up with the idea to lower the burden and use plain docker-compose to bring up the required applications locally. Here and there accross the project you'll find k8s (short for Kubernetes) folders and files or Makefile targets. Those can safely be ignored as it is completely sufficient to just use docker-compose. I hesitate to remove them yet because I still think the knowledge I gathered when writing them is burried inside of those files.  
+
+# :notes: Setup
 
 1. Install or upgrade the github command line tools v1.4 for better reproduction of this setup: https://github.com/cli/cli#installation.
 1. Check you have at least version 1.4 or later by running: `gh version`.
@@ -22,11 +32,11 @@ This project tries to answer these simple questions by replicating the main comp
   1. **Please note that the whole setup relies on you to actually fork and not clone the original repository!**
 1. Enter the fork on the command line: `cd llvm-ci`.
 1. Prepare secret files by copying versioned templates into explicitly unversioned files: `make prepare-secrets`.
-1. Create a [personal access token (PAT)](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) called `buildbot-write-discussion` here: https://github.com/settings/tokens/new.
+1. Create a Github personal access token (PAT) called `buildbot-write-discussion` here: https://github.com/settings/tokens/new.
   1. Give it `write:discussion` permissions.
   1. Save the token in `master/k8s/secret.yaml` and plain in `master/compose-secrets/github-pat`.
  `make prepare-secrets`
-1. Create a [personal access token (PAT)](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) called `actions-runner-registration` here: https://github.com/settings/tokens/new.
+1. Create a Github personal access token (PAT) called `actions-runner-registration` here: https://github.com/settings/tokens/new.
   1. Give it all `repo` permissions.
   1. Save the token in `runner/k8s/secret.yaml` and plain in `runner/compose-secrets/github-pat`.
 1. 
