@@ -81,7 +81,8 @@ include ./runner/runner.mk
 ## on localhost using docker-compose or podman-compose.
 run-locally:
 	$(COMPOSE_TOOL) build
-	$(COMPOSE_TOOL) up --remove-orphans
+	$(COMPOSE_TOOL) up --remove-orphans -d
+	xdg-open http://localhost:8080
 
 # Keep this "prepare-secrets" target here at the bottom
 .PHONY: prepare-secrets

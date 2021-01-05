@@ -29,7 +29,7 @@ This project tries to answer these simple questions by replicating the main comp
 
 # :question: The How
 
-**NOTE:** This project started and I used OpenShift for it but when I found out more about Github Actions and self-hosted runners I came up with the idea to lower the burden and use plain docker-compose to bring up the required applications locally. Here and there accross the project you'll find k8s (short for Kubernetes) folders and files or Makefile targets. Those can safely be ignored as it is completely sufficient to just use docker-compose. I hesitate to remove them yet because I still think the knowledge I gathered when writing them is burried inside of those files. 
+**NOTE:** This project started and I used OpenShift for it but when I found out more about Github Actions and self-hosted runners I came up with the idea to lower the entry barrier and use plain `docker-compose` to bring up the required applications locally. Here and there accross the project you'll find k8s (short for Kubernetes) folders and files or Makefile targets. Those can safely be ignored as it is completely sufficient to just use docker-compose. I hesitate to remove them yet because I still think the knowledge I gathered when writing them is burried inside of those files.
 
 I use `docker` and `docker-compose` to as my container and orchestration tool. I only have limited amount of testing capabilities due to time constraints. Feel free to experiment with `podman` and `podman-compose`. The `Makefile`s are agnostic to what tool you use. I try to not use any fancy features from `docker` or `docker-compose` for which there's no equivalent in `podman` or `podman-compose` but I cannot guarantee that everything will be working.
 
@@ -39,17 +39,15 @@ I use `docker` and `docker-compose` to as my container and orchestration tool. I
 1. Check you have at least version 1.4 or later by running: `gh version`.
 1. Login to github using: `gh auth login`
 1. Fork the llvm-ci repository under your own account: `gh repo fork kwk-org/llvm-ci --remote=true --clone=true`.
-  1. **Please note that the whole setup relies on you to actually fork and not clone the original repository!**
+  1. **Please note that the whole setup relies on you to actually fork and not just clone the original repository!**
 1. Enter the fork on the command line: `cd llvm-ci`.
 1. Prepare secret files by copying versioned templates into explicitly unversioned files: `make prepare-secrets`.
 1. Create a Github personal access token (PAT) called `buildbot-write-discussion` here: https://github.com/settings/tokens/new.
-  1. Give it `write:discussion` permissions.
-  1. Save the token in `master/k8s/secret.yaml` and plain in `master/compose-secrets/github-pat`.
- `make prepare-secrets`
+   1. Give it `write:discussion` permissions.
+   1. Save the token in `master/k8s/secret.yaml` and plain in `master/compose-secrets/github-pat`.
 1. Create a Github personal access token (PAT) called `actions-runner-registration` here: https://github.com/settings/tokens/new.
-  1. Give it all `repo` permissions.
-  1. Save the token in `runner/k8s/secret.yaml` and plain in `runner/compose-secrets/github-pat`.
-1. 
+   1. Give it all `repo` permissions.
+   1. Save the token in `runner/k8s/secret.yaml` and plain in `runner/compose-secrets/github-pat`.
 
 <!--
 
