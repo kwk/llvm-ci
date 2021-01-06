@@ -22,4 +22,4 @@ jobs:
             Please issue a comment like `/build-on <builder>`, where `<builder>` is a buildbot
             builder name.
             
-            You can find a list of all builders on [this Buildbot page](http://localhost:8010/#/builders).
+            You can find a list of all builders on [this local Buildbot page](http://localhost:8010/#/builders).
