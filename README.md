@@ -1,6 +1,6 @@
 # :octocat: The setting
 
-This project is all about a continous integration approach for the LLVM project. At the time of writing, the LLVM code lives in Github but reviews are done in Phabricator.
+This project is all about a developer workflow for the LLVM project. At the time of writing, the LLVM code lives in Github but reviews are done in Phabricator.
 
 One assumption for this project is that we open up the possibility to submit patches, author reviews and run checks within Github as well, so that code and reviews sit side-by-side.
 
