@@ -4,8 +4,8 @@ on:
     types: [ opened ]
 
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  # This workflow contains a single job called "give-tips"
+  give-tips-on-new-pr:
     runs-on: [self-hosted]
     steps:
       - uses: marocchino/sticky-pull-request-comment@v2
