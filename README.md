@@ -67,7 +67,7 @@ For the workflow to be demonstrated, we need to create a new PR. Let's use the `
 
 1. Switch to a new branch: `git checkout -b say-hello`
 1. Leave a message in the `README.md` just to put some content in the change: `echo "I was here" >> README.md`
-1. Create a branch using `gh pr create --fill`
+1. Create a pull request (PR) using `gh pr create --fill`
   1. Upon request select **your own** fork for where to to push the `say-hello` the branch.
 1. Double check a few times that `gh pr checks` shows a passing test.
 1. Then have a look at the latest comment on your PR by running `gh pr view -c`.
