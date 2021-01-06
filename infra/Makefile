@@ -69,6 +69,17 @@ include ./worker/worker.mk
 include ./master/master.mk
 include ./runner/runner.mk
 
+# Take the git "origin" remote's user part to determine a github user repository
+GIT_ORIGIN_USER := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 1)
+GIT_ORIGIN_REPO := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 2 | sed -s 's/\.git$$//g')
+
+.PHONY: buildbot-try-secrets-in-github
+## Create two github secrets (TRY_USER and TRY_PASSWORD) in your fork.
+## Will be used by the actions runner to federate access to the buildbot master.
+buildbot-try-secrets-in-github:
+	gh secret set TRY_USER -balice-try -R $(GIT_ORIGIN_USER)/$(GIT_ORIGIN_REPO)
+	gh secret set TRY_PASSWORD -bpassword -R $(GIT_ORIGIN_USER)/$(GIT_ORIGIN_REPO)
+
 .PHONY: start
 ## Runs the buildbot infrastructure and a github actions-runner
 ## on localhost using docker-compose or podman-compose.
@@ -89,10 +100,6 @@ start:
 stop:
 	$(COMPOSE_TOOL) stop -t0
 	$(COMPOSE_TOOL) rm -f
-
-# Take the git "origin" remote's user part to determine a github user repository
-GIT_ORIGIN_USER := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 1)
-GIT_ORIGIN_REPO := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 2 | sed -s 's/\.git$$//g')
 
 # Keep this "prepare-secrets" target here at the bottom
 .PHONY: prepare-secrets

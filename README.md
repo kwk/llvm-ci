@@ -53,6 +53,7 @@ I use `docker` and `docker-compose` to as my container and orchestration tool. I
 1. Create a Github personal access token (PAT) called `actions-runner-registration` here: https://github.com/settings/tokens/new.
    1. Give it all `repo` permissions.
    1. Save the token in `infra/runner/k8s/secret.yaml` and plain in `infra/runner/compose-secrets/github-pat`.
+1. Create github secrets for the actions runner to federate requests to the buildbot master: `make buildbot-try-secrets-in-gh`
 
 ## Run the infrastructure on your machine
 
