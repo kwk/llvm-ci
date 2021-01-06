@@ -4,12 +4,9 @@ SHELL := /bin/bash
 include ./config.mk
 
 PROJECT_DIR=$(shell pwd)
-OUT_DIR=$(PROJECT_DIR)/out
-# For the global "prepare-secrets" target all targets in this variable will be executed
-PREPARE_SECRET_TARGETS =
 
-# Create output directory for artifacts and test results
-$(shell mkdir -p $(OUT_DIR));
+# For the global "prepare-secrets" target all targets in this variable will be executed
+PREPARE_SECRET_TARGETS =s
 
 CI_GIT_COMMIT_ID := $(shell git rev-parse --short HEAD)
 IS_DIRTY := no

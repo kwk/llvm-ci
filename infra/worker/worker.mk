@@ -1,3 +1,19 @@
+PREPARE_SECRET_TARGETS += prepare-worker-secrets
+.PHONY: prepare-worker-secrets
+## Copies secret templates for the worker (NOTE: existing secrets will be backed up).
+prepare-worker-secrets:
+	-cp -v --backup=numbered ./worker/k8s/secret.yaml.sample ./worker/k8s/secret.yaml
+	-cp -v --backup=numbered ./worker/compose-secrets/buildbot-worker-name.sample ./worker/compose-secrets/buildbot-worker-name
+	-cp -v --backup=numbered ./worker/compose-secrets/buildbot-worker-password.sample ./worker/compose-secrets/buildbot-worker-password
+
+
+###############################################################################
+#
+# EVERYTHING BELOW IS ONLY RELEVANT WHEN YOU'RE DEALING WITH KUBERNETES.
+#
+###############################################################################
+
+
 WORKER_IMAGE := $(CONTAINER_IMAGE_REPO):worker-fedora-33-$(ARCH)-$(CI_GIT_COMMIT_ID)
 
 .PHONY: worker-image
@@ -33,11 +49,3 @@ deploy-worker: ready-to-deploy worker-image push-worker-image delete-worker-depl
 	&& export BUILDBOT_MASTER="$(BUILDBOT_MASTER)" \
 	&& envsubst '$${WORKER_IMAGE} $${BUILDBOT_MASTER}' < ./worker/k8s/pod.yaml > ./out/worker-pod.yaml
 	kubectl apply -f ./out/worker-pod.yaml
-
-PREPARE_SECRET_TARGETS += prepare-worker-secrets
-.PHONY: prepare-worker-secrets
-## Copies secret templates for the worker (NOTE: existing secrets will be backed up).
-prepare-worker-secrets:
-	-cp -v --backup=numbered ./worker/k8s/secret.yaml.sample ./worker/k8s/secret.yaml
-	-cp -v --backup=numbered ./worker/compose-secrets/buildbot-worker-name.sample ./worker/compose-secrets/buildbot-worker-name
-	-cp -v --backup=numbered ./worker/compose-secrets/buildbot-worker-password.sample ./worker/compose-secrets/buildbot-worker-password

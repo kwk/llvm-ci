@@ -1,3 +1,22 @@
+PREPARE_SECRET_TARGETS += prepare-master-secrets
+.PHONY: prepare-master-secrets
+## Copies secret templates for the buildbot master and adjusts permissions. 
+## NOTE: Existing secrets will be backed up.
+prepare-master-secrets:
+	@-cp -v --backup=numbered ./master/k8s/secret.yaml.sample ./master/k8s/secret.yaml
+	@-cp -v --backup=numbered ./master/compose-secrets/github-pat.sample ./master/compose-secrets/github-pat
+	## TODO(kwk): Security concertn? Without "others" being able to read the secrets, the master won't start.
+	@chmod a+r -v ./master/k8s/secret.yaml
+	@chmod a+r -v ./master/compose-secrets/github-pat
+
+
+###############################################################################
+#
+# EVERYTHING BELOW IS ONLY RELEVANT WHEN YOU'RE DEALING WITH KUBERNETES.
+#
+###############################################################################
+
+
 BUILDBOT_MASTER_IMAGE := $(CONTAINER_IMAGE_REPO):buildbot-master-$(CI_GIT_COMMIT_ID)
 
 .PHONY: master-image
@@ -42,14 +61,3 @@ deploy-master: ready-to-deploy master-image push-master-image delete-master-depl
 	&& envsubst '$${BUILDBOT_MASTER_IMAGE} $${BUILDBOT_WWW_URL}' < ./master/k8s/pod.yaml > ./out/master-pod.yaml \
 	&& kubectl apply -f ./out/master-pod.yaml \
 	&& xdg-open $${BUILDBOT_WWW_URL}
-
-PREPARE_SECRET_TARGETS += prepare-master-secrets
-.PHONY: prepare-master-secrets
-## Copies secret templates for the buildbot master and adjusts permissions. 
-## NOTE: Existing secrets will be backed up.
-prepare-master-secrets:
-	@-cp -v --backup=numbered ./master/k8s/secret.yaml.sample ./master/k8s/secret.yaml
-	@-cp -v --backup=numbered ./master/compose-secrets/github-pat.sample ./master/compose-secrets/github-pat
-	## TODO(kwk): Security concertn? Without "others" being able to read the secrets, the master won't start.
-	@chmod a+r -v ./master/k8s/secret.yaml
-	@chmod a+r -v ./master/compose-secrets/github-pat
