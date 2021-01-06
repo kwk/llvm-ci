@@ -69,17 +69,26 @@ include ./worker/worker.mk
 include ./master/master.mk
 include ./runner/runner.mk
 
-.PHONY: run-locally
-## Runs the buildbot master, two workers and a github actions-runner
+.PHONY: start
+## Runs the buildbot infrastructure and a github actions-runner
 ## on localhost using docker-compose or podman-compose.
-run-locally:
+## Upon launch, buildbot website is opened in your default browser
+## and the compose tool's logs are followed.
+start:
 	$(COMPOSE_TOOL) build --quiet
 	$(COMPOSE_TOOL) up --remove-orphans -d
 	@echo -n "Waiting until Buildbot master Web-UI is up."
 	@timeout 22 sh -c 'until curl -sSf http://localhost:8010/#/workers > /dev/null 2>&1; do echo -n "."; sleep 0.1; done'
 	@echo "DONE"
-	@echo "Opening Buildbot Workers Web UI (http://localhost:8010/#/workers)"
+	$(info Opening Buildbot Workers Web UI (http://localhost:8010/#/workers))
 	@xdg-open http://localhost:8010/#/workers
+	$(info Following compose logs)
+	$(COMPOSE_TOOL) logs -f
+
+.PHONY: stop
+stop:
+	$(COMPOSE_TOOL) stop -t0
+	$(COMPOSE_TOOL) rm -f
 
 # Take the git "origin" remote's user part to determine a github user repository
 GIT_ORIGIN_USER := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 1)
@@ -87,7 +96,7 @@ GIT_ORIGIN_REPO := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cu
 
 # Keep this "prepare-secrets" target here at the bottom
 .PHONY: prepare-secrets
-## Runs all prepare-XY-secret targets.
+## Runs all prepare-XY-secret targets and prepare the docker environment file ".env".
 prepare-secrets: $(PREPARE_SECRET_TARGETS)
 	$(info Prepare docker environment file:)
 	echo "GH_OWNER=$(GIT_ORIGIN_USER)" > .env
