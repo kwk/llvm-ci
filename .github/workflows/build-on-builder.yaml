@@ -64,15 +64,15 @@ jobs:
         id: gettrybuilders
         shell: bash
         run: |
-          echo "::set-output name=namelist::`buildbot try \
+          echo "::set-output name=namelist::`for i in $(buildbot try \
             --master master:8031 \
             --passwd='${{ secrets.TRY_PASSWORD }}' \
             --username='${{ secrets.TRY_USER }}' \
             --connect='pb' \
             --get-builder-names \
             | sed '1,/The following builders are available for the try scheduler:/d' \
-            | tr -d '\r' \
-            | paste -sd ',' -`"
+            | tr -d '\r'); do echo "<li>$i</li>"; done`"
+      # | paste -sd ',' -`"
       
       # - name: Get available buildbot try builders at master at the moment
       #   id: gettrybuilders1
@@ -109,9 +109,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "Sorry but, you can only choose from these try builders: 
-              LIST:
-              ${{ steps.gettrybuilders.outputs.namelist }}"
+              body: "Sorry but, you can only choose from these try builders: <ul>${{ steps.gettrybuilders.outputs.namelist }}</ul>"
             })
 
       # - name: Cancelled 
