@@ -18,7 +18,7 @@ RUN pip install install txrequests buildbot_prometheus
 #    https://docs.buildbot.net/latest/manual/configuration/reporters/github_status.html#githubstatuspush 
 
 
-# TODO(kwk): HACK: Manually apply path-modified buildbot patch of PR buildbot/buildbot#5623 
+# TODO(kwk): HACK: Manually apply path-modified buildbot patch of PR https://github.com/buildbot/buildbot/pull/5623 
 COPY buildbot-pr-5623.patch /
 RUN patch -p1 -d / --backup --batch  < /buildbot-pr-5623.patch
 

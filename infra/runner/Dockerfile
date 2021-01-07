@@ -4,10 +4,11 @@ FROM fedora:33
 RUN useradd --create-home runner
 
 RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
-        buildbot-worker \
+        buildbot \
         curl \
         git \
         jq \
+        patch \
         strace \
         tar \
     && mkdir -pv /home/runner/actions-runner/ \
@@ -17,6 +18,10 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     && rm -v actions-runner-linux-x64-2.274.1.tar.gz \
     && ./bin/installdependencies.sh \
     && dnf clean all
+
+# TODO(kwk): HACK: Manually apply path-modified buildbot patch of PR https://github.com/buildbot/buildbot/pull/5623 
+COPY buildbot-pr-5623.patch /
+RUN patch -p1 -d / --backup --batch  < /buildbot-pr-5623.patch
 
 # Changing the permissions of /usr/share/GitHubActionsService is crucial;
 # otherwise the auto runner won't be able to write to this directory when it auto-updates.
