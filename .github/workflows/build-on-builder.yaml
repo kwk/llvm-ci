@@ -90,7 +90,6 @@ jobs:
               repo: context.repo.repo,
               body: "Sorry but, you can only choose from these try builders: 
               LIST:
-              
               ${{ steps.gettrybuilders.outputs.namelist }}"
             })
 
