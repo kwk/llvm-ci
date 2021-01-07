@@ -44,9 +44,10 @@ jobs:
                 }
               }
             }
-          owner: ${{ github.event.repository.owner.name }}
-          repo: ${{ github.event.repository.name }}
-          prnumber: ${{ github.event.issue.number }}
+          variables:
+            owner: "${{ github.event.repository.owner.name }}"
+            repo: "${{ github.event.repository.name }}"
+            prnumber: "${{ github.event.issue.number }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
