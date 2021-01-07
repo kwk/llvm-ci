@@ -60,8 +60,8 @@ jobs:
             --username="${{ secrets.TRY_USER }}" \
             --connect="pb" \
             --get-builder-names`
-          cleaned_up=`echo ${raw} | sed '1,/The following builders are available for the try scheduler:/d'`
-          namelist_comma=`echo ${cleaned_up} | tr -d '\r' | paste -sd ',' -`
+          cleaned_up=`echo $raw | sed '1,/The following builders are available for the try scheduler:/d'`
+          namelist_comma=`echo $cleaned_up | tr -d '\r' | paste -sd ',' -`
           echo "::set-output name=raw::`echo $raw`"
           echo "::set-output name=cleaned_up::`echo $cleaned_up`"
           echo "::set-output name=namelist_comma::`echo $namelist_comma`"
