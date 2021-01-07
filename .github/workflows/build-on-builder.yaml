@@ -40,9 +40,11 @@ jobs:
       # Then the results are separated by \n\n which we remove and replace with a comma.
       # TODO(kwk): What happens, if a builder contains a comman in it's name?
       - name: Get available buildbot try builders at master at the moment
-        id: get-try-builders
+        id: gettrybuilders
+        shell: bash
         run: |
-          echo "::set-output name=namelist::`buildbot try \
+          echo "::set-output name=namelist:foo,bar"
+          echo "::set-output name=namelist1::`buildbot try \
             --master master:8031 \
             --passwd="${{ secrets.TRY_PASSWORD }}" \
             --username="${{ secrets.TRY_USER }}" \
@@ -52,7 +54,7 @@ jobs:
             | tr -d '\r' \
             | paste -sd ',' -)`"
       # - name: Get available buildbot try builders at master at the moment
-      #   id: get_try_builders
+      #   id: gettrybuilders
       #   shell: bash
       #   run: |
       #     RAW=`buildbot try \
@@ -74,7 +76,7 @@ jobs:
         uses: actions/github-script@v3
         id: check_try_builder_exists
         if: >-
-          !contains(steps.get-try-builders.outputs.namelist, steps.vars.outputs.builder-name) ||
+          !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name) ||
           false ||
           false
         with:
@@ -86,7 +88,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Sorry but, you can only choose from these try builders: ${{ steps.get_try_builders.outputs.namelist }}'
+              body: 'Sorry but, you can only choose from these try builders: ${{ steps.gettrybuilders.outputs.namelist }}'
             })
 
       # - name: Cancelled 
