@@ -91,9 +91,9 @@ start:
 	@echo -n "Waiting until Buildbot master Web-UI is up."
 	@timeout 22 sh -c 'until curl -sSf http://localhost:8010/#/workers > /dev/null 2>&1; do echo -n "."; sleep 0.1; done'
 	@echo "DONE"
-	$(info Opening Buildbot Workers Web UI (http://localhost:8010/#/workers))
+	@echo "Opening Buildbot Workers Web UI (http://localhost:8010/#/workers)"
 	@xdg-open http://localhost:8010/#/workers
-	$(info Following compose logs)
+	@echo "Following compose logs"
 	$(COMPOSE_TOOL) logs -f
 
 .PHONY: stop
