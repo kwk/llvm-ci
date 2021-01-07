@@ -46,9 +46,9 @@ jobs:
           echo "::set-output name=namelist:foo,bar"
           echo "::set-output name=namelist1::`buildbot try \
             --master master:8031 \
-            --passwd="${{ secrets.TRY_PASSWORD }}" \
-            --username="${{ secrets.TRY_USER }}" \
-            --connect="pb" \
+            --passwd='${{ secrets.TRY_PASSWORD }}' \
+            --username='${{ secrets.TRY_USER }}' \
+            --connect='pb' \
             --get-builder-names \
             | sed '1,/The following builders are available for the try scheduler:/d' \
             | tr -d '\r' \
