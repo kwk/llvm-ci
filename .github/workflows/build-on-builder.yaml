@@ -39,32 +39,32 @@ jobs:
       # 
       # Then the results are separated by \n\n which we remove and replace with a comma.
       # TODO(kwk): What happens, if a builder contains a comman in it's name?
-      - name: Get available buildbot try builders at master at the moment
-        id: get-try-builders
-        run: |
-          echo "::set-output name=cleaned_up::`buildbot try \
-            --master master:8031 \
-            --passwd="${{ secrets.TRY_PASSWORD }}" \
-            --username="${{ secrets.TRY_USER }}" \
-            --connect="pb" \
-            --get-builder-names \
-            | sed '1,/The following builders are available for the try scheduler:/d'
-            | tr -d '\r' \
-            | paste -sd ',' -)`"
       # - name: Get available buildbot try builders at master at the moment
       #   id: get-try-builders
       #   run: |
-      #     raw=$(buildbot try \
+      #     echo "::set-output name=cleaned_up::`buildbot try \
       #       --master master:8031 \
       #       --passwd="${{ secrets.TRY_PASSWORD }}" \
       #       --username="${{ secrets.TRY_USER }}" \
       #       --connect="pb" \
-      #       --get-builder-names)
-      #     cleaned_up=$(echo ${raw} | sed '1,/The following builders are available for the try scheduler:/d')
-      #     namelist_comma=$(echo ${cleaned_up} | tr -d '\r' | paste -sd ',' -)
-      #     echo "::set-output raw::$(echo ${raw})"
-      #     echo "::set-output cleaned_up::$(echo ${cleaned_up})"
-      #     echo "::set-output namelist_comma::$(echo ${namelist_comma})"
+      #       --get-builder-names \
+      #       | sed '1,/The following builders are available for the try scheduler:/d' \
+      #       | tr -d '\r' \
+      #       | paste -sd ',' -)`"
+      - name: Get available buildbot try builders at master at the moment
+        id: get-try-builders
+        run: |
+          raw=`buildbot try \
+            --master master:8031 \
+            --passwd="${{ secrets.TRY_PASSWORD }}" \
+            --username="${{ secrets.TRY_USER }}" \
+            --connect="pb" \
+            --get-builder-names`
+          cleaned_up=`echo ${raw} | sed '1,/The following builders are available for the try scheduler:/d'`
+          namelist_comma=`echo ${cleaned_up} | tr -d '\r' | paste -sd ',' -`
+          echo "::set-output name=raw::$(echo ${raw})"
+          echo "::set-output name=cleaned_up::$(echo ${cleaned_up})"
+          echo "::set-output name=namelist_comma::$(echo ${namelist_comma})"
     
       - name: Check that user's try builder exists
         uses: actions/github-script@v3
