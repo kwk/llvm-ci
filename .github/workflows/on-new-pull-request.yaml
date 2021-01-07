@@ -5,9 +5,19 @@ on:
 
 jobs:
   # This workflow contains a single job called "give-tips"
-  give-tips-on-new-pr:
+  give-tips:
     runs-on: [self-hosted]
     steps:
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Thanks for reporting!'
+            })
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
