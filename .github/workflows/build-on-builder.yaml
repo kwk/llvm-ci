@@ -38,7 +38,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const query = `query($owner:String!, $name:String!) {
-              repository(owner:$owner,name:$repo) {
+              repository(owner:$owner,name:$name) {
                 pullRequest(number:$prnumber) {
                   id
                 }
