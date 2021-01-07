@@ -39,42 +39,42 @@ jobs:
       # 
       # Then the results are separated by \n\n which we remove and replace with a comma.
       # TODO(kwk): What happens, if a builder contains a comman in it's name?
-      # - name: Get available buildbot try builders at master at the moment
-      #   id: get-try-builders
-      #   run: |
-      #     echo "::set-output name=cleaned_up::`buildbot try \
-      #       --master master:8031 \
-      #       --passwd="${{ secrets.TRY_PASSWORD }}" \
-      #       --username="${{ secrets.TRY_USER }}" \
-      #       --connect="pb" \
-      #       --get-builder-names \
-      #       | sed '1,/The following builders are available for the try scheduler:/d' \
-      #       | tr -d '\r' \
-      #       | paste -sd ',' -)`"
       - name: Get available buildbot try builders at master at the moment
-        id: get_try_builders
-        shell: bash
+        id: get-try-builders
         run: |
-          RAW=`buildbot try \
+          echo "::set-output name=namelist::`buildbot try \
             --master master:8031 \
             --passwd="${{ secrets.TRY_PASSWORD }}" \
             --username="${{ secrets.TRY_USER }}" \
             --connect="pb" \
-            --get-builder-names`
-          echo "::debug:: RAW = $RAW"
-          CLEANED_UP=`echo $RAW | sed '1,/The following builders are available for the try scheduler:/d'`
-          echo "::debug:: CLEANED_UP = $CLEANED_UP"
-          NAMELIST=`echo $CLEANED_UP | tr -d '\r' | paste -sd ',' -`
-          echo "::debug:: NAMELIST = $NAMELIST"
-          echo "::set-output name=raw::$RAW"
-          echo "::set-output name=cleanedup::$CLEANED_UP"
-          echo "::set-output name=namelist::$NAMELIST"
+            --get-builder-names \
+            | sed '1,/The following builders are available for the try scheduler:/d' \
+            | tr -d '\r' \
+            | paste -sd ',' -)`"
+      # - name: Get available buildbot try builders at master at the moment
+      #   id: get_try_builders
+      #   shell: bash
+      #   run: |
+      #     RAW=`buildbot try \
+      #       --master master:8031 \
+      #       --passwd="${{ secrets.TRY_PASSWORD }}" \
+      #       --username="${{ secrets.TRY_USER }}" \
+      #       --connect="pb" \
+      #       --get-builder-names`
+      #     echo "::debug:: RAW = $RAW"
+      #     CLEANED_UP=`echo $RAW | sed '1,/The following builders are available for the try scheduler:/d'`
+      #     echo "::debug:: CLEANED_UP = $CLEANED_UP"
+      #     NAMELIST=`echo $CLEANED_UP | tr -d '\r' | paste -sd ',' -`
+      #     echo "::debug:: NAMELIST = $NAMELIST"
+      #     echo "::set-output name=raw::$RAW"
+      #     echo "::set-output name=cleanedup::$CLEANED_UP"
+      #     echo "::set-output name=namelist::$NAMELIST"
     
       - name: Check that user's try builder exists
         uses: actions/github-script@v3
         id: check_try_builder_exists
         if: >-
-          !contains(steps.get-try-builders.outputs.cleaned_up, steps.vars.outputs.builder-name) ||
+          !contains(steps.get-try-builders.outputs.namelist, steps.vars.outputs.builder-name) ||
           false ||
           false
         with:
@@ -86,7 +86,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Sorry but, you can only choose from these try builders: ${{ steps.get_try_builders.outputs.cleanedup }}'
+              body: 'Sorry but, you can only choose from these try builders: ${{ steps.get_try_builders.outputs.namelist }}'
             })
 
       # - name: Cancelled 
