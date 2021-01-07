@@ -52,7 +52,7 @@ jobs:
             --get-builder-names \
             | sed '1,/The following builders are available for the try scheduler:/d' \
             | tr -d '\r' \
-            | paste -sd ',' -)`"
+            | paste -sd ',' -`"
       # - name: Get available buildbot try builders at master at the moment
       #   id: gettrybuilders
       #   shell: bash
