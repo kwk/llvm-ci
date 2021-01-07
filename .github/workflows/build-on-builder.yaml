@@ -110,7 +110,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `
-                Sorry but, there's no builder called `${{steps.vars.outputs.builder-name}}`.
+                Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
                 You can only choose from these try builders:
                 <ul>
                   ${{ steps.gettrybuilders.outputs.namelist }}
