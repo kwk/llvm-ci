@@ -31,25 +31,26 @@ jobs:
           echo "::set-output name=pr-base-branch::main"
           echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
 
-
+      # See https://github.com/actions/github-script#run-custom-graphql-queries
       - name: Get PR number using GraphQL
-        uses: octokit/graphql-action@v2.x
-        id: get_pr_id
+        uses: actions/github-script@v3
         with:
-          query: |
-            query FindPullRequestID {
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const query = `query($owner:String!, $name:String!) {
               repository(owner:$owner,name:$repo) {
                 pullRequest(number:$prnumber) {
                   id
                 }
               }
+            }`;
+            const variables = {
+              owner: context.repo.owner,
+              name: context.repo.repo,
+              prnumber: github.event.issue.number
             }
-          variables:
-            owner: "${{ github.event.repository.owner.name }}"
-            repo: "${{ github.event.repository.name }}"
-            prnumber: "${{ github.event.issue.number }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            const result = await github.graphql(query, variables)
+            console.log(result)
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
