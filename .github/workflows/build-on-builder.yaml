@@ -61,11 +61,11 @@ jobs:
             --username="${{ secrets.TRY_USER }}" \
             --connect="pb" \
             --get-builder-names`
-          echo "::debug:: $RAW"
+          echo "::debug:: RAW = $RAW"
           CLEANED_UP=`echo $RAW | sed '1,/The following builders are available for the try scheduler:/d'`
-          echo "::debug:: $CLEANED_UP"
+          echo "::debug:: CLEANED_UP = $CLEANED_UP"
           NAMELIST=`echo $CLEANED_UP | tr -d '\r' | paste -sd ',' -`
-          echo "::debug:: $NAMELIST"
+          echo "::debug:: NAMELIST = $NAMELIST"
           echo "::set-output name=raw::$RAW"
           echo "::set-output name=cleanedup::$CLEANED_UP"
           echo "::set-output name=namelist::$NAMELIST"
