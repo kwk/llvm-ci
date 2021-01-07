@@ -109,12 +109,13 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: |
+              body: `
                 Sorry but, there's no builder called `${{steps.vars.outputs.builder-name}}`.
                 You can only choose from these try builders:
                 <ul>
                   ${{ steps.gettrybuilders.outputs.namelist }}
-                </ul>"
+                </ul>
+              `
             })
 
       # - name: Cancelled 
