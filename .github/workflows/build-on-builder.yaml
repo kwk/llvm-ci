@@ -47,7 +47,7 @@ jobs:
             const variables = {
               owner: context.repo.owner,
               name: context.repo.repo,
-              prnumber: github.event.issue.number
+              prnumber: context.issue.number
             }
             const result = await github.graphql(query, variables)
             console.log(result)
