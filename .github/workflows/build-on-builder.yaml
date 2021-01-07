@@ -7,7 +7,8 @@ on:
       # - edited # Not cool for user interaction
 
 jobs:
-  # This is the quick gatekeeper for this workflow
+  # This is the quick gatekeeper for this workflow.
+  # Unless a comment starts with /build-on, we abort immediately. 
   check-comment:
     runs-on: ubuntu-latest
     steps:
@@ -15,10 +16,10 @@ jobs:
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): /must-build-on or /try-build-on
 
-  build:
+  get-list-of-available-builders:
     needs: check-comment
     # We need to run this on a self-hosted github actions-runner because
-    # the buildbot master in the test setup is not publically only reachable.
+    # the buildbot master in the test setup is not publically reachable.
     runs-on: [self-hosted]
     steps:
       - name: Set job variables
@@ -26,46 +27,153 @@ jobs:
         # For the "::set-output" part, see
         # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
         run: |
-          echo ::set-output name=pr-head-branch::issue-${{ github.event.issue.number }}-pr
-          echo ::set-output name=pr-base-branch::main
-          echo ::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`
-      # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
-      - name: Checkout Pull Request
-        uses: actions/checkout@v2
+          echo "::set-output name=pr-head-branch::issue-${{ github.event.issue.number }}-pr"
+          echo "::set-output name=pr-base-branch::main"
+          echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
+
+      # Get a list of available builders from
+      # The list of builders returned from buildbot is prefixed with these two lines:
+      #
+      #  using 'pb' connect method
+      #  The following builders are available for the try scheduler:
+      # 
+      # Then the results are separated by \n\n which we remove and replace with a comma.
+      # TODO(kwk): What happens, if a builder contains a comman in it's name?
+      - name: Get available buildbot try builders at master at the moment
+        id: get-try-builders
+        run: |
+          raw=$(buildbot try \
+            --master master:8031 \
+            --passwd="${{ secrets.TRY_PASSWORD }}" \
+            --username="${{ secrets.TRY_USER }}" \
+            --connect="pb" \
+            --get-builder-names)
+          cleaned_up=$(echo ${raw} | sed '1,/The following builders are available for the try scheduler:/d')
+          namelist_comma=$(echo ${cleaned_up} | tr -d '\r' | paste -sd ',' -)
+          echo "::set-output raw::$(echo ${raw})"
+          echo "::set-output cleaned_up::$(echo ${cleaned_up})"
+          echo "::set-output namelist_comma::$(echo ${namelist_comma})"
+    
+      - name: Check that user's try builder exists
+        uses: actions/github-script@v3
+        id: check-try-builder-exists
+        if: >-
+          !contains(steps.get-try-builders.outputs.cleaned_up, steps.vars.outputs.builder-name) ||
+          false ||
+          false
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
+          # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Sorry but, you can only choose from these try builders: ${{ steps.get-try-builders.outputs.cleaned_up }}'
+            })
 
       # - name: Cancelled 
       #   if: ${{ cancelled() }}
       #   run: |
       #     echo "::warning::Job was manually cancelled"
 
-      - name: Build using buildbot try
-        run: |
-          buildbot try \
-            --master master:9989 \
-            --passwd="${{ secrets.TRY_USER }}" \
-            --username="${{ secrets.TRY_PASSWORD }}" \
-            --connect="pb" \
-            --vc="git" \
-            --builder="${{ steps.vars.outputs.builder-name }}" \
-            --baserev="main" \
-            --branch="main" \
-            --repository="${{ github.repository }}"
-      - name: Summary
-        if: ${{ always() }}
-        # For grouping see:
-        # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#grouping-log-lines
-        run: |
-          echo "::group::{Summary}"
-          echo "You've scheduled a build on ${{ steps.vars.outputs.builder-name }}"
-          echo "::endgroup::"
-      # - name: Checkout code master code
-      #   if: startswith(github.event.comment.body, '/build-on ') 
+
+      #               # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
+      # - name: Checkout Pull Request
       #   uses: actions/checkout@v2
       #   with:
-      #     fetch-depth: 0
-      #     # Repository name with owner. For example, actions/checkout
-      #     # Default: ${{ github.repository }}
-      #     repository: kwk/llvm-ci-demo
-      #     ref: ${{ steps.vars.outputs.pr-base-branch }}
+      #     ref: ${{ github.event.pull_request.head.sha }}
+      # - name: Build using buildbot try
+      #   run: |
+      #     buildbot try \
+      #       --master master:8031 \
+      #       --passwd="${{ secrets.TRY_PASSWORD }}" \
+      #       --username="${{ secrets.TRY_USER }}" \
+      #       --connect="pb" \
+      #       --vc="git" \
+      #       --builder="${{ steps.vars.outputs.builder-name }}" \
+      #       --baserev="main" \
+      #       --branch="main" \
+      #       --repository="${{ github.repository }}"
+      # - name: Summary
+      #   if: ${{ always() }}
+      #   # For grouping see:
+      #   # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#grouping-log-lines
+      #   run: |
+      #     echo "::group::{Summary}"
+      #     echo "You've scheduled a build on ${{ steps.vars.outputs.builder-name }}"
+      #     echo "::endgroup::"
+      # # - name: Checkout code master code
+      # #   if: startswith(github.event.comment.body, '/build-on ') 
+      # #   uses: actions/checkout@v2
+      # #   with:
+      # #     fetch-depth: 0
+      # #     # Repository name with owner. For example, actions/checkout
+      # #     # Default: ${{ github.repository }}
+      # #     repository: kwk/llvm-ci-demo
+      # #     ref: ${{ steps.vars.outputs.pr-base-branch }}
+
+  # get-list-of-available-builders:
+  #   needs: check-comment
+  #   # We need to run this on a self-hosted github actions-runner because
+  #   # the buildbot master in the test setup is not publically reachable.
+  #   runs-on: [self-hosted]
+  #   steps:
+  #     - name: Set job variables
+  #       id: vars
+  #       # For the "::set-output" part, see
+  #       # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
+  #       run: |
+  #         echo ::set-output name=pr-head-branch::issue-${{ github.event.issue.number }}-pr
+  #         echo ::set-output name=pr-base-branch::main
+  #         echo ::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`
+  #     # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
+  #     - name: Checkout Pull Request
+  #       uses: actions/checkout@v2
+  #       with:
+  #         ref: ${{ github.event.pull_request.head.sha }}
+
+  #     # - name: Cancelled 
+  #     #   if: ${{ cancelled() }}
+  #     #   run: |
+  #     #     echo "::warning::Job was manually cancelled"
+
+  #     - name: Get available builders
+  #       run: |
+  #         buildbot try \
+  #           --master master:8031 \
+  #           --passwd="password" \
+  #           --username="alice-try" \
+  #           --connect="pb" \
+  #           --get-builder-names
+
+  #     - name: Build using buildbot try
+  #       run: |
+  #         buildbot try \
+  #           --master master:8031 \
+  #           --passwd="${{ secrets.TRY_PASSWORD }}" \
+  #           --username="${{ secrets.TRY_USER }}" \
+  #           --connect="pb" \
+  #           --vc="git" \
+  #           --builder="${{ steps.vars.outputs.builder-name }}" \
+  #           --baserev="main" \
+  #           --branch="main" \
+  #           --repository="${{ github.repository }}"
+  #     - name: Summary
+  #       if: ${{ always() }}
+  #       # For grouping see:
+  #       # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#grouping-log-lines
+  #       run: |
+  #         echo "::group::{Summary}"
+  #         echo "You've scheduled a build on ${{ steps.vars.outputs.builder-name }}"
+  #         echo "::endgroup::"
+  #     # - name: Checkout code master code
+  #     #   if: startswith(github.event.comment.body, '/build-on ') 
+  #     #   uses: actions/checkout@v2
+  #     #   with:
+  #     #     fetch-depth: 0
+  #     #     # Repository name with owner. For example, actions/checkout
+  #     #     # Default: ${{ github.repository }}
+  #     #     repository: kwk/llvm-ci-demo
+  #     #     ref: ${{ steps.vars.outputs.pr-base-branch }}      

@@ -1,3 +1,19 @@
+# When you run make VERBOSE=1, executed commands will be printed before
+# executed, verbose flags are turned on and quiet flags are turned off for
+# various commands. Use V_FLAG in places where you can toggle on/off verbosity
+# using -v. Use Q_FLAG in places where you can toggle on/off quiet mode using
+# -q.
+Q = @
+Q_FLAG = -q
+V_FLAG =
+S_FLAG = -s
+ifeq ($(VERBOSE),1)
+       Q =
+       S_FLAG = 
+       Q_FLAG = 
+       V_FLAG = -v
+endif
+
 # It's necessary to set this because some environments don't link sh -> bash.
 SHELL := /bin/bash
 
@@ -74,11 +90,13 @@ GIT_ORIGIN_USER := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cu
 GIT_ORIGIN_REPO := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 2 | sed -s 's/\.git$$//g')
 
 .PHONY: buildbot-try-secrets-in-github
-## Create two github secrets (TRY_USER and TRY_PASSWORD) in your fork.
+## Create three github secrets (TRY_USER, TRY_PASSWORD and ACTIONS_RUNNER_DEBUG) in your fork.
 ## Will be used by the actions runner to federate access to the buildbot master.
+## For the debug secret see: https://docs.github.com/en/free-pro-team@latest/actions/managing-workflow-runs/enabling-debug-logging
 buildbot-try-secrets-in-github:
 	gh secret set TRY_USER -balice-try -R $(GIT_ORIGIN_USER)/$(GIT_ORIGIN_REPO)
 	gh secret set TRY_PASSWORD -bpassword -R $(GIT_ORIGIN_USER)/$(GIT_ORIGIN_REPO)
+	gh secret set ACTIONS_RUNNER_DEBUG -btrue -R $(GIT_ORIGIN_USER)/$(GIT_ORIGIN_REPO)
 
 .PHONY: start
 ## Runs the buildbot infrastructure and a github actions-runner
@@ -86,10 +104,10 @@ buildbot-try-secrets-in-github:
 ## Upon launch, buildbot website is opened in your default browser
 ## and the compose tool's logs are followed.
 start:
-	$(COMPOSE_TOOL) build --quiet
+	$(COMPOSE_TOOL) build $(Q_FLAG)
 	$(COMPOSE_TOOL) up --remove-orphans -d
 	@echo -n "Waiting until Buildbot master Web-UI is up."
-	@timeout 22 sh -c 'until curl -sSf http://localhost:8010/#/workers > /dev/null 2>&1; do echo -n "."; sleep 0.1; done'
+	@timeout 22 sh -c 'until curl $(S_FLAG) -Sf http://localhost:8010/#/workers > /dev/null 2>&1; do echo -n "."; sleep 0.1; done'
 	@echo "DONE"
 	@echo "Opening Buildbot Workers Web UI (http://localhost:8010/#/workers)"
 	@xdg-open http://localhost:8010/#/workers
