@@ -109,14 +109,41 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `
-                Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
+              body: `Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
                 You can only choose from these try builders:
                 <ul>
                   ${{ steps.gettrybuilders.outputs.namelist }}
-                </ul>
-              `
+                </ul>`
             })
+
+# TODO(kwk): For finding an already made comment and updating it stick an ID to it as a HTML comment.
+# See https://github.com/Homebrew/brew/actions/runs/431923768/workflow#L50
+# async function findComment(pullRequestNumber, id) {
+#               const { data: comments } = await github.issues.listComments({
+#                 owner: context.repo.owner,
+#                 repo: context.repo.repo,
+#                 issue_number: pullRequestNumber,
+#               })
+#               const regex = new RegExp(`<!--\\s*#${id}\\s*-->`)
+#               return comments.filter(comment => comment.body.match(regex))[0]
+#             }
+            # async function createOrUpdateComment(pullRequestNumber, id, message) {
+            #   const beginComment = await findComment(pullRequestNumber, id)
+            #   const body = `<!-- #${id} -->\n\n${message}`
+            #   if (beginComment) {
+            #     await github.issues.updateComment({
+            #       ...context.repo,
+            #       comment_id: beginComment.id,
+            #       body,
+            #     })
+            #   } else {
+            #     await github.issues.createComment({
+            #       ...context.repo,
+            #       issue_number: pullRequestNumber,
+            #       body,
+            #     })
+            #   }
+            # }
 
       # - name: Cancelled 
       #   if: ${{ cancelled() }}
