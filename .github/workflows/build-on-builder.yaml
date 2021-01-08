@@ -96,6 +96,7 @@ jobs:
       - name: Check that user's try builder exists
         uses: actions/github-script@v3
         id: check_try_builder_exists
+        # This is to demonstrate how to concatenate multiple condition spreading multiple lines
         if: >-
           !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name) ||
           false ||
@@ -105,16 +106,25 @@ jobs:
           # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
-                You can only choose from these try builders:
-                <ul>
-                  ${{ steps.gettrybuilders.outputs.namelist }}
-                </ul>`
-            })
+            // Wrapper function that prepends the given ID to the message as a comment before
+            // creating the comment.
+            async function createComment(pullRequestNumber, id, message) {
+              const body = `<!-- #${id} -->\n\n${message}`
+              await github.issues.createComment({
+                ...context.repo,
+                issue_number: pullRequestNumber,
+                body
+              })
+            }
+
+            const message = `Sorry but, there's no try builder called <code>${{steps.vars.outputs.builder-name}}</code>.
+              You can only choose from these try builders:
+              <ul>
+                ${{ steps.gettrybuilders.outputs.namelist }}
+              </ul>`
+            core.info(message)
+            await createComment(context.issue.number, 'trybuilder-unknown', message)
+
 
 # TODO(kwk): For finding an already made comment and updating it stick an ID to it as a HTML comment.
 # See https://github.com/Homebrew/brew/actions/runs/431923768/workflow#L50
