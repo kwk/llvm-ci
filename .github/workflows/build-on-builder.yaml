@@ -105,6 +105,7 @@ jobs:
           # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
           # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           github-token: ${{secrets.GITHUB_TOKEN}}
+          debug: true
           script: |
             // Wrapper function that prepends the given ID to the message as a comment before
             // creating the comment.
@@ -117,13 +118,40 @@ jobs:
               })
             }
 
-            const message = `Sorry but, there's no try builder called <code>${{steps.vars.outputs.builder-name}}</code>.
-              You can only choose from these try builders:
+            const message = `Sorry but, there's no try builder called <code>${{steps.vars.outputs.builder-name}}</code>. You can only choose from these try builders:
               <ul>
                 ${{ steps.gettrybuilders.outputs.namelist }}
-              </ul>`
+              </ul>
+              `
             core.info(message)
             await createComment(context.issue.number, 'trybuilder-unknown', message)
+
+      # Checkout the code so we can pull in common functionality from other JavaScript files
+      - uses: actions/checkout@v2
+      - name: Check that user's try builder exists (with separate file)
+        uses: actions/github-script@v3
+        id: check_try_builder_exists
+        # This is to demonstrate how to concatenate multiple condition spreading multiple lines
+        if: >-
+          !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name) ||
+          false ||
+          false
+        with:
+          # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
+          # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          debug: true
+          script: |
+            const util = require(`${process.env.GITHUB_WORKSPACE}/.github/js/util.js`)
+            u = util({github, context})
+
+            const message = `Sorry but, there's no try builder called <code>${{steps.vars.outputs.builder-name}}</code>. You can only choose from these try builders:
+              <ul>
+                ${{ steps.gettrybuilders.outputs.namelist }}
+              </ul>
+              `
+            await u.createComment(context.issue.number, 'trybuilder-unknown', message)
+            core.info(message)
 
 
 # TODO(kwk): For finding an already made comment and updating it stick an ID to it as a HTML comment.
