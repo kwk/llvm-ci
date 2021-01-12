@@ -18,12 +18,10 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `# Thank you @${{ github.event.pull_request.user.login }}
-            
-              for opening this Pull Request!
-              This is an automated message to help you better understand your possibilities
-              of how to kick-off actions by sending commands through comments to this PR
-              to engage in a conversation with the CI system.
+              body: `Thank you @${{ github.event.pull_request.user.login }} for opening this Pull Request!
+              
+              This message was automatically generated to help you understand how you
+              can engage in a conversation with the CI system backing this repository.
 
               Please issue a comment like <code>/build-on &lt;builder&gt;</code>, where <code>&lt;builder&gt;</code> is a buildbot
               builder name.
