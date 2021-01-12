@@ -10,7 +10,7 @@ on:
 jobs:
   # This is the quick gatekeeper for this workflow.
   # Unless a comment starts with /build-on, we abort immediately. 
-  parse-comment:
+  require-build-on-comment:
     runs-on: ubuntu-latest
     steps:
       - name: Check comment
@@ -18,7 +18,7 @@ jobs:
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
 
   check-if-builder-exists:
-    needs: check-comment
+    needs: require-build-on-comment
     # We need to run this on a self-hosted github actions-runner because
     # the buildbot master in the test setup is not publically reachable.
     runs-on: [self-hosted]
