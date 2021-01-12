@@ -25,7 +25,7 @@ jobs:
               of how to kick-off actions by sending commands through comments to this PR
               to engage in a conversation with the CI system.
 
-              Please issue a comment like `/build-on <builder>`, where `<builder>` is a buildbot
+              Please issue a comment like <code>/build-on &lt;builder&gt;</code>, where <code>&lt;builder&gt;</code> is a buildbot
               builder name.
               
               You can find a list of all builders on [this local Buildbot page](http://localhost:8010/#/builders).`
