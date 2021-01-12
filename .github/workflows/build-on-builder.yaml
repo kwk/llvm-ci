@@ -4,6 +4,7 @@ on:
   issue_comment:
     types:
       - created
+      # TODO(kwk): The "created" types seems to ignore /build-on in review comments.
       # - edited # Not cool for user interaction
 
 jobs:

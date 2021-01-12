@@ -8,30 +8,9 @@ jobs:
   give-tips:
     runs-on: [self-hosted]
     steps:
-      - uses: actions/github-script@v3
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/give-tips-on-new-pr.yaml
         with:
-          # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
-          # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'Thanks for reporting!'
-            })
-      - uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
-          # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          message: |
-            # Thank you @${{ github.event.pull_request.user.login }}
-            
-            for opening this Pull Request!
-            This is an automated message to help you better understand your possibilities
-            of how to kick-off actions by sending commands through comments to this PR.
-            Please issue a comment like `/build-on <builder>`, where `<builder>` is a buildbot
-            builder name.
-            
-            You can find a list of all builders on [this local Buildbot page](http://localhost:8010/#/builders).
+          pr-number: context.issue.number,
+          pr-author: github.event.pull_request.user.login,
+          buildbot-web-url: 'http://localhost:8010/#/builders'
