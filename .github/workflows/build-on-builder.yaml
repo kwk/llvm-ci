@@ -97,7 +97,8 @@ jobs:
         # https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables
         shell: bash
         run: |
-          buildbot try \
+          git diff origin/main..HEAD \
+          | buildbot try \
             --master master:8031 \
             --passwd='${{ secrets.TRY_PASSWORD }}' \
             --username='${{ secrets.TRY_USER }}' \
@@ -107,7 +108,7 @@ jobs:
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
             --who='${{ github.event.pull_request.user.login }}' \
             --repository='${{ github.repository }}' \
-            --diff - < git diff origin/main..HEAD
+            --diff -
 
   # buildbot try \
   #   --master master:8031 \
