@@ -23,7 +23,7 @@ jobs:
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
 
-  check-if-builder-exists:
+  call-try-builder:
     needs: require-build-on-comment
     # We need to run this on a self-hosted github actions-runner because
     # the buildbot master in the test setup is not publically reachable.
@@ -145,8 +145,9 @@ jobs:
             --property=github-comment-html_url='${{ github.event.comment.html_url }}' \
             --property=github-comment-url='${{ github.event.comment.url }}' \
             --property=github-comment-id='${{ github.event.comment.id }}' \
-            --property=github-comment-node_id='${{ github.event.comment.node_id }}' \
-            --diff mydiff
+            --property=github-comment-node_id='${{ github.event.comment.node_id }}'
+            
+            #--diff mydiff
 
   # buildbot try \
   #   --master master:8031 \
