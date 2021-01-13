@@ -112,6 +112,8 @@ jobs:
           # in the pipeline.
           set -o pipefail
 
+          git log -n 3
+
           git diff origin/main..HEAD > mydiff
           echo "mydiff = "
           cat mydiff
