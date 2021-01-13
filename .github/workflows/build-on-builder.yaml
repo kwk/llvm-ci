@@ -99,6 +99,7 @@ jobs:
         if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         # See this page for getting a description about the values I'm filling in for the build properties:
         # https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables
+        shell: bash
         run: |
           buildbot try \
             --master master:8031 \
@@ -106,18 +107,18 @@ jobs:
             --username='${{ secrets.TRY_USER }}' \
             --connect='pb' \
             --vc="git" \
-            --baserev="${ GITHUB_BASE_REF }" \
-            --comment="TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)" \
-            --who="${{ github.event.pull_request.user.login }}" \
-            --property=github-workflow-initiator="${ GITHUB_ACTOR }" \
-            --property=pr-number="${ github.vent.issue.number }}" \
-            --property=github-workflow-name="${ GITHUB_WORKFLOW }" \
-            --property=github-repository="${ GITHUB_REPOSITORY }" \
-            --property=github-commit-sha="${ GITHUB_SHA }" \
-            --property=github-ref="${ GITHUB_REF }" \
-            --property=github-head-ref="${ GITHUB_HEAD_REF }" \
-            --property=github-base-ref="${ GITHUB_BASE_REF }" \
-            --repository="${{ github.repository }}"
+            --baserev='${{ GITHUB_BASE_REF }}' \
+            --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
+            --who='${{ github.event.pull_request.user.login }}' \
+            --property=github-workflow-initiator='${{ GITHUB_ACTOR }}' \
+            --property=pr-number='${{ github.vent.issue.number }}' \
+            --property=github-workflow-name='${{ GITHUB_WORKFLOW }}' \
+            --property=github-repository='${{ GITHUB_REPOSITORY }}' \
+            --property=github-commit-sha='${{ GITHUB_SHA }}' \
+            --property=github-ref='${{ GITHUB_REF }}' \
+            --property=github-head-ref='${{ GITHUB_HEAD_REF }}' \
+            --property=github-base-ref='${{ GITHUB_BASE_REF }}' \
+            --repository='${{ github.repository }}'
 
   # try-build:
   #   needs: check-if-builder-exists
