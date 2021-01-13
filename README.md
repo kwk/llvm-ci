@@ -28,7 +28,7 @@ For LLVM this is a bit trickier and things cannot be fully automated.
   * the **developer workflow** can be **optimized incrementally** as we go?
   * we use github actions to **federate interaction with buildbot**?
 
-This project tries to answer these simple questions by replicating the main components of the LLVM buildbot infrastructure and putting them into an a rather easy consumable composition of a few containers that directly hook into a github repository. We would like interested people to modify the actual workflow by providing them with this project and a set of ready-to-use and wired up github actions as a starting ground.
+This project tries to answer these simple questions by replicating the main components of the LLVM buildbot infrastructure and putting them into an a rather easy consumable weffwfwfcomposition of a few containers that directly hook into a github repository. We would like interested people to modify the actual workflow by providing them with this project and a set of ready-to-use and wired up github actions as a starting ground.
 
 # :question: The How
 
