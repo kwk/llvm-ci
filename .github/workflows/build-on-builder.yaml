@@ -107,8 +107,15 @@ jobs:
         # https://docs.github.com/en/free-pro-team@latest/rest/reference/issues#comments
         shell: bash
         run: |
-          git diff origin/main..HEAD \
-          | buildbot try \
+          # Ensure Bash pipelines (e.g. cmd | othercmd) return a non-zero status if any of
+          # the commands fail, rather than returning the exit status of the last command
+          # in the pipeline.
+          set -o pipefail
+
+          git diff origin/main..HEAD > mydiff
+          echo "mydiff = "
+          cat mydiff
+          buildbot try \
             --master master:8031 \
             --passwd='${{ secrets.TRY_PASSWORD }}' \
             --username='${{ secrets.TRY_USER }}' \
@@ -136,7 +143,7 @@ jobs:
             --property=github-comment-url='${{ github.event.comment.url }}' \
             --property=github-comment-id='${{ github.event.comment.id }}' \
             --property=github-comment-node_id='${{ github.event.comment.node_id }}' \
-            --diff -
+            --diff mydiff
 
   # buildbot try \
   #   --master master:8031 \
