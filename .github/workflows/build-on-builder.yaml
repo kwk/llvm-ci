@@ -56,19 +56,6 @@ jobs:
             | tr -d '\r'); do echo "<li>$i</li>"; done \
             | tr -d '\n'`"
     
-      - name: Check that user's try builder exists
-        id: check_try_builder_exists
-        env:
-          TRY_BUILDER_EXISTS: ${{ contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name) }}
-        run: |
-          if ${TRY_BUILDER_EXISTS} == true; then
-            echo "::set-env try_builder_exists=flag::true"
-            console.log("try_builder_exists set to true")
-          else
-            echo "::set-env try_builder_exists=flag::false"
-            console.log("try_builder_exists set to false")
-          fi
-
       - name: Write comment about unknown try-builder
         uses: actions/github-script@v3
         if: |
@@ -101,11 +88,11 @@ jobs:
       - name: checkout code
         id: checkout_code
         uses: actions/checkout@v2
-        if: env.try_builder_exists
+        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
       
       - name: Kick off try-build
         id: kick_off_try_builder
-        if: env.try_builder_exists
+        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         # See this page for getting a description about the values I'm filling in for the build properties:
         # https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables
         shell: bash
