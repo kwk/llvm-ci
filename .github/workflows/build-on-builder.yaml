@@ -99,7 +99,8 @@ jobs:
         id: kick_off_try_builder
         if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         # See this page for getting a description about the values I'm filling in for the build properties:
-        # https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables
+        # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#github-context
+        # https://docs.github.com/en/free-pro-team@latest/rest/reference/issues#comments
         shell: bash
         run: |
           git diff origin/main..HEAD \
@@ -113,6 +114,24 @@ jobs:
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
             --who='${{ github.event.pull_request.user.login }}' \
             --repository='${{ github.repository }}' \
+            --property=github-action='${{ github.action }}' \
+            --property=github-actor='${{ github.actor }}' \
+            --property=github-event_name='${{ github.event_name }}' \
+            --property=github-event_path='${{ github.event_path }}' \
+            --property=github-head_ref='${{ github.head_ref }}' \
+            --property=github-job='${{ github.job }}' \
+            --property=github-ref='${{ github.ref }}' \
+            --property=github-repository='${{ github.repository }}' \
+            --property=github-repository_owner='${{ github.repository_owner }}' \
+            --property=github-run_id='${{ github.run_id }}' \
+            --property=github-run_number='${{ github.run_number }}' \
+            --property=github-sha='${{ github.sha }}' \
+            --property=github-workflow='${{ github.workflow }}' \
+            --property=github-workspace='${{ github.workspace }}' \
+            --property=github-comment-html_url='${{ github.event.comment.html_url }}' \
+            --property=github-comment-url='${{ github.event.comment.url }}' \
+            --property=github-comment-id='${{ github.event.comment.id }}' \
+            --property=github-comment-node_id='${{ github.event.comment.node_id }}' \
             --diff -
 
   # buildbot try \
@@ -124,14 +143,20 @@ jobs:
   #   --baserev='${{ GITHUB_BASE_REF }}' \
   #   --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
   #   --who='${{ github.event.pull_request.user.login }}' \
-  #   --property=github-workflow-initiator='${{ GITHUB_ACTOR }}' \
-  #   --property=pr-number='${{ github.vent.issue.number }}' \
-  #   --property=github-workflow-name='${{ GITHUB_WORKFLOW }}' \
-  #   --property=github-repository='${{ GITHUB_REPOSITORY }}' \
-  #   --property=github-commit-sha='${{ GITHUB_SHA }}' \
-  #   --property=github-ref='${{ GITHUB_REF }}' \
-  #   --property=github-head-ref='${{ GITHUB_HEAD_REF }}' \
-  #   --property=github-base-ref='${{ GITHUB_BASE_REF }}' \
+  #   --property=github-action='${{ github.action }}' \
+  #   --property=github-actor='${{ github.actor }}' \
+  #   --property=github-event_name='${{ github.event_name }}' \
+  #   --property=github-event_path='${{ github.event_path }}' \
+  #   --property=github-head_ref='${{ github.head_ref }}' \
+  #   --property=github-job='${{ github.job }}' \
+  #   --property=github-ref='${{ github.ref }}' \
+  #   --property=github-repository='${{ github.repository }}' \
+  #   --property=github-repository_owner='${{ github.repository_owner }}' \
+  #   --property=github-run_id='${{ github.run_id }}' \
+  #   --property=github-run_number='${{ github.run_number }}' \
+  #   --property=github-sha='${{ github.sha }}' \
+  #   --property=github-workflow='${{ github.workflow }}' \
+  #   --property=github-workspace='${{ github.workspace }}' \
   #   --repository='${{ github.repository }}'
 
   # try-build:
