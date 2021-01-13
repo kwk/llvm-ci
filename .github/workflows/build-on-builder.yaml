@@ -58,12 +58,20 @@ jobs:
     
       - name: Check that user's try builder exists
         id: check_try_builder_exists
+        env:
+          TRY_BUILDER_EXISTS: ${{ contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name) }}
+        run: |
+          if ${TRY_BUILDER_EXISTS} == true; then
+            echo "::set-env try_builder_exists=flag::true"
+            console.log("try_builder_exists set to true")
+          else
+            echo "::set-env try_builder_exists=flag::false"
+            console.log("try_builder_exists set to false")
+          fi
+
+      - name: Write comment about unknown try-builder
         uses: actions/github-script@v3
-        # This is to demonstrate how to concatenate multiple condition spreading multiple lines
-        if: >-
-          !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name) ||
-          false ||
-          false
+        if: !env.try_builder_exists
         with:
           # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
           # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
@@ -92,11 +100,11 @@ jobs:
       - name: checkout code
         id: checkout_code
         uses: actions/checkout@v2
-        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+        if: env.try_builder_exists
       
       - name: Kick off try-build
         id: kick_off_try_builder
-        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+        if: env.try_builder_exists
         # See this page for getting a description about the values I'm filling in for the build properties:
         # https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables
         shell: bash
@@ -107,18 +115,29 @@ jobs:
             --username='${{ secrets.TRY_USER }}' \
             --connect='pb' \
             --vc="git" \
-            --baserev='${{ GITHUB_BASE_REF }}' \
+            --baserev="main" \
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
             --who='${{ github.event.pull_request.user.login }}' \
-            --property=github-workflow-initiator='${{ GITHUB_ACTOR }}' \
-            --property=pr-number='${{ github.vent.issue.number }}' \
-            --property=github-workflow-name='${{ GITHUB_WORKFLOW }}' \
-            --property=github-repository='${{ GITHUB_REPOSITORY }}' \
-            --property=github-commit-sha='${{ GITHUB_SHA }}' \
-            --property=github-ref='${{ GITHUB_REF }}' \
-            --property=github-head-ref='${{ GITHUB_HEAD_REF }}' \
-            --property=github-base-ref='${{ GITHUB_BASE_REF }}' \
             --repository='${{ github.repository }}'
+
+  # buildbot try \
+  #   --master master:8031 \
+  #   --passwd='${{ secrets.TRY_PASSWORD }}' \
+  #   --username='${{ secrets.TRY_USER }}' \
+  #   --connect='pb' \
+  #   --vc="git" \
+  #   --baserev='${{ GITHUB_BASE_REF }}' \
+  #   --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
+  #   --who='${{ github.event.pull_request.user.login }}' \
+  #   --property=github-workflow-initiator='${{ GITHUB_ACTOR }}' \
+  #   --property=pr-number='${{ github.vent.issue.number }}' \
+  #   --property=github-workflow-name='${{ GITHUB_WORKFLOW }}' \
+  #   --property=github-repository='${{ GITHUB_REPOSITORY }}' \
+  #   --property=github-commit-sha='${{ GITHUB_SHA }}' \
+  #   --property=github-ref='${{ GITHUB_REF }}' \
+  #   --property=github-head-ref='${{ GITHUB_HEAD_REF }}' \
+  #   --property=github-base-ref='${{ GITHUB_BASE_REF }}' \
+  #   --repository='${{ github.repository }}'
 
   # try-build:
   #   needs: check-if-builder-exists
