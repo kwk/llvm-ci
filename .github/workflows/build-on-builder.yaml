@@ -106,7 +106,8 @@ jobs:
             --baserev="main" \
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
             --who='${{ github.event.pull_request.user.login }}' \
-            --repository='${{ github.repository }}'
+            --repository='${{ github.repository }}' \
+            --diff - < git diff origin/main..HEAD
 
   # buildbot try \
   #   --master master:8031 \
