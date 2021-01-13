@@ -90,10 +90,14 @@ jobs:
             core.info(message)
             await createComment(context.issue.number, 'trybuilder-unknown', message)
       
-      - name: checkout code
-        id: checkout_code
+      # Checkout pull request HEAD commit instead of merge commit
+      # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
+      - name: Checkout pull request HEAD
+        id: checkout_pr_head
         uses: actions/checkout@v2
         if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       
       - name: Kick off try-build
         id: kick_off_try_builder
@@ -112,7 +116,7 @@ jobs:
             --vc="git" \
             --baserev="main" \
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
-            --who='${{ github.event.pull_request.user.login }}' \
+            --who='${{ github.actor }}' \
             --repository='${{ github.repository }}' \
             --property=github-action='${{ github.action }}' \
             --property=github-actor='${{ github.actor }}' \
