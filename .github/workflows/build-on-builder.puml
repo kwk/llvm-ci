@@ -1,0 +1,88 @@
+@startuml give-tips-on-new-pr
+
+' For on-the-fly rendering of the latest version of this diagram, please visit:
+' http://www.plantuml.com/plantuml/proxy?idx=0&src=https://raw.githubusercontent.com/kwk/llvm-ci/main/.github/workflows/build-on-builder.puml&fmt=svg
+'
+' To generate a PNG diagram from this file follow these steps:
+' $ wget -o plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+' $ java -jar plantuml.jar -verbose give-tips-on-new-pr.puml
+
+title
+    Sequence diagram for workflow
+    "Build on Builder"
+end title
+
+skinparam style strictuml
+skinparam monochrome true
+skinparam SequenceBoxBackgroundColor #efefef
+skinparam roundcorner 5
+skinparam sequence {
+    ParticipantBackgroundColor White
+}
+' ' skinparam style strictuml
+' ' skinparam monochrome true
+' ' skinparam SequenceBoxBackgroundColor #efefff
+' ' skinparam roundcorner 5
+' ' skinparam SequenceParticipantBackgroundColor #efefef
+' ' skinparam SequenceParticipantBorderColor #c0c0c0
+' ' skinparam SequenceParticipantFontColor #404040
+' ' skinparam SequenceBoxFontColor #040404
+' hide footbox
+
+actor "Developer" as dev
+
+box "Github.com"
+    participant "Github API" as gh
+    participant "Github Actions Runner\n(hosted by github)" as ubuntu_runner
+
+    dev -> gh : Create PR comment:\n<b>/build-on foobar</b>
+    gh -> gh : Look for Workflows that\nact upon PR comment\ncreation.
+    activate gh
+        gh -> gh : Execute workflow:\n"build-on-builder.yaml"
+        activate gh
+            gh -> ubuntu_runner : run job <b>require-build-on-comment</b>
+            activate ubuntu_runner
+                ubuntu_runner -> ubuntu_runner : run step <b>Check comment</b>
+                note right of ubuntu_runner : Ensure that comment body\nbegins with "/build-on "
+                activate ubuntu_runner
+                return grep '^/build-on '
+            return
+end box
+
+box "Localhost"
+    participant "Github Actions Runner\n(self-hosted)" as runner
+    participant "Buildbot\nMaster" as master
+    participant "Buildbot\nWorker" as worker
+    
+    note right of gh : <u>NOTE:</u> Usually jobs are executed in \nparallel unless they <b>need</b> each \nother which is what they do here. 
+    
+    gh -> runner : run job <b>check-if-builder-exists</b>
+    activate runner
+        runner -> runner : run step <b>Set job variables</b>
+        activate runner
+        note right of runner : Sets variables used from other steps in this job: \n* pr-head-branch\n* pr-branch-base\n*builder-name      
+        return
+        runner -> runner : run step <b>Get try-builder list</b>
+        activate runner
+            runner -> master : buildbot try --get-builder-names ...
+            activate master
+            return ugly formatted list of try-builders
+        return format list of try-builders as HTML <li> elements 
+    
+        runner -> runner : run step <b>Check that user's try builder exists</b>
+        activate runner
+            alt given try-builder doesn't exist
+                runner -> gh : create PR comment that informs about the use of an unknown builder
+                note right of runner : The job exits here because\nthe other steps depend on this one.
+                |||
+            else given try-builder exists
+                 runner ->> master : run step <b>Kick off build</b>
+                activate master
+                    note right of master : TBD
+            end
+    '     return
+    ' return
+    ' activate runner
+end box
+
+@enduml:

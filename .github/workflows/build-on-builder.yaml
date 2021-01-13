@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check comment
+        id: checkcomment
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
 
@@ -41,7 +42,7 @@ jobs:
       # Then the results are separated by \n\n which we remove and replace with a comma.
       # TODO(kwk): What happens, if a builder contains a comman in it's name?
       # TODO(kwk): Removing the newlines seems silly (is it needed because otherwise you'd only see one trybuilder?)
-      - name: Get available buildbot try builders at master at the moment
+      - name: Get try-builder list
         id: gettrybuilders
         shell: bash
         run: |
@@ -56,8 +57,8 @@ jobs:
             | tr -d '\n'`"
     
       - name: Check that user's try builder exists
-        uses: actions/github-script@v3
         id: check_try_builder_exists
+        uses: actions/github-script@v3
         # This is to demonstrate how to concatenate multiple condition spreading multiple lines
         if: >-
           !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name) ||
@@ -87,6 +88,36 @@ jobs:
               `
             core.info(message)
             await createComment(context.issue.number, 'trybuilder-unknown', message)
+      
+      - name: checkout code
+        id: checkout_code
+        uses: actions/checkout@v2
+        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+      
+      - name: Kick off try-build
+        id: kick_off_try_builder
+        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+        # See this page for getting a description about the values I'm filling in for the build properties:
+        # https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables
+        run: |
+          buildbot try \
+            --master master:8031 \
+            --passwd='${{ secrets.TRY_PASSWORD }}' \
+            --username='${{ secrets.TRY_USER }}' \
+            --connect='pb' \
+            --vc="git" \
+            --baserev="${{ GITHUB_BASE_REF }}" \
+            --comment="TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)" \
+            --who="${{ github.event.pull_request.user.login }}" \
+            --property=github-workflow-initiator="${{ GITHUB_ACTOR }}" \
+            --property=pr-number="${{ github.event.issue.number }}" \
+            --property=github-workflow-name="${{ GITHUB_WORKFLOW }}" \
+            --property=github-repository="${{ GITHUB_REPOSITORY }}" \
+            --property=github-commit-sha="${{ GITHUB_SHA }}" \
+            --property=github-ref="${{ GITHUB_REF }}" \
+            --property=github-head-ref="${{ GITHUB_HEAD_REF }}" \
+            --property=github-base-ref="${{ GITHUB_BASE_REF }}" \
+            --repository="${{ github.repository }}"
 
   # try-build:
   #   needs: check-if-builder-exists

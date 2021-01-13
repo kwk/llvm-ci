@@ -8,10 +8,11 @@
 ' $ java -jar plantuml.jar -verbose give-tips-on-new-pr.puml
 
 title Sequence diagram for workflow\n"Give tips on new PR"
+
 skinparam style strictuml
 skinparam monochrome true
 skinparam SequenceBoxBackgroundColor #efefef
-' skinparam roundcorner 20
+skinparam roundcorner 5
 skinparam sequence {
     ParticipantBackgroundColor White
 }
@@ -22,7 +23,6 @@ box "Github.com"
     participant "Github API" as gh
     dev -> gh : Open Pull Request (PR)
     gh -> gh : Look for Workflows that\nact upon PR creation.
-    ' next line adds some space between messages
 end box
 
 box "Localhost"
