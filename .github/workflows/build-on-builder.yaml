@@ -71,7 +71,8 @@ jobs:
 
       - name: Write comment about unknown try-builder
         uses: actions/github-script@v3
-        if: not(env.try_builder_exists)
+        if: |
+          !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         with:
           # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
           # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
