@@ -1,0 +1,40 @@
+@startuml give-tips-on-new-pr
+
+' For on-the-fly rendering of the latest version of this diagram, please visit:
+' http://www.plantuml.com/plantuml/proxy?idx=0&src=https://raw.githubusercontent.com/kwk/llvm-ci/main/.github/workflows/give-tips-on-new-pr.puml&fmt=svg
+'
+' To generate a PNG diagram from this file follow these steps:
+' $ wget -o plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+' $ java -jar plantuml.jar -verbose give-tips-on-new-pr.puml
+
+title Sequence diagram for workflow\n"Give tips on new PR"
+skinparam style strictuml
+skinparam monochrome true
+skinparam SequenceBoxBackgroundColor #efefef
+' skinparam roundcorner 20
+skinparam sequence {
+    ParticipantBackgroundColor White
+}
+
+actor "Developer" as dev
+
+box "Github.com"
+    participant "Github API" as gh
+    dev -> gh : Open Pull Request (PR)
+    gh -> gh : Look for Workflows that\nact upon PR creation.
+    ' next line adds some space between messages
+end box
+
+box "Localhost"
+    participant "Github Actions\nRunner" as runner
+    participant "Buildbot\nMaster" as master
+    participant "Buildbot\nWorker" as worker
+    
+    gh -> runner : Execute workflow:\n"give-tips-on-new-pr.yaml"
+    activate runner
+    runner -> runner : Format message to\nthank developer for\nPR creation
+    runner -> gh : Create comment on PR\nusing formatted message
+    return
+end box
+
+@enduml:
