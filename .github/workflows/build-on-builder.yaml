@@ -97,10 +97,12 @@ jobs:
         uses: actions/checkout@v2
         if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          #ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ steps.vars.outputs.pr-base-branch }}
           # TODO(kwk): Fetching all history seems to be an overkill
           # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 0
+          repository: kwk/llvm-ci
       
       - name: Kick off try-build
         id: kick_off_try_builder
@@ -114,6 +116,8 @@ jobs:
           # the commands fail, rather than returning the exit status of the last command
           # in the pipeline.
           set -o pipefail
+
+          cp -v ${{github.event_path}} .
 
           git diff origin/main..HEAD > mydiff
           echo "mydiff = "
