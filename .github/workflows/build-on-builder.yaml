@@ -132,7 +132,7 @@ jobs:
 
           cp -v ${{github.event_path}} .
 
-          git diff origin/main..origin/43333a58530f2751f717ea80c239774d44364a26 > mydiff
+          git diff origin/main..origin/00cb9217-fa28-4f3e-a4e3-f62b6ec35c1d > mydiff
           echo "mydiff = "
           cat mydiff
           buildbot try \
