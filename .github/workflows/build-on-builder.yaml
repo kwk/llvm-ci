@@ -93,6 +93,16 @@ jobs:
             core.info(message)
             await createComment(context.issue.number, 'trybuilder-unknown', message)
       
+      # - name: Fetch necessary branches
+      #   if: startswith(github.event.comment.body, 'cherry-pick:')
+      #   run: |
+      #     git fetch origin master
+      #     if git ls-remote --exit-code -h https://github.com/${{ github.repository }} ${{ steps.vars.outputs.pr-head-branch }}; then
+      #       git fetch https://github.com/${{ github.repository }} ${{ steps.vars.outputs.pr-head-branch }}:${{ steps.vars.outputs.pr-head-branch }}
+      #       git checkout ${{ steps.vars.outputs.pr-head-branch }}
+      #     fi
+
+
       # Checkout pull request HEAD commit instead of merge commit
       # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
       - name: Checkout pull request HEAD
@@ -122,7 +132,7 @@ jobs:
 
           cp -v ${{github.event_path}} .
 
-          git diff origin/main..HEAD > mydiff
+          git diff origin/main..origin/43333a58530f2751f717ea80c239774d44364a26 > mydiff
           echo "mydiff = "
           cat mydiff
           buildbot try \
