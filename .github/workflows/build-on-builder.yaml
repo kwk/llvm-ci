@@ -162,9 +162,8 @@ jobs:
             --property=github-comment-html_url='${{ github.event.comment.html_url }}' \
             --property=github-comment-url='${{ github.event.comment.url }}' \
             --property=github-comment-id='${{ github.event.comment.id }}' \
-            --property=github-comment-node_id='${{ github.event.comment.node_id }}'
-            
-            #--diff mydiff
+            --property=github-comment-node_id='${{ github.event.comment.node_id }}' \
+            --diff mydiff
 
   # buildbot try \
   #   --master master:8031 \
