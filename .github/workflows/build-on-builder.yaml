@@ -142,6 +142,7 @@ jobs:
             --connect='pb' \
             --vc="git" \
             --baserev="main" \
+            --branch="main" \
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
             --who='${{ github.actor }}' \
             --repository='${{ github.repository }}' \
