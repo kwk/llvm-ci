@@ -12,20 +12,19 @@ spec:
   containers:
     - name: runner-container
       image: "${RUNNER_IMAGE}"
-      command: ["/home/runner/start-runner.sh"]
       resources:
         limits:
           memory: "3Gi" # e.g. 64 Gigabytes = 64 Gi
           cpu: "10000m" # e.g. 32 cores = 32000m
       volumeMounts:
         - name: runner-secret-volume
-          mountPath: /runner-secret-volume
+          mountPath: /secret-volume
           readOnly: true
       env:
         - name: GH_OWNER
           value: "kwk"
         - name: GH_REPO
-          value: "llvm-ci-demo"
+          value: "llvm-ci"
   volumes:
     - name: runner-secret-volume
       secret:

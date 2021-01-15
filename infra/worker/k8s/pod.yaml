@@ -14,7 +14,6 @@ spec:
   containers:
     - name: worker-container
       image: "${WORKER_IMAGE}"
-      command: ["start-worker.sh"]
       # See https://docs.openshift.com/enterprise/3.2/dev_guide/compute_resources.html#quality-of-service-tiers
       # QoS Tier:
       #   # A Guaranteed CPU container is guaranteed to get the amount requested
@@ -69,7 +68,7 @@ spec:
           value: "${BUILDBOT_MASTER}"
       volumeMounts:
         - name: buildbot-worker-secret-volume
-          mountPath: /buildbot-worker-secret-volume
+          mountPath: /secret-volume
           readOnly: true
   volumes:
     - name: buildbot-worker-secret-volume
