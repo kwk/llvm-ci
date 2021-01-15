@@ -7,10 +7,13 @@ set -eu
 # in the pipeline.
 set -o pipefail
 
+# We installed buildbot in a virtualenv that we need to activate here
+source /home/johndoe/sandbox/bin/activate
+
 BUILDBOT_WORKER_NAME=${BUILDBOT_WORKER_NAME:-"worker0"}
 
 # Read the worker password from a mounted file.
-BUILDBOT_WORKER_PASSWORD=$(cat /buildbot-worker-secret-volume/buildbot-worker-password)
+BUILDBOT_WORKER_PASSWORD=$(cat /secret-volume/buildbot-worker-password)
 
 BUILDBOT_WORKER_BASE_DIR="${BUILDBOT_BASEDIR}/${BUILDBOT_WORKER_NAME}"
 BUILDBOT_WORKER_INFO_DIR="${BUILDBOT_WORKER_BASE_DIR}/info"
@@ -19,7 +22,7 @@ mkdir -p ${BUILDBOT_WORKER_INFO_DIR}
 
 echo ${BUILDBOT_INFO_ADMIN} > "${BUILDBOT_WORKER_INFO_DIR}/admin"
 
-worker-info.sh | tee ${BUILDBOT_WORKER_INFO_DIR}/host
+/home/johndoe/bin/worker-info.sh | tee ${BUILDBOT_WORKER_INFO_DIR}/host
 
 BUILDBOT_ACCESS_URI=${BUILDBOT_ACCESS_URI:-""}
 [[ "${BUILDBOT_ACCESS_URI}" != "" ]] && (echo ${BUILDBOT_ACCESS_URI} | tee ${BUILDBOT_WORKER_INFO_DIR}/access_uri)

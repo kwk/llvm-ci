@@ -1,4 +1,3 @@
 k8s/**
+compose-secrets/**
 worker.mk
-out/**
-../out/**

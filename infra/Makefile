@@ -104,6 +104,7 @@ buildbot-try-secrets-in-github:
 ## Upon launch, buildbot website is opened in your default browser
 ## and the compose tool's logs are followed.
 start:
+	$(CONTAINER_TOOL) build ./base-image/ -t llvm-ci-base-image -f base-image/Dockerfile
 	$(COMPOSE_TOOL) build $(Q_FLAG)
 	$(COMPOSE_TOOL) up --remove-orphans -d
 	@echo -n "Waiting until Buildbot master Web-UI is up."

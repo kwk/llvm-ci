@@ -5,7 +5,7 @@ PREPARE_SECRET_TARGETS += prepare-master-secrets
 prepare-master-secrets:
 	@-cp -v --backup=numbered ./master/k8s/secret.yaml.sample ./master/k8s/secret.yaml
 	@-cp -v --backup=numbered ./master/compose-secrets/github-pat.sample ./master/compose-secrets/github-pat
-	## TODO(kwk): Security concertn? Without "others" being able to read the secrets, the master won't start.
+	## TODO(kwk): Security concern? Without "others" being able to read the secrets, the master won't start.
 	@chmod a+r -v ./master/k8s/secret.yaml
 	@chmod a+r -v ./master/compose-secrets/github-pat
 

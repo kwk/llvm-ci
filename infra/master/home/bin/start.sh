@@ -7,8 +7,11 @@ set -eu
 # in the pipeline.
 set -o pipefail
 
-BUILDBOT_MASTER_BASEDIR=/home/buildbot-master/basedir
-CONFIG_FILE=/home/buildbot-master/cfg/master.cfg
+# We installed buildbot in a virtualenv that we need to activate here
+source /home/johndoe/sandbox/bin/activate
+
+BUILDBOT_MASTER_BASEDIR=/home/johndoe/basedir
+CONFIG_FILE=/home/johndoe/cfg/master.cfg
 
 buildbot create-master --force --config=${CONFIG_FILE} "${BUILDBOT_MASTER_BASEDIR}"
 

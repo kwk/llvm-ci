@@ -7,7 +7,10 @@ set -eu
 # in the pipeline.
 set -o pipefail
 
-GH_PAT=$(cat /runner-secret-volume/github-pat)
+# We installed buildbot in a virtualenv that we need to activate here
+source /home/johndoe/sandbox/bin/activate
+
+GH_PAT=$(cat /secret-volume/github-pat)
 
 # Request a new actions-runner token
 # (See https://developer.github.com/v3/actions/self-hosted-runners/#create-a-registration-token-for-a-repository)

@@ -1,4 +1,3 @@
 k8s/**
+compose-secrets/**
 runner.mk
-out/**
-../out/**
