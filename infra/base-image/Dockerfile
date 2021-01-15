@@ -48,18 +48,12 @@ RUN virtualenv sandbox \
     && python -m pip install --upgrade pip \
     && source sandbox/bin/activate \
     && pip install buildbot[bundle]
-
-COPY bin/* /home/johndoe/bin/
-# COPY cfg/* /home/johndoe/cfg/
-RUN chmod +x /home/johndoe/bin/*
-
 USER root
 
 # Volumes to mount secrets into the container
 VOLUME /secret-volume
 
-COPY bin/uid_entrypoint.sh /home/johndoe/bin/uid_entrypoint.sh
-RUN chmod +x /home/johndoe/bin/uid_entrypoint.sh
+COPY home/* /home/johndoe
 
 ARG ci_git_revision=main
 ENV CI_GIT_REVISION=${ci_git_revision}
