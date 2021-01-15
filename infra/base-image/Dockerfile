@@ -47,6 +47,7 @@ RUN virtualenv sandbox \
     && source sandbox/bin/activate \
     && python -m pip install --upgrade pip \
     && source sandbox/bin/activate \
+    && pip install txrequests \
     && pip install buildbot[bundle]
 USER root
 
