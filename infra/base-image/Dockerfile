@@ -53,7 +53,7 @@ USER root
 # Volumes to mount secrets into the container
 VOLUME /secret-volume
 
-COPY home/* /home/johndoe
+COPY home/ /home/johndoe/
 
 ARG ci_git_revision=main
 ENV CI_GIT_REVISION=${ci_git_revision}
@@ -68,7 +68,8 @@ ENTRYPOINT [ "/home/johndoe/bin/uid_entrypoint.sh" ]
 
 CMD [ "/home/johndoe/bin/start.sh" ]
 
-ONBUILD COPY home/* /home/johndoe
+ONBUILD COPY home/ /home/johndoe/
+ONBUILD RUN ls /home/johndoe
 ONBUILD RUN chmod +x /home/johndoe/bin/*
 ONBUILD RUN chgrp -R 0 /home/johndoe \
         && chmod -R g=u /home/johndoe /etc/passwd

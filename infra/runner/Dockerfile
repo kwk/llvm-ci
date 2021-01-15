@@ -2,7 +2,7 @@ FROM  llvm-ci-base-image
 
 RUN mkdir -pv /home/johndoe/actions-runner/ \
     && cd /home/johndoe/actions-runner \
-    && curl -O -L https://github.com/actions/johndoe/releases/download/v2.274.1/actions-runner-linux-x64-2.274.1.tar.gz \
+    && curl -O -L https://github.com/actions/runner/releases/download/v2.274.1/actions-runner-linux-x64-2.274.1.tar.gz \
     && tar xzf ./actions-runner-linux-x64-2.274.1.tar.gz \
     && rm -v actions-runner-linux-x64-2.274.1.tar.gz \
     && ./bin/installdependencies.sh \
@@ -25,26 +25,14 @@ RUN mkdir -pv /usr/share/GitHubActionsService \
 # && curl -Ls https://github.com/actions/johndoe/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-${GITHUB_RUNNER_VERSION}.tar.gz \
 #     | tar xz \
 
-
-COPY bin/* /home/johndoe/
-RUN chmod +x -v /home/johndoe/*.sh
+# We need to repeate this command as found in the base-image's Dockerfile.
+# This is because we not only added known files but downloaded files for the GH actions runner.
 RUN chgrp -R 0 /home/johndoe \
     && chmod -R g=u /home/johndoe /etc/passwd
 
-# Volumes to mount secrets into the container
-VOLUME /secret-volume
-
 USER 10001
-WORKDIR /home/johndoe
 
 ENV RUNNER_LABELS = "fedora33,container"
 ENV RUNNER_NAME = "my-github-actions-runner"
-
-LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
-
-ENTRYPOINT [ "/home/johndoe/uid_entrypoint.sh" ]
-
-CMD [ "/home/johndoe/start-runner.sh" ]
-
 
 
