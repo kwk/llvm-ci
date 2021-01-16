@@ -145,7 +145,8 @@ jobs:
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
             --who='${{ github.actor }}' \
             --repository='${{ github.repository }}' \
-            --project='${{ github.repository }}' \
+            --property=project='${{ github.repository }}' \
+            --property=repository='https://github.com/${{ github.repository }}.git' \
             --property=github-action='${{ github.action }}' \
             --property=github-actor='${{ github.actor }}' \
             --property=github-event_name='${{ github.event_name }}' \
