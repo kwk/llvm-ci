@@ -132,7 +132,7 @@ jobs:
 
           cp -v ${{github.event_path}} .
 
-          git diff origin/main..origin/00cb9217-fa28-4f3e-a4e3-f62b6ec35c1d > mydiff
+          git diff HEAD^..HEAD > mydiff
     
           buildbot try \
             --master master:8031 \
