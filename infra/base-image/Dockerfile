@@ -43,12 +43,12 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
 RUN useradd --create-home johndoe
 WORKDIR /home/johndoe
 USER johndoe
+COPY requirements.txt requirements.txt
 RUN virtualenv sandbox \
     && source sandbox/bin/activate \
     && python -m pip install --upgrade pip \
     && source sandbox/bin/activate \
-    && pip install txrequests \
-    && pip install buildbot[bundle]
+    && pip install --requirement requirements.txt
 USER root
 
 # Volumes to mount secrets into the container
