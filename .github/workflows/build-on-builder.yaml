@@ -165,6 +165,8 @@ jobs:
             --property=github-comment-url='${{ github.event.comment.url }}' \
             --property=github-comment-id='${{ github.event.comment.id }}' \
             --property=github-comment-node_id='${{ github.event.comment.node_id }}' \
+            --property=github-pr-number='${{ github.event.issue.number }}' \
+            --property=github-issue-number='${{ github.event.issue.number }}' \
             --diff mydiff
 
   # buildbot try \
