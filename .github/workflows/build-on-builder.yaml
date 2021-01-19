@@ -136,6 +136,7 @@ jobs:
     
           buildbot try \
             --master master:8031 \
+            --builder='${{steps.vars.outputs.builder-name}}' \
             --passwd='${{ secrets.TRY_PASSWORD }}' \
             --username='${{ secrets.TRY_USER }}' \
             --connect='pb' \
