@@ -20,6 +20,8 @@ jobs:
   # Unless a comment starts with /build-on, we abort immediately. 
   require-build-on-comment:
     runs-on: ubuntu-latest
+    # Only run on PR comment and not on issue comment (see https://github.community/t/triggering-workflow-only-for-pull-request-comment/17156)
+    if: contains(github.event.comment.html_url, '/pull/')
     steps:
       - name: Check comment
         id: checkcomment
