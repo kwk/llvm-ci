@@ -76,7 +76,7 @@ jobs:
                 }
               }`;
               const variables = {
-                  pr_node_id=${{steps.vars.outputs.pr-node-id}},
+                  pr_node_id='${{steps.vars.outputs.pr-node-id}}',
                   body='Workflow started!',
               }
               const result = await github.graphql(query, variables)
