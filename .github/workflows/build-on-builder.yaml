@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only run on PR comment and not on issue comment (see https://github.community/t/triggering-workflow-only-for-pull-request-comment/17156)
     if: >-
-      contains(github.event.comment.html_url, '/pull/') |
+      contains(github.event.comment.html_url, '/pull/') ||
       startsWith(github.event.comment.body, '/build-on ')
     steps:
       - name: Check comment
