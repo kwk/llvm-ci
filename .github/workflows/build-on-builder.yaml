@@ -67,12 +67,10 @@ jobs:
               //       }
               //
               // create new comment on PR
-              const query = `query($pr_node_id:String!, $body:String!) {
-                mutation {
-                  addComment(input: {subjectId:$pr_node_id, body:$body}) {
-                    subject {
-                      id
-                    }
+              const query = `mutation($pr_node_id:String!, $body:String!) {
+                addComment(input: {subjectId:$pr_node_id, body:$body}) {
+                  subject {
+                    id
                   }
                 }
               }`;
@@ -217,6 +215,7 @@ jobs:
             --property=github-trigger-comment-node_id='${{ github.event.comment.node_id }}' \
             --property=github-pr-number='${{ github.event.issue.number }}' \
             --property=github-issue-number='${{ github.event.issue.number }}' \
+            --property=github-pr-html-url='${{ github.event.issue.html_url }}' \
             --diff mydiff
 
   # buildbot try \
