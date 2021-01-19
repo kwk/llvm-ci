@@ -1,3 +1,5 @@
+# TODO(kwk): READ THIS https://docs.github.com/en/rest/reference/checks#runs
+
 name: build-on-builder
 
 on:
@@ -39,9 +41,46 @@ jobs:
         # For the "::set-output" part, see
         # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
         run: |
-          echo "::set-output name=pr-head-branch::issue-${{ github.event.issue.number }}-pr"
-          echo "::set-output name=pr-base-branch::main"
           echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
+          echo "::set-output name=pr-node-id::`echo ${{ github.event.issue.node_id }}`"
+          echo ""
+
+      # See https://github.com/actions/github-script#run-custom-graphql-queries
+      # See https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
+      # See https://docs.github.com/en/graphql/overview/explorer
+
+      - name: Create a workflow-started comment
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+              //       // https://docs.github.com/en/graphql/reference/mutations#updateissuecomment
+              //       mutation {
+              //         updateIssueComment(
+              //           input: {
+              //             id: "MDEyOklzc3VlQ29tbWVudDc2MDAxNzUwMw==",
+              //             body: "some test",
+              //             clientMutationId: "foobar",
+              //           }) {
+              //           clientMutationId
+              //         }
+              //       }
+              //
+              // create new comment on PR
+              const query = `query($pr_node_id:String!, $body:String!) {
+              mutation {
+                addComment(input: {subjectId:$pr_node_id, body:$body}) {
+                  subject {
+                    id
+                  }
+                }
+              }`;
+              const variables = {
+                  pr_node_id=${{steps.vars.outputs.pr-node-id}},
+                  body='Workflow started!',
+              }
+              const result = await github.graphql(query, variables)
+              console.log(result)
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
@@ -121,9 +160,6 @@ jobs:
       - name: Kick off try-build
         id: kick_off_try_builder
         if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
-        # See this page for getting a description about the values I'm filling in for the build properties:
-        # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#github-context
-        # https://docs.github.com/en/free-pro-team@latest/rest/reference/issues#comments
         shell: bash
         run: |
           git fetch origin pull/${{ github.event.issue.number }}/head:pr-${{ github.event.issue.number }}
@@ -145,6 +181,9 @@ jobs:
           # --baserev="origin/main" \
           # ^ Results in: fatal: invalid object name 'origin'.
 
+          # See this page for getting a description about the values I'm filling in for the build properties:
+          # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#github-context
+          # https://docs.github.com/en/free-pro-team@latest/rest/reference/issues#comments
           buildbot try \
             --master master:8031 \
             --builder='${{steps.vars.outputs.builder-name}}' \
@@ -171,10 +210,10 @@ jobs:
             --property=github-sha='${{ github.sha }}' \
             --property=github-workflow='${{ github.workflow }}' \
             --property=github-workspace='${{ github.workspace }}' \
-            --property=github-comment-html_url='${{ github.event.comment.html_url }}' \
-            --property=github-comment-url='${{ github.event.comment.url }}' \
-            --property=github-comment-id='${{ github.event.comment.id }}' \
-            --property=github-comment-node_id='${{ github.event.comment.node_id }}' \
+            --property=github-trigger-comment-html_url='${{ github.event.comment.html_url }}' \
+            --property=github-trigger-comment-url='${{ github.event.comment.url }}' \
+            --property=github-trigger-comment-id='${{ github.event.comment.id }}' \
+            --property=github-trigger-comment-node_id='${{ github.event.comment.node_id }}' \
             --property=github-pr-number='${{ github.event.issue.number }}' \
             --property=github-issue-number='${{ github.event.issue.number }}' \
             --diff mydiff
