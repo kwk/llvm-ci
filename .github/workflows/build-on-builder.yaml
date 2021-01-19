@@ -68,10 +68,11 @@ jobs:
               //
               // create new comment on PR
               const query = `query($pr_node_id:String!, $body:String!) {
-              mutation {
-                addComment(input: {subjectId:$pr_node_id, body:$body}) {
-                  subject {
-                    id
+                mutation {
+                  addComment(input: {subjectId:$pr_node_id, body:$body}) {
+                    subject {
+                      id
+                    }
                   }
                 }
               }`;
