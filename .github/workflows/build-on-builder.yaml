@@ -83,7 +83,7 @@ jobs:
               const result = await github.graphql(query, variables)
               // result looks like this: { addComment: { subject: { id: 'MDExOlB...xSZXF1ZXN0NTU3Nzg2NDM5' } } }
               console.log(result)
-              console.log("::set-output name=comment_result::+result")
+              console.log("::set-output name=comment_result::" + JSON.stringify(result))
 
       - name: Access workflow comment ID
         shell: bash
