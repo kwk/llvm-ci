@@ -31,7 +31,7 @@ jobs:
         id: checkcomment
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
-        # TODO(kwk): Fail gracefully if this step does not pass.
+        # TODO(kwk): Fail gracefully if this step does not pass. IMPORTANT!
 
   call-try-builder:
     needs: require-build-on-comment
@@ -84,14 +84,15 @@ jobs:
                   body:'Workflow started!',
               }
               const result = await github.graphql(query, variables)
-              // result looks like this: { addComment: { subject: { id: 'MDExOlB...xSZXF1ZXN0NTU3Nzg2NDM5' } } }
+              // result looks like this: {addComment:{commentEdge:{node:{id:MDEyOklzc3VlQ29tbWVudDc2MzIxNjkyOQ==}}}}
               console.log(result)
               console.log("::set-output name=comment_result::" + JSON.stringify(result))
 
       - name: Access workflow comment ID
+        id: build-log
         shell: bash
         run: |
-          echo "${{steps.create_workflow_comment.outputs.comment_result}}"
+          echo "::set-output name=comment-node-id::`echo "${{steps.create_workflow_comment.outputs.comment_result}}" | jq .addComment.commentEdge.node.id`)
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
