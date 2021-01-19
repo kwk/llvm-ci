@@ -23,12 +23,15 @@ jobs:
   require-build-on-comment:
     runs-on: ubuntu-latest
     # Only run on PR comment and not on issue comment (see https://github.community/t/triggering-workflow-only-for-pull-request-comment/17156)
-    if: contains(github.event.comment.html_url, '/pull/')
+    if: -> 
+      contains(github.event.comment.html_url, '/pull/') |
+      startsWith(github.event.comment.body, '/build-on ')
     steps:
       - name: Check comment
         id: checkcomment
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
+        # TODO(kwk): Fail gracefully if this step does not pass.
 
   call-try-builder:
     needs: require-build-on-comment
