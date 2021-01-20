@@ -1,4 +1,4 @@
-// add_issue_comment:
+// update_issue_comment:
 //
 // Takes an issue's/PR's node ID and a comment body and creates a
 // new comment on the issue or PR. It returns the ID node of the

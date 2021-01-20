@@ -24,9 +24,10 @@ jobs:
   # This is the quick gatekeeper for this workflow.
   # Unless a comment starts with /build-on, we abort immediately. 
   require-build-on-comment:
+    name: "Skip unless /build prefix is found"
     runs-on: ubuntu-latest
     # Only run on PR comment and not on issue comment (see https://github.community/t/triggering-workflow-only-for-pull-request-comment/17156)
-    # TODO(kwk): Fail gracefully if this step does not pass. IMPORTANT!
+    # TODO(kwk): Fail gracefully if this step does not pass. IMPORTANT! Done by second startsWith if-clause?
     if: >-
       contains(github.event.comment.html_url, '/pull/') &&
       startsWith(github.event.comment.body, '/build-on ')
@@ -37,6 +38,7 @@ jobs:
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
 
   call-try-builder:
+    name: "Verify and kick off build"
     needs: require-build-on-comment
     # We need to run this on a self-hosted github actions-runner because
     # the buildbot master in the test setup is not publically reachable.
@@ -54,51 +56,84 @@ jobs:
       # See https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
       # See https://docs.github.com/en/graphql/overview/explorer
 
-      - uses: actions/checkout@v2
-      - uses: actions/github-script@v3
-        name: Hello from inside add_comment.js
+      # Checkout pull request HEAD commit instead of merge commit
+      # TODO(kwk): Checkout code at this early step is not necessary if we keep our actions separated.
+      # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
+      - name: Checkout pull request HEAD
+        id: checkout_pr_head
+        uses: actions/checkout@v2
+        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         with:
-          script: |
-            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
-            result = add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}', 'Workflow started with external script');
-            console.log("::set-output name=node_id::" + result);
+          #ref: origin/main
+          # TODO(kwk): Fetching all history seems to be an overkill
+          # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 1
+          repository: kwk/llvm-ci
 
       - name: Create a workflow-started comment
+        id:   build_log
         uses: actions/github-script@v3
-        id: build_log
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-              //       // https://docs.github.com/en/graphql/reference/mutations#updateissuecomment
-              //       mutation {
-              //         updateIssueComment(
-              //           input: {
-              //             id: "MDEyOklzc3VlQ29tbWVudDc2MDAxNzUwMw==",
-              //             body: "some test",
-              //             clientMutationId: "foobar",
-              //           }) {
-              //           clientMutationId
-              //         }
-              //       }
-              //
-              // create new comment on PR and get back the comment's nodeId for updating later.
-              const query = `mutation($pr_node_id:String!, $body:String!) {
-                addComment(input: {subjectId:$pr_node_id, body:$body}) {
-                  commentEdge{
-                    node {
-                      id
-                    }
-                  }
-                }
-              }`;
-              const variables = {
-                  pr_node_id:'${{steps.vars.outputs.pr-node-id}}',
-                  body:'Workflow started!',
-              }
-              const result = await github.graphql(query, variables)
-              // result looks something like this: {addComment:{commentEdge:{node:{id:MDEyOklzc3VlQ29tbWVudDc2MzIxNjkyOQ==}}}}
-              console.log(result)
-              console.log("::set-output name=node_id::" + JSON.stringify(result.addComment.commentEdge.node.id))
+            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
+            result = add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
+            `Workflow started with external script!
+
+            Look, it supports newlines!
+            `);
+            console.log("::set-output name=node_id::" + result);
+
+      - name: Update the workflow-started comment
+        id:   build_log
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
+            result = add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
+            `Workflow started with external script!
+
+            Look, it supports newlines!
+            `);
+            console.log("::set-output name=node_id::" + result);
+
+      # - name: Create a workflow-started comment
+      #   uses: actions/github-script@v3
+      #   id: build_log
+      #   with:
+      #     github-token: ${{secrets.GITHUB_TOKEN}}
+      #     script: |
+      #         //       // https://docs.github.com/en/graphql/reference/mutations#updateissuecomment
+      #         //       mutation {
+      #         //         updateIssueComment(
+      #         //           input: {
+      #         //             id: "MDEyOklzc3VlQ29tbWVudDc2MDAxNzUwMw==",
+      #         //             body: "some test",
+      #         //             clientMutationId: "foobar",
+      #         //           }) {
+      #         //           clientMutationId
+      #         //         }
+      #         //       }
+      #         //
+      #         // create new comment on PR and get back the comment's nodeId for updating later.
+      #         const query = `mutation($pr_node_id:String!, $body:String!) {
+      #           addComment(input: {subjectId:$pr_node_id, body:$body}) {
+      #             commentEdge{
+      #               node {
+      #                 id
+      #               }
+      #             }
+      #           }
+      #         }`;
+      #         const variables = {
+      #             pr_node_id:'${{steps.vars.outputs.pr-node-id}}',
+      #             body:'Workflow started!',
+      #         }
+      #         const result = await github.graphql(query, variables)
+      #         // result looks something like this: {addComment:{commentEdge:{node:{id:MDEyOklzc3VlQ29tbWVudDc2MzIxNjkyOQ==}}}}
+      #         console.log(result)
+      #         console.log("::set-output name=node_id::" + JSON.stringify(result.addComment.commentEdge.node.id))
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
@@ -162,18 +197,18 @@ jobs:
       #     fi
 
 
-      # Checkout pull request HEAD commit instead of merge commit
-      # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
-      - name: Checkout pull request HEAD
-        id: checkout_pr_head
-        uses: actions/checkout@v2
-        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
-        with:
-          #ref: origin/main
-          # TODO(kwk): Fetching all history seems to be an overkill
-          # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
-          fetch-depth: 1
-          repository: kwk/llvm-ci
+      # # Checkout pull request HEAD commit instead of merge commit
+      # # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
+      # - name: Checkout pull request HEAD
+      #   id: checkout_pr_head
+      #   uses: actions/checkout@v2
+      #   if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+      #   with:
+      #     #ref: origin/main
+      #     # TODO(kwk): Fetching all history seems to be an overkill
+      #     # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+      #     fetch-depth: 1
+      #     repository: kwk/llvm-ci
       
       - name: Kick off try-build
         id: kick_off_try_builder
