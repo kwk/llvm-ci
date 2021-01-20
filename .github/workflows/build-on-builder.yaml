@@ -106,7 +106,6 @@ jobs:
       # TODO(kwk): What happens, if a builder contains a comman in it's name?
       # TODO(kwk): Removing the newlines seems silly (is it needed because otherwise you'd only see one trybuilder?)
       - name: Get try-builder list
-        needs: build_log
         id: gettrybuilders
         shell: bash
         run: |
