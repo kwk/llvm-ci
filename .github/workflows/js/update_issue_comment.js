@@ -4,8 +4,9 @@
 // ID node of updated comment.
 module.exports = async (github, comment_node_id, comment_body) => {
     
+    // see https://docs.github.com/en/graphql/reference/mutations#updateissuecomment
     const query = `mutation($comment_node_id:String!, $comment_body:String!) {
-        updateIssueComment(input: {subjectId:$comment_node_id, body:$comment_body}) {
+        updateIssueComment(input: {id:$comment_node_id, body:$comment_body}) {
             issueComment{
                 node {
                     id
