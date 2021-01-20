@@ -23,15 +23,15 @@ jobs:
   require-build-on-comment:
     runs-on: ubuntu-latest
     # Only run on PR comment and not on issue comment (see https://github.community/t/triggering-workflow-only-for-pull-request-comment/17156)
+    # TODO(kwk): Fail gracefully if this step does not pass. IMPORTANT!
     if: >-
-      contains(github.event.comment.html_url, '/pull/') ||
+      contains(github.event.comment.html_url, '/pull/') &&
       startsWith(github.event.comment.body, '/build-on ')
-    steps:
-      - name: Check comment
-        id: checkcomment
-        run: echo ${{ github.event.comment.body }} | grep '^/build-on '
-        # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
-        # TODO(kwk): Fail gracefully if this step does not pass. IMPORTANT!
+    # steps:
+      # - name: Check comment
+      #   id: checkcomment
+      #   run: echo ${{ github.event.comment.body }} | grep '^/build-on '
+      #   # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
 
   call-try-builder:
     needs: require-build-on-comment
@@ -87,12 +87,13 @@ jobs:
               // result looks like this: {addComment:{commentEdge:{node:{id:MDEyOklzc3VlQ29tbWVudDc2MzIxNjkyOQ==}}}}
               console.log(result)
               console.log("::set-output name=comment_result::" + JSON.stringify(result))
+              console.log(result.addComment.commentEdge.node.id)
 
       - name: Access workflow comment ID
         id: build-log
         shell: bash
         run: |
-          echo "::set-output name=comment-node-id::`echo "${{steps.create_workflow_comment.outputs.comment_result}}" | jq .addComment.commentEdge.node.id`)
+          echo "::set-output name=comment-node-id::`echo '${{steps.create_workflow_comment.outputs.comment_result}}' | jq .addComment.commentEdge.node.id`)
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
