@@ -51,9 +51,17 @@ jobs:
       # See https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
       # See https://docs.github.com/en/graphql/overview/explorer
 
+      - uses: actions/checkout@v2
+      - uses: actions/github-script@v3
+        name: Hello from inside add_comment.js
+        with:
+          script: |
+            const script = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_comment.js`)
+            console.log(script({github, context}))
+
       - name: Create a workflow-started comment
         uses: actions/github-script@v3
-        id: create_workflow_comment
+        id: build_log
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -84,16 +92,9 @@ jobs:
                   body:'Workflow started!',
               }
               const result = await github.graphql(query, variables)
-              // result looks like this: {addComment:{commentEdge:{node:{id:MDEyOklzc3VlQ29tbWVudDc2MzIxNjkyOQ==}}}}
+              // result looks something like this: {addComment:{commentEdge:{node:{id:MDEyOklzc3VlQ29tbWVudDc2MzIxNjkyOQ==}}}}
               console.log(result)
-              console.log("::set-output name=comment_result::" + JSON.stringify(result))
-              console.log(result.addComment.commentEdge.node.id)
-
-      - name: Access workflow comment ID
-        id: build-log
-        shell: bash
-        run: |
-          echo "::set-output name=comment-node-id::`echo '${{steps.create_workflow_comment.outputs.comment_result}}' | jq .addComment.commentEdge.node.id`)
+              console.log("::set-output name=node_id::" + JSON.stringify(result.addComment.commentEdge.node.id))
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
@@ -105,6 +106,7 @@ jobs:
       # TODO(kwk): What happens, if a builder contains a comman in it's name?
       # TODO(kwk): Removing the newlines seems silly (is it needed because otherwise you'd only see one trybuilder?)
       - name: Get try-builder list
+        needs: build_log
         id: gettrybuilders
         shell: bash
         run: |
