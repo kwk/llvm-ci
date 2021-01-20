@@ -68,7 +68,7 @@ jobs:
           # TODO(kwk): Fetching all history seems to be an overkill
           # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 1
-          repository: kwk/llvm-ci
+          repository: ${{ github.repository }}
 
       - name: Create a workflow-started comment
         id:   build_log
@@ -80,9 +80,8 @@ jobs:
             result = add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
             `Workflow started with external script!
 
-            Look, it supports newlines!
-            `);
-            console.log("::set-output name=node_id::" + result);
+            Look, it supports newlines!`);
+            console.log("::set-output name=comment_node_id::" + result);
 
       - name: Update the workflow-started comment
         id:   update_build_log
@@ -91,12 +90,10 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
-            result = update_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
+            result = update_issue_comment(github, '${{steps.build_log.outputs.comment_node_id}}',
             `Workflow updated with external script!
 
-            Look, it supports newlines!
-            `);
-            console.log("::set-output name=node_id::" + result);
+            Look, it supports newlines!`);
 
       # - name: Create a workflow-started comment
       #   uses: actions/github-script@v3
