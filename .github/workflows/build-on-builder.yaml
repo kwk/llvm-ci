@@ -6,6 +6,9 @@ on:
   issue_comment:
     types:
       - created
+      # TODO(kwk): This workflow shall not run when a comment is edited as it might produce confusing results.
+      #            But there should be another workflow that runs when a /build-on comment is edited. Then
+      #            you might want to immediately update the comment to make it invalid.
       # - edited # Not cool for user interaction
 
   # TODO(kwk): The "created" type seems to ignore /build-on in review comments, which is why we have this one. But it still does not work.
