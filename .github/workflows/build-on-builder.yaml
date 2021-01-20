@@ -85,14 +85,14 @@ jobs:
             console.log("::set-output name=node_id::" + result);
 
       - name: Update the workflow-started comment
-        id:   build_log
+        id:   update_build_log
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
-            result = add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
-            `Workflow started with external script!
+            const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
+            result = update_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
+            `Workflow updated with external script!
 
             Look, it supports newlines!
             `);
