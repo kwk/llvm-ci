@@ -1,8 +1,11 @@
 # TODO(kwk): READ THIS https://docs.github.com/en/rest/reference/checks#runs
 
-name: build-on-builder
+name: /build-on workflow
 
 on:
+  # NOTE(kwk): A regular comment on a PR is the same as an issue comment.
+  #            Since we only want PR comments, wee need to filter out
+  #            issue comments below. 
   issue_comment:
     types:
       - created
@@ -18,12 +21,12 @@ on:
       - created
   pull_request_review:
     types:
-      - submitted
+      - submitted    
     
 jobs:
   # This is the quick gatekeeper for this workflow.
   # Unless a comment starts with /build-on, we abort immediately. 
-  require-build-on-comment:
+  gatekeeper:
     name: "Skip unless /build-on prefix is found"
     runs-on: ubuntu-latest
     # Only run on PR comment and not on issue comment (see https://github.community/t/triggering-workflow-only-for-pull-request-comment/17156)
@@ -39,7 +42,7 @@ jobs:
 
   call-try-builder:
     name: "Verify parameters and kick off build"
-    needs: require-build-on-comment
+    needs: gatekeeper
     # We need to run this on a self-hosted github actions-runner because
     # the buildbot master in the test setup is not publically reachable.
     runs-on: [self-hosted]
@@ -62,7 +65,6 @@ jobs:
       - name: Checkout pull request HEAD
         id: checkout_pr_head
         uses: actions/checkout@v2
-        if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         with:
           #ref: origin/main
           # TODO(kwk): Fetching all history seems to be an overkill
