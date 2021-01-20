@@ -24,7 +24,7 @@ jobs:
   # This is the quick gatekeeper for this workflow.
   # Unless a comment starts with /build-on, we abort immediately. 
   require-build-on-comment:
-    name: "Skip unless /build prefix is found"
+    name: "Skip unless /build-on prefix is found"
     runs-on: ubuntu-latest
     # Only run on PR comment and not on issue comment (see https://github.community/t/triggering-workflow-only-for-pull-request-comment/17156)
     # TODO(kwk): Fail gracefully if this step does not pass. IMPORTANT! Done by second startsWith if-clause?
@@ -38,7 +38,7 @@ jobs:
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
 
   call-try-builder:
-    name: "Verify and kick off build"
+    name: "Verify parameters and kick off build"
     needs: require-build-on-comment
     # We need to run this on a self-hosted github actions-runner because
     # the buildbot master in the test setup is not publically reachable.

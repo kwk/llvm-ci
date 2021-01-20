@@ -2,9 +2,9 @@ FROM  llvm-ci-base-image
 
 RUN mkdir -pv /home/johndoe/actions-runner/ \
     && cd /home/johndoe/actions-runner \
-    && curl -O -L https://github.com/actions/runner/releases/download/v2.275.1/actions-runner-linux-x64-2.275.1.tar.gz \
-    && tar xzf ./actions-runner-linux-x64-2.275.1.tar.gz \
-    && rm -v actions-runner-linux-x64-2.275.1.tar.gz \
+    && curl -O -L https://github.com/actions/runner/releases/download/v2.276.0/actions-runner-linux-x64-2.276.0.tar.gz \
+    && tar xzf ./actions-runner-linux-x64-2.276.0.tar.gz \
+    && rm -v actions-runner-linux-x64-2.276.0.tar.gz \
     && ./bin/installdependencies.sh \
     && dnf clean all
 
