@@ -27,11 +27,11 @@ jobs:
     if: >-
       contains(github.event.comment.html_url, '/pull/') &&
       startsWith(github.event.comment.body, '/build-on ')
-    # steps:
-      # - name: Check comment
-      #   id: checkcomment
-      #   run: echo ${{ github.event.comment.body }} | grep '^/build-on '
-      #   # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
+    steps:
+      - name: Check comment
+        id: checkcomment
+        run: echo ${{ github.event.comment.body }} | grep '^/build-on '
+        # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
 
   call-try-builder:
     needs: require-build-on-comment
