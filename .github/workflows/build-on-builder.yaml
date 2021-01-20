@@ -59,9 +59,9 @@ jobs:
         name: Hello from inside add_comment.js
         with:
           script: |
-            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`)
-            result = add_issue_comment({github, '${{steps.vars.outputs.pr-node-id}}', 'Workflow started with external script'})
-            // console.log("::set-output name=node_id::" + result)
+            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
+            result = add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}', 'Workflow started with external script');
+            console.log("::set-output name=node_id::" + result);
 
       - name: Create a workflow-started comment
         uses: actions/github-script@v3
