@@ -14,7 +14,7 @@ module.exports = async (github, comment_node_id, comment_body) => {
     }`;
 
     const variables = {
-        comment_node_id: comment_node_id,
+        comment_node_id: await comment_node_id,
         comment_body: comment_body,
     }
     
