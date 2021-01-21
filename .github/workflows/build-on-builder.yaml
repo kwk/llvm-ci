@@ -92,6 +92,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
+            console.log("steps.build_log.outputs.comment_node_id=" + ${{steps.build_log.outputs.comment_node_id}});
             result = update_issue_comment(github, '${{steps.build_log.outputs.comment_node_id}}',
             `Workflow updated with external script!
 

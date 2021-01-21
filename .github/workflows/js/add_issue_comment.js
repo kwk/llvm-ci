@@ -26,5 +26,5 @@ module.exports = async (github, issue_node_id, comment_body) => {
     const result = await github.graphql(query, variables);
 
     // result looks something like this: {addComment:{commentEdge:{node:{id:MDEyOklzc3VlQ29tbWVudDc2MzIxNjkyOQ==}}}}
-    return await result.addComment.commentEdge.node.id;
+    return result.addComment.commentEdge.node.id;
 }
