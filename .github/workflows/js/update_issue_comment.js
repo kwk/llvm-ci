@@ -17,8 +17,6 @@ module.exports = async (github, comment_node_id, comment_body) => {
         }
     }`;
 
-    console.log("comment_node_id=" + comment_node_id);
-
     const variables = {
         comment_node_id: 'MDEyOklzc3VlQ29tbWVudDc2NDcxODQxNg==',
         comment_body: comment_body,

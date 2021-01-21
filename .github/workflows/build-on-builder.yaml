@@ -72,6 +72,8 @@ jobs:
           fetch-depth: 1
           repository: ${{ github.repository }}
 
+      # The result output of this action will contain the node ID of the newly created comment as a string.
+      # See https://github.com/actions/github-script#reading-step-results
       - name: Create a workflow-started comment
         id:   build_log
         uses: actions/github-script@v3
@@ -79,24 +81,22 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
-            result = add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
+            return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
             `Workflow started with external script!
 
             Look, it supports newlines!`);
-            console.log("::set-output name=comment_node_id::" + result);
+          result-encoding: string
 
+      # Updates the build log comment and returns the last edited at time
       - name: Update the workflow-started comment
-        id:   update_build_log
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
-            console.log("steps.build_log.outputs.comment_node_id=" + ${{steps.build_log.outputs.comment_node_id}});
-            result = update_issue_comment(github, '${{steps.build_log.outputs.comment_node_id}}',
-            `Workflow updated with external script!
-
-            Look, it supports newlines!`);
+            return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
+            `I have excercised the daemons`);
+          result-encoding: string
 
       # - name: Create a workflow-started comment
       #   uses: actions/github-script@v3
