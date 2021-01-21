@@ -6,8 +6,11 @@
 module.exports = async (github, issue_node_id, comment_body) => {
     
     const query = `mutation($issue_node_id:String!, $comment_body:String!) {
-        addComment(input: {subjectId:$issue_node_id, body:$comment_body}) {
-            commentEdge{
+        addComment(input: {
+            subjectId: $issue_node_id, 
+            body: $comment_body
+        }) {
+            commentEdge {
                 node {
                     id
                 }

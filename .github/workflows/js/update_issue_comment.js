@@ -4,10 +4,14 @@
 // last edited field.
 module.exports = async (github, comment_node_id, comment_body) => {
     
+    // about mutations: https://docs.github.com/en/graphql/guides/forming-calls-with-graphql#about-mutations
     // see https://docs.github.com/en/graphql/reference/mutations#updateissuecomment
     const query = `mutation($comment_node_id:String!, $comment_body:String!) {
-        updateIssueComment(input: {id:$comment_node_id, body:$comment_body}) {
-            issueComment{
+        updateIssueComment(input: {
+            id: $comment_node_id,
+            body: $comment_body
+        }) {
+            issueComment {
                 lastEditedAt
             }
         }
