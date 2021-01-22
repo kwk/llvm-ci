@@ -82,11 +82,20 @@ jobs:
           script: |
             const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
             return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
-            `@${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a> kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a> Github workflow.
+            `<details>
+            <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
+            <p>
+            @${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>:
+            
+            <blockquote>${{ github.event.comment.body }}</blockquote>
+
+            kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a> Github workflow.
 
             This comment will be re-used for further updates.
 
-            :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?`);
+            :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
+            </p>
+            </details>`);
           result-encoding: string
 
       # - name: Create a workflow-started comment
@@ -170,11 +179,16 @@ jobs:
               })
             }
 
-            const message = `Sorry but, there's no try builder called <code>${{steps.vars.outputs.builder-name}}</code>. You can only choose from these try builders:
+            const message = `
+            <details>
+            <summary>Unknown builder: ${{ github.event.comment.body }}</summary>
+            <p>
+            Sorry but, there's no try builder called <code>${{steps.vars.outputs.builder-name}}</code>. You can only choose from these try builders:
               <ul>
                 ${{ steps.gettrybuilders.outputs.namelist }}
               </ul>
-              `
+              </p>
+            </details>`
             core.info(message)
             await createComment(context.issue.number, 'trybuilder-unknown', message)
       
@@ -273,17 +287,19 @@ jobs:
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
             return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
-            `:love_letter: @${{github.actor}} your <a href="${{ github.event.comment.html_url }}">build request</a>:
+            `<details>
+            <summary>Handed over to buildbot: ${{ github.event.comment.body }}</summary>
+            <p>
+            @${{github.actor}}, your <a href="${{ github.event.comment.html_url }}">build request</a>:
 
-            <quote>${{ github.event.comment.body }}</quote>
+            <blockquote>${{ github.event.comment.body }}</blockquote>
 
-            has been sent to buildbot.
+            has been handed over to buildbot.
 
             Once buildbot starts your build, it will update this comment
             and include a link to the logs for you to follow.
-            
-            :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
-            `);
+            </p>
+            </details>`);
           result-encoding: string
 
   # buildbot try \
