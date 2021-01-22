@@ -82,20 +82,13 @@ jobs:
           script: |
             const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
             return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
-            `Workflow started with external script!
+            `@%{{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>
+            kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>.
+            Github workflow.
 
-            Look, it supports newlines!`);
-          result-encoding: string
+            This comment will be re-used for further updates.
 
-      # Updates the build log comment and returns the last edited at time
-      - name: Update the workflow-started comment
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
-            return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
-            `I have excercised the daemons`);
+            Please, stay tuned!`);
           result-encoding: string
 
       # - name: Create a workflow-started comment
@@ -272,6 +265,22 @@ jobs:
             --property=_github_pr_html_url='${{ github.event.issue.html_url }}' \
             --property=_github_build_log_comment_node_id='${{steps.build_log.outputs.result}}' \
             --diff mydiff
+
+      # Updates the build log comment and returns the last edited at time
+      - name: Update the workflow-started comment
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
+            return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
+            `We've handed off your buildrequest to buildbot.
+
+            Once buildbot started your build, it will update this comment
+            and include a link to the logs for you to follow.
+            
+            Until then, please keep your feet still and relax!`);
+          result-encoding: string
 
   # buildbot try \
   #   --master master:8031 \
