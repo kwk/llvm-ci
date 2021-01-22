@@ -82,7 +82,7 @@ jobs:
           script: |
             const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
             return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
-            `@%{{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>
+            `@${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>
             kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>.
             Github workflow.
 
@@ -274,12 +274,12 @@ jobs:
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
             return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
-            `We've handed off your buildrequest to buildbot.
+            `:love_letter: We've handed off your buildrequest from <a href="${{ github.event.comment.html_url }}">this comment</a> to buildbot.
 
-            Once buildbot started your build, it will update this comment
+            Once buildbot starts your build, it will update this comment
             and include a link to the logs for you to follow.
             
-            Until then, please keep your feet still and relax!`);
+            Until then, please keep your feet still and relax! :sunglasses:`);
           result-encoding: string
 
   # buildbot try \
