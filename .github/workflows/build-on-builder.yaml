@@ -39,6 +39,44 @@ jobs:
         id: checkcomment
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
+      - uses: actions/checkout@v2
+        with:
+          #ref: origin/main
+          # TODO(kwk): Fetching all history seems to be an overkill?
+          # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 1
+          repository: ${{ github.repository }}
+      - name: Create a workflow-started comment
+        id:   build_log
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.BOT_PAT}}
+          script: |
+            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
+            return add_issue_comment(github, '${{ github.event.issue.node_id }}',
+            `<details>
+            <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
+            <p>
+            @${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>:
+            
+            <blockquote>${{ github.event.comment.body }}</blockquote>
+
+            kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a> Github workflow.
+
+            This comment will be re-used for further updates.
+
+            :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
+            </p>
+            </details>`);
+          result-encoding: string
+      - name: Create build log comment node_id artifact
+        run: |
+              echo "${{steps.build_log.outputs.result}}" > build_log_comment_node_id.txt
+      - uses: actions/upload-artifact@v2
+        name: Upload build log comment node_id for consumption in other jobs
+        with:
+          name: build-log-comment-node-id
+          path: build_log_comment_node_id.txt
 
   call-try-builder:
     name: "Verify parameters and kick off build"
@@ -47,6 +85,9 @@ jobs:
     # the buildbot master in the test setup is not publically reachable.
     runs-on: [self-hosted]
     steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build-log-comment-node-id
       - name: Set job variables
         id: vars
         # For the "::set-output" part, see
@@ -54,6 +95,7 @@ jobs:
         run: |
           echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
           echo "::set-output name=pr-node-id::`echo ${{ github.event.issue.node_id }}`"
+          echo "::set-output name=build-log-comment-node-id::`cat build_log_comment_node_id.txt`"
 
       # See https://github.com/actions/github-script#run-custom-graphql-queries
       # See https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
@@ -72,31 +114,31 @@ jobs:
           fetch-depth: 1
           repository: ${{ github.repository }}
 
-      # The result output of this action will contain the node ID of the newly created comment as a string.
-      # See https://github.com/actions/github-script#reading-step-results
-      - name: Create a workflow-started comment
-        id:   build_log
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.BOT_PAT}}
-          script: |
-            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
-            return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
-            `<details>
-            <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
-            <p>
-            @${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>:
+      # # The result output of this action will contain the node ID of the newly created comment as a string.
+      # # See https://github.com/actions/github-script#reading-step-results
+      # - name: Create a workflow-started comment
+      #   id:   build_log
+      #   uses: actions/github-script@v3
+      #   with:
+      #     github-token: ${{secrets.BOT_PAT}}
+      #     script: |
+      #       const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
+      #       return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
+      #       `<details>
+      #       <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
+      #       <p>
+      #       @${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>:
             
-            <blockquote>${{ github.event.comment.body }}</blockquote>
+      #       <blockquote>${{ github.event.comment.body }}</blockquote>
 
-            kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a> Github workflow.
+      #       kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a> Github workflow.
 
-            This comment will be re-used for further updates.
+      #       This comment will be re-used for further updates.
 
-            :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
-            </p>
-            </details>`);
-          result-encoding: string
+      #       :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
+      #       </p>
+      #       </details>`);
+      #     result-encoding: string
 
       # - name: Create a workflow-started comment
       #   uses: actions/github-script@v3
@@ -276,7 +318,7 @@ jobs:
             --property=_github_pr_number='${{ github.event.issue.number }}' \
             --property=_github_issue_number='${{ github.event.issue.number }}' \
             --property=_github_pr_html_url='${{ github.event.issue.html_url }}' \
-            --property=_github_build_log_comment_node_id='${{steps.build_log.outputs.result}}' \
+            --property=_github_build_log_comment_node_id='${{steps.vars.outputs.build-log-comment-node-id}}' \
             --diff mydiff
 
       # Updates the build log comment and returns the last edited at time
@@ -286,7 +328,7 @@ jobs:
           github-token: ${{secrets.BOT_PAT}}
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
-            return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
+            return update_issue_comment(github, '${{steps.vars.outputs.build-log-comment-node-id}}',
             `<details>
             <summary>Handed over to buildbot: ${{ github.event.comment.body }}</summary>
             <p>
