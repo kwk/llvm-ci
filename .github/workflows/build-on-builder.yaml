@@ -274,12 +274,14 @@ jobs:
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
             return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
-            `:love_letter: We've handed off your buildrequest from <a href="${{ github.event.comment.html_url }}">this comment</a> to buildbot.
+            `:love_letter: @${{github.actor}}, we've handed off your buildrequest from <a href="${{ github.event.comment.html_url }}">this comment</a> to buildbot.
 
             Once buildbot starts your build, it will update this comment
             and include a link to the logs for you to follow.
             
-            Until then, please keep your feet still and relax! :sunglasses:`);
+            Until then, please keep your feet still and relax! :sunglasses:
+              
+            If you want to run another build, feel free to create a new comment.`);
           result-encoding: string
 
   # buildbot try \
