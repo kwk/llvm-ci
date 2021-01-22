@@ -78,7 +78,7 @@ jobs:
         id:   build_log
         uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.BOT_PAT}}
           script: |
             const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
             return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
@@ -158,7 +158,7 @@ jobs:
         with:
           # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
           # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.BOT_PAT}}
           debug: true
           script: |
             // Wrapper function that prepends the given ID to the message as a comment before
@@ -270,7 +270,7 @@ jobs:
       - name: Update the workflow-started comment
         uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.BOT_PAT}}
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
             return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
