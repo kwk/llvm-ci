@@ -275,9 +275,7 @@ jobs:
             return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
             `:love_letter: @${{github.actor}} your <a href="${{ github.event.comment.html_url }}">build request</a>:
 
-            ```
-            ${{ github.event.comment.body }}
-            ```
+            <quote>${{ github.event.comment.body }}</quote>
 
             has been sent to buildbot.
 
