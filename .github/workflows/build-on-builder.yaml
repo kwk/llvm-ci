@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           #ref: origin/main
-          # TODO(kwk): Fetching all history seems to be an overkill
+          # TODO(kwk): Fetching all history seems to be an overkill?
           # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 1
           repository: ${{ github.repository }}
@@ -227,7 +227,6 @@ jobs:
           cp -v ${{github.event_path}} .
 
           git diff HEAD..pr-${{ github.event.issue.number }} > mydiff
-          echo mydiff
 
           #--branch="pull/${{ github.event.issue.number }}/head" \
           
@@ -244,33 +243,34 @@ jobs:
             --username='${{ secrets.TRY_USER }}' \
             --connect='pb' \
             --vc="git" \
+            --baserev="`git rev-parse HEAD`" \
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
             --who='${{ github.actor }}' \
             --repository='${{ github.repository }}' \
             --property=project='${{ github.repository }}' \
             --property=repository='https://github.com/${{ github.repository }}.git' \
-            --property=github-action='${{ github.action }}' \
-            --property=github-actor='${{ github.actor }}' \
-            --property=github-event_name='${{ github.event_name }}' \
-            --property=github-event_path='${{ github.event_path }}' \
-            --property=github-head_ref='${{ github.head_ref }}' \
-            --property=github-job='${{ github.job }}' \
-            --property=github-ref='${{ github.ref }}' \
-            --property=github-repository='${{ github.repository }}' \
-            --property=github-repository_owner='${{ github.repository_owner }}' \
-            --property=github-run_id='${{ github.run_id }}' \
-            --property=github-run_number='${{ github.run_number }}' \
-            --property=github-sha='${{ github.sha }}' \
-            --property=github-workflow='${{ github.workflow }}' \
-            --property=github-workspace='${{ github.workspace }}' \
-            --property=github-trigger-comment-html_url='${{ github.event.comment.html_url }}' \
-            --property=github-trigger-comment-url='${{ github.event.comment.url }}' \
-            --property=github-trigger-comment-id='${{ github.event.comment.id }}' \
-            --property=github-trigger-comment-node_id='${{ github.event.comment.node_id }}' \
-            --property=_github-pr-number='${{ github.event.issue.number }}' \
-            --property=_github-issue-number='${{ github.event.issue.number }}' \
-            --property=_github-pr-html-url='${{ github.event.issue.html_url }}' \
-            --property=_github-build-log-comment-node-id='${{steps.build_log.outputs.result}}' \
+            --property=github_action='${{ github.action }}' \
+            --property=github_actor='${{ github.actor }}' \
+            --property=github_event_name='${{ github.event_name }}' \
+            --property=github_event_path='${{ github.event_path }}' \
+            --property=github_head_ref='${{ github.head_ref }}' \
+            --property=github_job='${{ github.job }}' \
+            --property=github_ref='${{ github.ref }}' \
+            --property=github_repository='${{ github.repository }}' \
+            --property=github_repository_owner='${{ github.repository_owner }}' \
+            --property=github_run_id='${{ github.run_id }}' \
+            --property=github_run_number='${{ github.run_number }}' \
+            --property=github_sha='${{ github.sha }}' \
+            --property=github_workflow='${{ github.workflow }}' \
+            --property=github_workspace='${{ github.workspace }}' \
+            --property=_github_trigger_comment_html_url='${{ github.event.comment.html_url }}' \
+            --property=_github_trigger_comment_url='${{ github.event.comment.url }}' \
+            --property=_github_trigger_comment_id='${{ github.event.comment.id }}' \
+            --property=_github_trigger_comment_node_id='${{ github.event.comment.node_id }}' \
+            --property=_github_pr_number='${{ github.event.issue.number }}' \
+            --property=_github_issue_number='${{ github.event.issue.number }}' \
+            --property=_github_pr_html_url='${{ github.event.issue.html_url }}' \
+            --property=_github_build_log_comment_node_id='${{steps.build_log.outputs.result}}' \
             --diff mydiff
 
   # buildbot try \
