@@ -267,9 +267,10 @@ jobs:
             --property=github-trigger-comment-url='${{ github.event.comment.url }}' \
             --property=github-trigger-comment-id='${{ github.event.comment.id }}' \
             --property=github-trigger-comment-node_id='${{ github.event.comment.node_id }}' \
-            --property=github-pr-number='${{ github.event.issue.number }}' \
-            --property=github-issue-number='${{ github.event.issue.number }}' \
-            --property=github-pr-html-url='${{ github.event.issue.html_url }}' \
+            --property=_github-pr-number='${{ github.event.issue.number }}' \
+            --property=_github-issue-number='${{ github.event.issue.number }}' \
+            --property=_github-pr-html-url='${{ github.event.issue.html_url }}' \
+            --property=_github-build-log-comment-node-id='${{steps.build_log.outputs.result}}' \
             --diff mydiff
 
   # buildbot try \
