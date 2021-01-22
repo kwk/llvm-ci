@@ -82,13 +82,11 @@ jobs:
           script: |
             const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
             return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
-            `@${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>
-            kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>.
-            Github workflow.
+            `@${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a> kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a> Github workflow.
 
             This comment will be re-used for further updates.
 
-            Please, stay tuned!`);
+            :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?`);
           result-encoding: string
 
       # - name: Create a workflow-started comment
@@ -260,6 +258,7 @@ jobs:
             --property=_github_trigger_comment_url='${{ github.event.comment.url }}' \
             --property=_github_trigger_comment_id='${{ github.event.comment.id }}' \
             --property=_github_trigger_comment_node_id='${{ github.event.comment.node_id }}' \
+            --property=_github_trigger_comment_body='${{ github.event.comment.body }}' \
             --property=_github_pr_number='${{ github.event.issue.number }}' \
             --property=_github_issue_number='${{ github.event.issue.number }}' \
             --property=_github_pr_html_url='${{ github.event.issue.html_url }}' \
@@ -274,14 +273,19 @@ jobs:
           script: |
             const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
             return update_issue_comment(github, '${{steps.build_log.outputs.result}}',
-            `:love_letter: @${{github.actor}}, we've handed off your buildrequest from <a href="${{ github.event.comment.html_url }}">this comment</a> to buildbot.
+            `:love_letter: @${{github.actor}} your <a href="${{ github.event.comment.html_url }}">build request</a>:
+
+            ```
+            ${{ github.event.comment.body }}
+            ```
+
+            has been sent to buildbot.
 
             Once buildbot starts your build, it will update this comment
             and include a link to the logs for you to follow.
             
-            Until then, please keep your feet still and relax! :sunglasses:
-              
-            If you want to run another build, feel free to create a new comment.`);
+            :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
+            `);
           result-encoding: string
 
   # buildbot try \
