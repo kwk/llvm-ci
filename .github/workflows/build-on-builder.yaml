@@ -84,6 +84,21 @@ jobs:
             :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
             </p>
             </details>`);
+
+            // Wrapper function that prepends the given ID to the message as a comment before
+            // creating the comment.
+            async function createComment(pullRequestNumber, id, message) {
+              const body = `<!-- #${id} -->\n\n${message}`
+              await github.issues.createComment({
+                ...context.repo,
+                issue_number: pullRequestNumber,
+                body
+              })
+            }
+
+            const message = `Test content for comment`
+            res = await createComment(context.issue.number, 'trybuilder-unknown', message)
+            console.log(res)
           result-encoding: string
       - name: Create build log comment node_id artifact
         run: |
