@@ -93,6 +93,7 @@ GIT_ORIGIN_REPO := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cu
 ## Create three github secrets (TRY_USER, TRY_PASSWORD and ACTIONS_RUNNER_DEBUG) in your fork.
 ## Will be used by the actions runner to federate access to the buildbot master.
 ## For the debug secret see: https://docs.github.com/en/free-pro-team@latest/actions/managing-workflow-runs/enabling-debug-logging
+# TODO(kwk): Add BOT_PAT secret here so that messages from buildbot or the github workflow can use the same GH user.
 buildbot-try-secrets-in-github:
 	gh secret set TRY_USER -balice-try -R $(GIT_ORIGIN_USER)/$(GIT_ORIGIN_REPO)
 	gh secret set TRY_PASSWORD -bpassword -R $(GIT_ORIGIN_USER)/$(GIT_ORIGIN_REPO)

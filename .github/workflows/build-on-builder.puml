@@ -1,11 +1,11 @@
-@startuml give-tips-on-new-pr
+@startuml build-on-workflow
 
 ' For on-the-fly rendering of the latest version of this diagram, please visit:
 ' http://www.plantuml.com/plantuml/proxy?idx=0&src=https://raw.githubusercontent.com/kwk/llvm-ci/main/.github/workflows/build-on-builder.puml&fmt=svg
 '
 ' To generate a PNG diagram from this file follow these steps:
 ' $ wget -o plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-' $ java -jar plantuml.jar -verbose give-tips-on-new-pr.puml
+' $ java -jar plantuml.jar -verbose build-on-builder.puml
 
 title
     Sequence diagram for workflow

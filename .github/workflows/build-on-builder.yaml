@@ -1,11 +1,11 @@
 # TODO(kwk): READ THIS https://docs.github.com/en/rest/reference/checks#runs
 
-name: /build-on workflow
+name: /build-on
 
 on:
   # NOTE(kwk): A regular comment on a PR is the same as an issue comment.
   #            Since we only want PR comments, wee need to filter out
-  #            issue comments below. 
+  #            issue comments below.
   issue_comment:
     types:
       - created
@@ -39,20 +39,36 @@ jobs:
         id: checkcomment
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
-      - uses: actions/checkout@v2
-        with:
-          #ref: origin/main
-          # TODO(kwk): Fetching all history seems to be an overkill?
-          # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
-          fetch-depth: 1
-          repository: ${{ github.repository }}
       - name: Create a workflow-started comment
         id:   build_log
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.BOT_PAT}}
           script: |
-            const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
+            async function add_issue_comment(github, issue_node_id, comment_body) {
+                
+                const query = `mutation($issue_node_id:String!, $comment_body:String!) {
+                    addComment(input: {
+                        subjectId: $issue_node_id, 
+                        body: $comment_body
+                    }) {
+                        commentEdge {
+                            node {
+                                id
+                            }
+                        }
+                    }
+                }`;
+
+                const variables = {
+                    issue_node_id: issue_node_id,
+                    comment_body: comment_body,
+                }
+                
+                const result = await github.graphql(query, variables);
+                return result.addComment.commentEdge.node.id;
+            }
+
             return add_issue_comment(github, '${{ github.event.issue.node_id }}',
             `<details>
             <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
