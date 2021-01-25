@@ -289,28 +289,28 @@ jobs:
             --property=_github_build_log_comment_node_id='${{steps.vars.outputs.build-log-comment-node-id}}' \
             --diff mydiff
 
-      # Updates the build log comment and returns the last edited at time
-      - name: Update the workflow-started comment
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.BOT_PAT}}
-          script: |
-            const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
-            return update_issue_comment(github, '${{steps.vars.outputs.build-log-comment-node-id}}',
-            `<details>
-            <summary>Handed over to buildbot: ${{ github.event.comment.body }}</summary>
-            <p>
-            @${{github.actor}}, your <a href="${{ github.event.comment.html_url }}">build request</a>:
+      # # Updates the build log comment and returns the last edited at time
+      # - name: Update the workflow-started comment
+      #   uses: actions/github-script@v3
+      #   with:
+      #     github-token: ${{secrets.BOT_PAT}}
+      #     script: |
+      #       const update_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_issue_comment.js`);
+      #       return update_issue_comment(github, '${{steps.vars.outputs.build-log-comment-node-id}}',
+      #       `<details>
+      #       <summary>Handed over to buildbot: ${{ github.event.comment.body }}</summary>
+      #       <p>
+      #       @${{github.actor}}, your <a href="${{ github.event.comment.html_url }}">build request</a>:
 
-            <blockquote>${{ github.event.comment.body }}</blockquote>
+      #       <blockquote>${{ github.event.comment.body }}</blockquote>
 
-            has been handed over to buildbot.
+      #       has been handed over to buildbot.
 
-            Once buildbot starts your build, it will update this comment
-            and include a link to the logs for you to follow.
-            </p>
-            </details>`);
-          result-encoding: string
+      #       Once buildbot starts your build, it will update this comment
+      #       and include a link to the logs for you to follow.
+      #       </p>
+      #       </details>`);
+      #     result-encoding: string
 
       # Updates the build log comment and returns the last edited at time
       - name: Create or update comment
