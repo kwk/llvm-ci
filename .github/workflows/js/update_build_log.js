@@ -1,6 +1,6 @@
 // update_build_log
 // (comment_id is optional, e.g. on first call)
-module.exports = async ({github, context, core, issue_number, summary, body, trigger_comment_id, build_log_comment_id}) => {
+module.exports = async ({github, context, core, issue_number, summary, details, trigger_comment_id, build_log_comment_id}) => {
 
     // Returns the comment with the given ID or undefined, if it exists or None if it doesn't
     // exist or None was provided as the ID to search for. 
@@ -30,8 +30,8 @@ module.exports = async ({github, context, core, issue_number, summary, body, tri
             core.info('Found existing build log for the trigger comment.');
             return await github.issues.updateComment({
                 ...context.repo,
-                comment_id: buildLogComment.id,
-                body: buildLogComment.body + body,
+                comment_id: buildLogComment.data.id,
+                body: buildLogComment.data.body + body,
             });
         }
 
@@ -50,7 +50,7 @@ module.exports = async ({github, context, core, issue_number, summary, body, tri
     
     // Build log message template
     // TODO(kwk): Pepend summary with time (which timezone? -> UTC)?
-    msg = `<details><summary> `+summary+` </summary> <p> `+body+` </p></details>`;
+    msg = `<details><summary> `+summary+` </summary> <p> `+details+` </p></details>`;
 
     return await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
 }
