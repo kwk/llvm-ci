@@ -341,7 +341,7 @@ jobs:
               summary:              "Howdy, here I am",
               details:              "This is the message body",
               trigger_comment_id:   trigger_comment_id,
-              build_log_comment_id: buildLogComment.id,
+              build_log_comment_id: buildLogComment.data.id,
             });
 
   # buildbot try \
