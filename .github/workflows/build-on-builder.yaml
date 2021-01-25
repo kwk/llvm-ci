@@ -344,6 +344,21 @@ jobs:
               build_log_comment_id: buildLogComment.data.id,
             });
 
+            update_build_log({
+              github:               github,
+              context:              context,
+              core:                 core,
+              issue_number:         issue_number,
+              summary:              "Handed over to buildbot: ${{ github.event.comment.body }}",
+              details:              `@${{github.actor}}, your <a href="${{ github.event.comment.html_url }}">build request</a>:
+                <blockquote>${{ github.event.comment.body }}</blockquote>
+                has been handed over to buildbot.
+                Once buildbot starts your build, it will update this comment
+                and include a link to the logs for you to follow.`,
+              trigger_comment_id:   trigger_comment_id,
+              build_log_comment_id: buildLogComment.data.id,
+            });
+
   # buildbot try \
   #   --master master:8031 \
   #   --passwd='${{ secrets.TRY_PASSWORD }}' \
