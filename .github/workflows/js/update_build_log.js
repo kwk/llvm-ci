@@ -23,7 +23,7 @@ module.exports = async (github, context, core, issue_number, summary, body, trig
             core.setFailed(`Failed to get trigger comment with ID ${trigger_comment_id}.`);
         }
         const buildLogComment = await getCommentByID(build_log_comment_id);
-        const body = `${message}`;
+        body = `${message}`;
 
         if (buildLogComment) {
             console.log("==== Found old buildLogComment. Old Body: " + buildLogComment.body);
