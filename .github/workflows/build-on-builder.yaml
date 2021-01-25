@@ -24,6 +24,7 @@ on:
       - submitted    
     
 jobs:
+
   # This is the quick gatekeeper for this workflow.
   # Unless a comment starts with /build-on, we abort immediately. 
   gatekeeper:
@@ -39,6 +40,12 @@ jobs:
         id: checkcomment
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
+  
+  workflow-starts:
+      name: Workflow starts
+      needs: gatekeeper
+      runs-on: ubuntu-latest
+      steps:
       - name: Create a workflow-started comment
         id:   build_log
         uses: actions/github-script@v3
@@ -69,8 +76,7 @@ jobs:
                 return result.addComment.commentEdge.node.id;
             }
 
-            return add_issue_comment(github, '${{ github.event.issue.node_id }}',
-            `<details>
+            body = `<details>
             <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
             <p>
             @${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>:
@@ -83,35 +89,29 @@ jobs:
 
             :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
             </p>
-            </details>`);
+            </details>`;
+            comment_id = add_issue_comment(github, '${{ github.event.issue.node_id }}', body);
 
-            // Wrapper function that prepends the given ID to the message as a comment before
-            // creating the comment.
-            async function createComment(pullRequestNumber, id, message) {
-              const body = `<!-- #${id} -->\n\n${message}`
-              await github.issues.createComment({
-                ...context.repo,
-                issue_number: pullRequestNumber,
-                body
-              })
-            }
-
-            const message = `Test content for comment`
-            res = await createComment(context.issue.number, 'trybuilder-unknown', message)
-            console.log(res)
-          result-encoding: string
+            return {'comment_id': comment_id, 'body': body}
+          result-encoding: json
       - name: Create build log comment node_id artifact
         run: |
+              echo "${{steps.build_log.outputs.result.body}}" > build_log_comment_body.txt
               echo "${{steps.build_log.outputs.result}}" > build_log_comment_node_id.txt
       - uses: actions/upload-artifact@v2
         name: Upload build log comment node_id for consumption in other jobs
         with:
           name: build-log-comment-node-id
           path: build_log_comment_node_id.txt
+      - uses: actions/upload-artifact@v2
+        name: Upload build log comment body for consumption in other jobs
+        with:
+          name: build-log-comment-body
+          path: build_log_comment_body.txt
 
   call-try-builder:
     name: "Verify parameters and kick off build"
-    needs: gatekeeper
+    needs: workflow-starts
     # We need to run this on a self-hosted github actions-runner because
     # the buildbot master in the test setup is not publically reachable.
     runs-on: [self-hosted]
@@ -144,69 +144,6 @@ jobs:
           # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 1
           repository: ${{ github.repository }}
-
-      # # The result output of this action will contain the node ID of the newly created comment as a string.
-      # # See https://github.com/actions/github-script#reading-step-results
-      # - name: Create a workflow-started comment
-      #   id:   build_log
-      #   uses: actions/github-script@v3
-      #   with:
-      #     github-token: ${{secrets.BOT_PAT}}
-      #     script: |
-      #       const add_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/add_issue_comment.js`);
-      #       return add_issue_comment(github, '${{steps.vars.outputs.pr-node-id}}',
-      #       `<details>
-      #       <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
-      #       <p>
-      #       @${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>:
-            
-      #       <blockquote>${{ github.event.comment.body }}</blockquote>
-
-      #       kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a> Github workflow.
-
-      #       This comment will be re-used for further updates.
-
-      #       :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
-      #       </p>
-      #       </details>`);
-      #     result-encoding: string
-
-      # - name: Create a workflow-started comment
-      #   uses: actions/github-script@v3
-      #   id: build_log
-      #   with:
-      #     github-token: ${{secrets.GITHUB_TOKEN}}
-      #     script: |
-      #         //       // https://docs.github.com/en/graphql/reference/mutations#updateissuecomment
-      #         //       mutation {
-      #         //         updateIssueComment(
-      #         //           input: {
-      #         //             id: "MDEyOklzc3VlQ29tbWVudDc2MDAxNzUwMw==",
-      #         //             body: "some test",
-      #         //             clientMutationId: "foobar",
-      #         //           }) {
-      #         //           clientMutationId
-      #         //         }
-      #         //       }
-      #         //
-      #         // create new comment on PR and get back the comment's nodeId for updating later.
-      #         const query = `mutation($pr_node_id:String!, $body:String!) {
-      #           addComment(input: {subjectId:$pr_node_id, body:$body}) {
-      #             commentEdge{
-      #               node {
-      #                 id
-      #               }
-      #             }
-      #           }
-      #         }`;
-      #         const variables = {
-      #             pr_node_id:'${{steps.vars.outputs.pr-node-id}}',
-      #             body:'Workflow started!',
-      #         }
-      #         const result = await github.graphql(query, variables)
-      #         // result looks something like this: {addComment:{commentEdge:{node:{id:MDEyOklzc3VlQ29tbWVudDc2MzIxNjkyOQ==}}}}
-      #         console.log(result)
-      #         console.log("::set-output name=node_id::" + JSON.stringify(result.addComment.commentEdge.node.id))
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
