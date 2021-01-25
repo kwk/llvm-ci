@@ -1,13 +1,13 @@
 // update_build_log
 // (comment_id is optional, e.g. on first call)
-module.exports = async (github, context, core, issue_number, summary, body, build_log_comment_id) => {
+module.exports = async (github, context, core, issue_number, summary, body, trigger_comment_id, build_log_comment_id) => {
 
-    // Returns the comment with the given ID or None, if it exists or None if it doesn't
+    // Returns the comment with the given ID or undefined, if it exists or None if it doesn't
     // exist or None was provided as the ID to search for. 
     // See https://docs.github.com/en/rest/reference/issues#get-an-issue-comment
     async function getCommentByID(build_log_comment_id) {
         if (!build_log_comment_id) {
-            return None
+            return;
         }
         // See https://octokit.github.io/rest.js/v18#issues-get-comment
         return await github.issues.getComment({
@@ -17,19 +17,11 @@ module.exports = async (github, context, core, issue_number, summary, body, buil
         });
     }
 
-    async function getTriggerComment() {
-        // The trigger comment ID is the ID of the comment that caused the workflow to fire.
-        trigger_comment_id = github.event.comment.id
-
+    async function createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, message) {
         const triggerComment = await getCommentByID(trigger_comment_id);
         if (!triggerComment) {
             core.setFailed(`Failed to get trigger comment with ID ${trigger_comment_id}.`);
         }
-        return triggerComment;
-    }
-
-    async function createOrUpdateComment(issue_number, build_log_comment_id, message) {
-        const triggerComment = getTriggerComment();
         const buildLogComment = await getCommentByID(build_log_comment_id);
         const body = `${message}`;
 
@@ -67,5 +59,5 @@ module.exports = async (github, context, core, issue_number, summary, body, buil
         </details>
     `;
 
-    return await createOrUpdateComment(issue_number, build_log_comment_id, msg);
+    return await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
 }

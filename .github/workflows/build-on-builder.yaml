@@ -322,14 +322,16 @@ jobs:
             const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
             
             issue_number = '122'; // `${github.event.issue.number}`;
-
+            trigger_comment_id = '766910131';
             buildLogComment = await update_build_log(github, context, core, issue_number,
               "Howdy, here I am",
-              "This is the message body");
+              "This is the message body",
+              trigger_comment_id);
 
             update_build_log(github, context, core, issue_number,
               "Howdy, here I am Second time around",
               "This is another message body",
+              trigger_comment_id,
               buildLogComment.id);
 
   # buildbot try \
