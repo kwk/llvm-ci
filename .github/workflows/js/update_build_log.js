@@ -37,8 +37,8 @@ module.exports = async ({github, context, core, issue_number, summary, body, tri
         }
 
         core.info('Creating new build log for the trigger comment.');
-        console.log(`triggerComment = ${triggerComment}`);
-        console.log(`triggerComment.body = ${triggerComment.body}`);
+        console.log(`triggerComment = ` + JSON.stringify(triggerComment, null, 2));
+        
         // Upon creation, of build log comment, inform about the comment where this build log originated from.
         body = `Build log for <a href="here">this comment</a>: ${triggerComment.body}\n${message}`
 
