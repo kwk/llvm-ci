@@ -27,6 +27,7 @@ module.exports = async ({github, context, core, issue_number, summary, body, tri
         body = `${message}`;
 
         if (buildLogComment) {
+            core.info('Found existing build log for the trigger comment.');
             console.log("==== Found old buildLogComment. Old Body: " + buildLogComment.body);
             return await github.issues.updateComment({
                 ...context.repo,
@@ -35,8 +36,9 @@ module.exports = async ({github, context, core, issue_number, summary, body, tri
             });
         }
 
-        console.log("==== Creating new buildLogComment");
+        core.info('Creating new build log for the trigger comment.');
         console.log(`triggerComment = ${triggerComment}`);
+        console.log(`triggerComment.body = ${triggerComment.body}`);
         // Upon creation, of build log comment, inform about the comment where this build log originated from.
         body = `Build log for <a href="here">this comment</a>: ${triggerComment.body}\n${message}`
 
