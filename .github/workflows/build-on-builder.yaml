@@ -321,14 +321,14 @@ jobs:
           script: |
             const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
             
-            issue_number = '122'; // `${github.event.issue.number}`;
-            trigger_comment_id = '766910131';
+            issue_number = `${{github.event.issue.number}}`; // `${github.event.issue.number}`;
+            trigger_comment_id = ${{ github.event.comment.id }};
             buildLogComment = await update_build_log({
               github:             github,
               context:            context,
               core:               core,
               issue_number:       issue_number,
-              summary:            "Howdy, here I am",
+              summary:            "Hey there",
               details:            "This is the message body",
               trigger_comment_id: trigger_comment_id,
             });
@@ -338,7 +338,7 @@ jobs:
               context:              context,
               core:                 core,
               issue_number:         issue_number,
-              summary:              "Howdy, here I am",
+              summary:              "How are you doin?",
               details:              "This is the message body",
               trigger_comment_id:   trigger_comment_id,
               build_log_comment_id: buildLogComment.data.id,
