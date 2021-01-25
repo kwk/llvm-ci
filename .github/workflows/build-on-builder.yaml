@@ -312,6 +312,22 @@ jobs:
             </details>`);
           result-encoding: string
 
+      # Updates the build log comment and returns the last edited at time
+      - name: Create or update comment
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.BOT_PAT}}
+          script: |
+            const append_to_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+            return (github, repo_owner, repo_name, issue_number, comment_id, summary, body)
+            append_to_issue_comment(github, context.repo.owner, context.repo.repo, "foobar",
+              "Howdy, here I am",
+              "This is the message body");
+
+            append_to_issue_comment(github, context.repo.owner, context.repo.repo, "foobar",
+              "Howdy, here I am Second time around",
+              "This is another message body");
+
   # buildbot try \
   #   --master master:8031 \
   #   --passwd='${{ secrets.TRY_PASSWORD }}' \
