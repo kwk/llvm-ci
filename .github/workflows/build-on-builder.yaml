@@ -321,7 +321,7 @@ jobs:
           script: |
             const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
             
-            issue_number = ${github.event.issue.number};
+            issue_number = `${github.event.issue.number}`;
 
             buildLogComment = await update_build_log(github, context, core, issue_number,
               "Howdy, here I am",
