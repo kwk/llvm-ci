@@ -319,7 +319,7 @@ jobs:
         with:
           github-token: ${{secrets.BOT_PAT}}
           script: |
-            const append_to_issue_comment = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+            const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
             buildLogComment = await update_build_log(github, context, core,
               "Howdy, here I am",
               "This is the message body");
