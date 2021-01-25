@@ -323,16 +323,26 @@ jobs:
             
             issue_number = '122'; // `${github.event.issue.number}`;
             trigger_comment_id = '766910131';
-            buildLogComment = await update_build_log(github, context, core, issue_number,
-              "Howdy, here I am",
-              "This is the message body",
-              trigger_comment_id);
+            buildLogComment = await update_build_log({
+              github:             github,
+              context:            context,
+              core:               core,
+              issue_number:       issue_number,
+              summary:            "Howdy, here I am",
+              details:            "This is the message body",
+              trigger_comment_id: trigger_comment_id,
+            });
 
             update_build_log(github, context, core, issue_number,
-              "Howdy, here I am Second time around",
-              "This is another message body",
-              trigger_comment_id,
-              buildLogComment.id);
+              github:               github,
+              context:              context,
+              core:                 core,
+              issue_number:         issue_number,
+              summary:              "Howdy, here I am",
+              details:              "This is the message body",
+              trigger_comment_id:   trigger_comment_id,
+              build_log_comment_id: buildLogComment.id,
+            );
 
   # buildbot try \
   #   --master master:8031 \
