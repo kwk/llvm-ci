@@ -93,11 +93,11 @@ jobs:
             comment_id = add_issue_comment(github, '${{ github.event.issue.node_id }}', body);
 
             return {'comment_id': comment_id, 'body': body}
-          result-encoding: json
+          # result-encoding: json
       - name: Create build log comment node_id artifact
         run: |
               echo "${{steps.build_log.outputs.result.body}}" > build_log_comment_body.txt
-              echo "${{steps.build_log.outputs.result}}" > build_log_comment_node_id.txt
+              echo "${{steps.build_log.outputs.result.comment_id}}" > build_log_comment_node_id.txt
       - uses: actions/upload-artifact@v2
         name: Upload build log comment node_id for consumption in other jobs
         with:
