@@ -1,8 +1,6 @@
 // update_build_log
 // (comment_id is optional, e.g. on first call)
-module.exports = async (github, context, core, summary, body, build_log_comment_id) => {
-
-    issue_number = github.event.issue.number
+module.exports = async (github, context, core, issue_number, summary, body, build_log_comment_id) => {
 
     // Returns the comment with the given ID or None, if it exists or None if it doesn't
     // exist or None was provided as the ID to search for. 

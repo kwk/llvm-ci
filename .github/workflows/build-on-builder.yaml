@@ -320,11 +320,11 @@ jobs:
           github-token: ${{secrets.BOT_PAT}}
           script: |
             const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
-            buildLogComment = await update_build_log(github, context, core,
+            buildLogComment = await update_build_log(github, context, core, github.event.issue.number,
               "Howdy, here I am",
               "This is the message body");
 
-            update_build_log(github, context, core,
+            update_build_log(github, context, core, github.event.issue.number,
               "Howdy, here I am Second time around",
               "This is another message body",
               buildLogComment.id);
