@@ -333,7 +333,7 @@ jobs:
               trigger_comment_id: trigger_comment_id,
             });
 
-            update_build_log(github, context, core, issue_number,
+            update_build_log({
               github:               github,
               context:              context,
               core:                 core,
@@ -342,7 +342,7 @@ jobs:
               details:              "This is the message body",
               trigger_comment_id:   trigger_comment_id,
               build_log_comment_id: buildLogComment.id,
-            );
+            });
 
   # buildbot try \
   #   --master master:8031 \
