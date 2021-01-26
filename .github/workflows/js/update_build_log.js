@@ -30,6 +30,8 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
         const buildLogComment = await getCommentByID(build_log_comment_id);
         body = `${message}`;
 
+        core.debug(`buildLogComment = ` + JSON.stringify(buildLogComment, null, 2));
+
         if (buildLogComment) {
             core.info('Found existing build log for the trigger comment and re-using that.');
             return await github.issues.updateComment({
@@ -40,7 +42,7 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
         }
 
         core.info('Creating new build log for the trigger comment.');
-        console.log(`triggerComment = ` + JSON.stringify(triggerComment, null, 2));
+        core.debug(`triggerComment = ` + JSON.stringify(triggerComment, null, 2));
         
         // Upon creation, of build log comment, inform about the comment where this build log originated from.
         body = `${github.actor}, this is the build log for <a href="${triggerComment.data.html_url}">your comment</a>: ${triggerComment.data.body}\n${message}`
@@ -56,8 +58,7 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
     // TODO(kwk): Pepend summary with time (which timezone? -> UTC)?
     msg = `<details><summary> `+summary+` </summary> <p> `+details+` </p></details>`;
 
-    return await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
-    
-    // console.log(JSON.stringify(value=res, space=2));
-    // return res;
+    res = await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
+    console.debug(`createOrUpdateComment result = ` + JSON.stringify(res, null, 2));
+    return res;
 }
