@@ -58,7 +58,6 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
 
     res = await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
     
-    console.log(res)
-    JSON.stringify(value=res, space=2);
+    console.log(JSON.stringify(value=res, space=2));
     return res;
 }
