@@ -2,9 +2,9 @@
 // (comment_id is optional, e.g. on first call)
 module.exports = async ({github, context, core, issue_number, summary, details, trigger_comment_id, build_log_comment_id}) => {
 
-    if (!details || details == '') {
-        details = 'No details provided';
-    }
+    // if (!details || details == '') {
+    //     details = 'No details provided';
+    // }
 
     // Returns the comment with the given ID or undefined, if it exists or None if it doesn't
     // exist or None was provided as the ID to search for. 
@@ -56,8 +56,8 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
     // TODO(kwk): Pepend summary with time (which timezone? -> UTC)?
     msg = `<details><summary> `+summary+` </summary> <p> `+details+` </p></details>`;
 
-    res = await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
+    return await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
     
-    console.log(JSON.stringify(value=res, space=2));
-    return res;
+    // console.log(JSON.stringify(value=res, space=2));
+    // return res;
 }
