@@ -5,8 +5,9 @@ const { Http2ServerRequest } = require("http2");
 // (comment_id is optional, e.g. on first call)
 module.exports = async ({github, context, core, issue_number='', summary, trigger_comment_id='', details='', build_log_comment_id=''}) => {
 
-    issue_number = github.event.issue.number;
-    trigger_comment_id = github.event.comment.id;
+    console.log(`github = ` + JSON.stringify(github, null, 2));
+    console.log(`core = ` + JSON.stringify(core, null, 2));
+    console.log(`context = ` + JSON.stringify(context, null, 2));
 
     if (!details || details == '') {
         details = 'No details provided';
