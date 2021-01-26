@@ -41,36 +41,6 @@ jobs:
         id: checkcomment
         run: echo ${{ github.event.comment.body }} | grep '^/build-on '
         # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
-  
-  workflow-starts:
-      name: Workflow starts
-      needs: gatekeeper
-      runs-on: ubuntu-latest
-      steps:
-      - name: Create a workflow-started comment
-        id:   build_log
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.BOT_PAT}}
-          script: |
-         
-            body = `<details>
-            <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
-            <p>
-            @${{ github.actor }}, <a href="${{ github.event.comment.html_url }}">your comment</a>:
-            
-            <blockquote>${{ github.event.comment.body }}</blockquote>
-
-            kicked-off the <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a> Github workflow.
-
-            This comment will be re-used for further updates.
-
-            :bulb: <u>TIP:</u> Did you know that you can run more than one build at a time by creating another buildrequest comment?
-            </p>
-            </details>`;
-            comment_id = add_issue_comment(github, '${{ github.event.issue.node_id }}', body);
-
-            return {'comment_id': comment_id, 'body': body}
 
   call-try-builder:
     name: "Verify parameters and kick off build"
@@ -109,6 +79,7 @@ jobs:
         uses: actions/github-script@v3
         with: 
           github-token: ${{secrets.BOT_PAT}}
+          debug: true
           script: |
             const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
           
