@@ -2,6 +2,10 @@
 // (comment_id is optional, e.g. on first call)
 module.exports = async ({github, context, core, issue_number, summary, details, trigger_comment_id, build_log_comment_id}) => {
 
+    if (!details || details == '') {
+        details = 'No details provided';
+    }
+
     // Returns the comment with the given ID or undefined, if it exists or None if it doesn't
     // exist or None was provided as the ID to search for. 
     // See https://docs.github.com/en/rest/reference/issues#get-an-issue-comment
@@ -27,7 +31,7 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
         body = `${message}`;
 
         if (buildLogComment) {
-            core.info('Found existing build log for the trigger comment.');
+            core.info('Found existing build log for the trigger comment and re-using that.');
             return await github.issues.updateComment({
                 ...context.repo,
                 comment_id: buildLogComment.data.id,
@@ -39,7 +43,7 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
         console.log(`triggerComment = ` + JSON.stringify(triggerComment, null, 2));
         
         // Upon creation, of build log comment, inform about the comment where this build log originated from.
-        body = `Build log for <a href="${triggerComment.data.html_url}">this comment</a>: ${triggerComment.data.body}\n${message}`
+        body = `${github.actor}, this is the build log for <a href="${triggerComment.data.html_url}">your comment</a>: ${triggerComment.data.body}\n${message}`
 
         return await github.issues.createComment({
             ...context.repo,
@@ -52,5 +56,9 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
     // TODO(kwk): Pepend summary with time (which timezone? -> UTC)?
     msg = `<details><summary> `+summary+` </summary> <p> `+details+` </p></details>`;
 
-    return await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
+    res = await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
+    
+    console.log(res)
+    JSON.stringify(value=res, space=2);
+    return res;
 }

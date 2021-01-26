@@ -53,30 +53,7 @@ jobs:
         with:
           github-token: ${{secrets.BOT_PAT}}
           script: |
-            async function add_issue_comment(github, issue_node_id, comment_body) {
-                
-                const query = `mutation($issue_node_id:String!, $comment_body:String!) {
-                    addComment(input: {
-                        subjectId: $issue_node_id, 
-                        body: $comment_body
-                    }) {
-                        commentEdge {
-                            node {
-                                id
-                            }
-                        }
-                    }
-                }`;
-
-                const variables = {
-                    issue_node_id: issue_node_id,
-                    comment_body: comment_body,
-                }
-                
-                const result = await github.graphql(query, variables);
-                return result.addComment.commentEdge.node.id;
-            }
-
+         
             body = `<details>
             <summary><a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}">Workflow</a> started: ${{ github.event.comment.body }}</summary>
             <p>
@@ -94,32 +71,14 @@ jobs:
             comment_id = add_issue_comment(github, '${{ github.event.issue.node_id }}', body);
 
             return {'comment_id': comment_id, 'body': body}
-          # result-encoding: json
-      - name: Create build log comment node_id artifact
-        run: |
-              echo "${{steps.build_log.outputs.result.body}}" > build_log_comment_body.txt
-              echo "${{steps.build_log.outputs.result.comment_id}}" > build_log_comment_node_id.txt
-      - uses: actions/upload-artifact@v2
-        name: Upload build log comment node_id for consumption in other jobs
-        with:
-          name: build-log-comment-node-id
-          path: build_log_comment_node_id.txt
-      - uses: actions/upload-artifact@v2
-        name: Upload build log comment body for consumption in other jobs
-        with:
-          name: build-log-comment-body
-          path: build_log_comment_body.txt
 
   call-try-builder:
     name: "Verify parameters and kick off build"
-    needs: workflow-starts
+    needs: gatekeeper
     # We need to run this on a self-hosted github actions-runner because
     # the buildbot master in the test setup is not publically reachable.
     runs-on: [self-hosted]
     steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: build-log-comment-node-id
       - name: Set job variables
         id: vars
         # For the "::set-output" part, see
@@ -127,7 +86,6 @@ jobs:
         run: |
           echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
           echo "::set-output name=pr-node-id::`echo ${{ github.event.issue.node_id }}`"
-          echo "::set-output name=build-log-comment-node-id::`cat build_log_comment_node_id.txt`"
 
       # See https://github.com/actions/github-script#run-custom-graphql-queries
       # See https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
@@ -145,6 +103,25 @@ jobs:
           # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 1
           repository: ${{ github.repository }}
+
+      - name: Start build log comment
+        id: build_log
+        uses: actions/github-script@v3
+        with: 
+          github-token: ${{secrets.BOT_PAT}}
+          script: |
+            const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+          
+            issue_number = `${{github.event.issue.number}}`;
+            trigger_comment_id = ${{ github.event.comment.id }};
+            buildLogComment = await update_build_log({
+              github:             github,
+              context:            context,
+              core:               core,
+              issue_number:       issue_number,
+              summary:            "Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`",
+              trigger_comment_id: trigger_comment_id,
+            });
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
@@ -169,6 +146,25 @@ jobs:
             | tr -d '\r'); do echo "<li>$i</li>"; done \
             | tr -d '\n'`"
     
+
+      - name: Write comment about unknown try-builder
+        uses: actions/github-script@v3
+        with: 
+          github-token: ${{secrets.BOT_PAT}}
+          script: |
+            const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+          
+            issue_number = `${{github.event.issue.number}}`;
+            trigger_comment_id = ${{ github.event.comment.id }};
+            buildLogComment = await update_build_log({
+              github:             github,
+              context:            context,
+              core:               core,
+              issue_number:       issue_number,
+              summary:            "Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`",
+              trigger_comment_id: trigger_comment_id,
+            });
+
       - name: Write comment about unknown try-builder
         uses: actions/github-script@v3
         if: |
