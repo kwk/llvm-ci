@@ -9,6 +9,10 @@ module.exports = async ({github, context, core, issue_number='', summary, trigge
     console.log(`core = ` + JSON.stringify(core, null, 2));
     console.log(`context = ` + JSON.stringify(context, null, 2));
 
+    issue_number = context.payload.issue.number;
+    trigger_comment_id = context.payload.comment.id;
+    tigger_user = context.payload.comment.user.login;
+
     if (!details || details == '') {
         details = 'No details provided';
     }
@@ -52,7 +56,7 @@ module.exports = async ({github, context, core, issue_number='', summary, trigge
         core.debug(`triggerComment = ` + JSON.stringify(triggerComment, null, 2));
         
         // Upon creation, of build log comment, inform about the comment where this build log originated from.
-        body = `@` + triggerComment.data.user.login + `, this is the build log for <a href="${triggerComment.data.html_url}">your comment</a>: ${triggerComment.data.body}\n${message}`
+        body = `@` + tigger_user + `, this is the build log for <a href="${triggerComment.data.html_url}">your comment</a>: ${triggerComment.data.body}\n${message}`
 
         return await github.issues.createComment({
             ...context.repo,
