@@ -1,10 +1,13 @@
 // update_build_log
-// (comment_id is optional, e.g. on first call)
-module.exports = async ({github, context, core, issue_number, summary, details, trigger_comment_id, build_log_comment_id}) => {
 
-    // if (!details || details == '') {
-    //     details = 'No details provided';
-    // }
+const { Http2ServerRequest } = require("http2");
+
+// (comment_id is optional, e.g. on first call)
+module.exports = async ({github, context, core, issue_number, summary, trigger_comment_id, details=None, build_log_comment_id=None}) => {
+
+    if (!details || details == '') {
+        details = 'No details provided';
+    }
 
     // Returns the comment with the given ID or undefined, if it exists or None if it doesn't
     // exist or None was provided as the ID to search for. 
@@ -60,5 +63,15 @@ module.exports = async ({github, context, core, issue_number, summary, details, 
 
     res = await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
     console.debug(`createOrUpdateComment result = ` + JSON.stringify(res, null, 2));
+
+    if (!res) {
+        core.setFailed('Failed to create or update build log.');
+        return;
+    }
+    if (res.status != "201"){
+        core.setFailed(`Failed to create or update build log. Here's the result: ` + JSON.stringify(res, null, 2));
+        return;
+    }
+    
     return res;
 }
