@@ -82,16 +82,11 @@ jobs:
           debug: true
           script: |
             const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
-          
-            issue_number = `${{github.event.issue.number}}`;
-            trigger_comment_id = ${{ github.event.comment.id }};
             buildLogComment = await update_build_log({
               github:             github,
               context:            context,
               core:               core,
-              issue_number:       issue_number,
               summary:            `Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`,
-              trigger_comment_id: trigger_comment_id,
             });
 
       # Get a list of available builders from
