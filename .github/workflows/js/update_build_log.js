@@ -48,7 +48,7 @@ module.exports = async ({github, context, core, issue_number, summary, trigger_c
         core.debug(`triggerComment = ` + JSON.stringify(triggerComment, null, 2));
         
         // Upon creation, of build log comment, inform about the comment where this build log originated from.
-        body = `${github.actor}, this is the build log for <a href="${triggerComment.data.html_url}">your comment</a>: ${triggerComment.data.body}\n${message}`
+        body = `${{github.actor}}, this is the build log for <a href="${triggerComment.data.html_url}">your comment</a>: ${triggerComment.data.body}\n${message}`
 
         return await github.issues.createComment({
             ...context.repo,
