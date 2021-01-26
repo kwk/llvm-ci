@@ -85,15 +85,15 @@ jobs:
           
             issue_number = `${{github.event.issue.number}}`;
             trigger_comment_id = ${{ github.event.comment.id }};
-            buildLogComment = await update_build_log({
-              github:             github,
-              context:            context,
-              core:               core,
-              issue_number:       issue_number,
-              summary:            "Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`",
-              trigger_comment_id: trigger_comment_id,
-              details: '',
-            });
+            // buildLogComment = await update_build_log({
+            //   github:             github,
+            //   context:            context,
+            //   core:               core,
+            //   issue_number:       issue_number,
+            //   summary:            "Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`",
+            //   trigger_comment_id: trigger_comment_id,
+            //   details: '',
+            // });
 
       # Get a list of available builders from
       # The list of builders returned from buildbot is prefixed with these two lines:
