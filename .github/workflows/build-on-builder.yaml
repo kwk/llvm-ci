@@ -89,8 +89,10 @@ jobs:
               core:    core,
               summary: `Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`,
             });
+            console.log(buildLogComment.data.comment.id);
 
-      # Get a list of available builders from   
+      # Get a list of available builders from
+      # TODO(kwk): Maybe change the hardcoded master:8010 URL or leave it? All pain no gain?   
       - name: Get try-builder list
         id: gettrybuilders
         shell: bash
@@ -121,6 +123,7 @@ jobs:
                 <ul>
                   ${{ steps.gettrybuilders.outputs.namelist }}
                 </ul>`,
+              build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
             });
 
             core.setFailed(`Unknown builder: <code>${{steps.vars.outputs.builder-name}}</code>`);
@@ -158,6 +161,7 @@ jobs:
             --username='${{ secrets.TRY_USER }}' \
             --connect='pb' \
             --vc="git" \
+            --patchlevel=1 \
             --baserev="`git rev-parse HEAD`" \
             --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
             --who='${{ github.actor }}' \
@@ -207,4 +211,5 @@ jobs:
               core:    core,
               summary: `Handed request over to buildbot`,
               details: `Once buildbot starts your build, it will append to this comment and include a link to the logs for you to follow.`,
+              build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
             });      

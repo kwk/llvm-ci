@@ -1,13 +1,10 @@
 // update_build_log
 
-const { Http2ServerRequest } = require("http2");
+module.exports = async ({github, context, core, summary, details=undefined, build_log_comment_id=undefined}) => {
 
-// (comment_id is optional, e.g. on first call)
-module.exports = async ({github, context, core, summary, details=''}) => {
-
-    console.log(`github = ` + JSON.stringify(github, null, 2));
-    console.log(`core = ` + JSON.stringify(core, null, 2));
-    console.log(`context = ` + JSON.stringify(context, null, 2));
+    core.info(`github = ` + JSON.stringify(github, null, 2));
+    core.info(`core = ` + JSON.stringify(core, null, 2));
+    core.info(`context = ` + JSON.stringify(context, null, 2));
 
     issue_number = context.payload.issue.number;
     trigger_comment_id = context.payload.comment.id;
@@ -70,12 +67,14 @@ module.exports = async ({github, context, core, summary, details=''}) => {
     msg = `<details><summary> `+summary+` </summary> <p> `+details+` </p></details>`;
 
     res = await createOrUpdateComment(issue_number, trigger_comment_id, build_log_comment_id, msg);
-    console.debug(`createOrUpdateComment result = ` + JSON.stringify(res, null, 2));
+    core.info(`createOrUpdateComment result = ` + JSON.stringify(res, null, 2));
 
     if (!res) {
         core.setFailed('Failed to create or update build log.');
         return;
     }
+
+    // TODO(kwk): Maybe use hardoded HTTP status codes from somewhere?
     if (res.status != "201"){
         core.setFailed(`Failed to create or update build log. Here's the result: ` + JSON.stringify(res, null, 2));
         return;
