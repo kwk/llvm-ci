@@ -89,7 +89,7 @@ jobs:
               core:    core,
               summary: `Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`,
             });
-            console.log(buildLogComment.data.comment.id);
+            console.log(buildLogComment.data.id);
 
       # Get a list of available builders from
       # TODO(kwk): Maybe change the hardcoded master:8010 URL or leave it? All pain no gain?   
