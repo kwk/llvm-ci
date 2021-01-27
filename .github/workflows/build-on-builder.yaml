@@ -91,17 +91,7 @@ jobs:
             });
             console.log(buildLogComment.data.id);
 
-      # Get a list of available builders from
-      # TODO(kwk): Maybe change the hardcoded master:8010 URL or leave it? All pain no gain?   
-      - name: Get try-builder list
-        id: gettrybuilders
-        shell: bash
-        run: |
-           echo "::set-output name=namelist::`curl -s http://master:8010/api/v2/builders \
-            | jq -r '"<li>" + .builders[].name + "</li>"' \
-            | tr -d "\n"`"
-
-      - name: Write comment about unknown try-builder
+      - name: Check if builder is known
         if: |
           !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         uses: actions/github-script@v3
@@ -111,6 +101,20 @@ jobs:
           github-token: ${{secrets.BOT_PAT}}
           debug: true
           script: |
+            builders = await github.request('http://master:8010/api/v2/builders?field=name');
+            foundBuilder = False;
+            var buildersList = '';
+            for (let i of builders) {
+              buildersList += '<li>' + i + '</li>';
+              if (i == '${{steps.vars.outputs.builder-name}}') {
+                foundBuilder
+              }
+            }
+
+            if (foundBuilder) {
+              return
+            }
+
             const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
           
             buildLogComment = await update_build_log({
@@ -121,12 +125,12 @@ jobs:
               details: `Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
                 You can choose from these builders:
                 <ul>
-                  ${{ steps.gettrybuilders.outputs.namelist }}
+                  `+buildersList+`
                 </ul>`,
               build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
             });
 
-            core.setFailed(`Unknown builder: <code>${{steps.vars.outputs.builder-name}}</code>`);
+            core.setFailed('Unknown builder: ${{steps.vars.outputs.builder-name}}');
       
       - name: Kick off try-build
         id: kick_off_try_builder
