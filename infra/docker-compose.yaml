@@ -37,6 +37,19 @@ services:
             retries: 3
             start_period: 40s
     
+    reverse-proxy:
+        image: nginx:1.19
+        volumes:
+            - "./reverse-proxy/nginx.conf:/etc/nginx/nginx.conf:Z"
+        ports:
+            - "8443:443"
+            - "8080:8080"
+        depends_on:
+            - master
+        networks:
+            - master
+            - worker
+
     # Spawn 3 buildbot workers one after another
     worker0:
         container_name: worker-container0

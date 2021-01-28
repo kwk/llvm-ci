@@ -101,7 +101,8 @@ jobs:
           github-token: ${{secrets.BOT_PAT}}
           debug: true
           script: |
-            builders = await github.request('http://master:8010/api/v2/builders?field=name');
+            // For request method, see https://github.com/octokit/request.js
+            builders = await github.request('https://master:8010/api/v2/builders?field=name');
             foundBuilder = False;
             var buildersList = '';
             for (let i of builders) {
@@ -159,7 +160,7 @@ jobs:
           # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#github-context
           # https://docs.github.com/en/free-pro-team@latest/rest/reference/issues#comments
           buildbot try \
-            --master master:8031 \
+            --master master:8031 \  
             --builder='${{steps.vars.outputs.builder-name}}' \
             --passwd='${{ secrets.TRY_PASSWORD }}' \
             --username='${{ secrets.TRY_USER }}' \
