@@ -109,10 +109,10 @@ start:
 	$(COMPOSE_TOOL) build $(Q_FLAG)
 	$(COMPOSE_TOOL) up --remove-orphans -d
 	@echo -n "Waiting until Buildbot master Web-UI is up."
-	@timeout 22 sh -c 'until curl $(S_FLAG) -Sf http://localhost:8010/#/workers > /dev/null 2>&1; do echo -n "."; sleep 0.1; done'
+	@timeout 22 sh -c 'until curl $(S_FLAG) --insecure -Sf https://localhost:8443/#/workers > /dev/null 2>&1; do echo -n "."; sleep 0.1; done'
 	@echo "DONE"
-	@echo "Opening Buildbot Workers Web UI (http://localhost:8010/#/workers)"
-	@xdg-open http://localhost:8010/#/workers
+	@echo "Opening Buildbot Workers Web UI (https://localhost:8443/#/workers)"
+	@xdg-open https://localhost:8443/#/workers
 	@echo "Following compose logs"
 	$(COMPOSE_TOOL) logs -f
 
