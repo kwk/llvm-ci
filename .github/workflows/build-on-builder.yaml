@@ -102,7 +102,7 @@ jobs:
           debug: true
           script: |
             // For request method, see https://github.com/octokit/request.js
-            builders = await github.request('https://master:8010/api/v2/builders?field=name');
+            builders = await github.request('https://localhost:8443/api/v2/builders?field=name');
             foundBuilder = False;
             var buildersList = '';
             for (let i of builders) {

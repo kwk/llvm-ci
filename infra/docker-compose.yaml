@@ -12,14 +12,13 @@ services:
             - "8031:8031"
             # Prometheus exporter (visit http://localhost:9101/metrics)
             - "9101:9101"
+            # Web Frontend
+            - "8010:8010"
         # Only workers must reach the workers-port,
         # hence we only expose but not publish it on the host.
-        # And only the reverse proxy must reach the web port...
         expose:
             # Workers Port
             - "9989"
-            # Web Frontend
-            - "8010"
         volumes:
             - "./master/cfg:/home/johndoe/cfg:Z"
             - "./master/compose-secrets/:/secret-volume/:Z"
@@ -46,8 +45,8 @@ services:
             - "./reverse-proxy/conf/nginx.conf:/etc/nginx/nginx.conf:Z"
             - "./reverse-proxy/certs:/certs:Z"
         ports:
-            - "8443:443"
-            - "8080:8080"
+            - "8443:8443"
+            # - "8080:8080"
         depends_on:
             - master
         networks:
