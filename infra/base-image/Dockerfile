@@ -1,11 +1,26 @@
 FROM fedora:33
 
-RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
+# For the github actions runner we need these packages: https://github.com/actions/runner/blob/main/docs/start/envlinux.md#full-dependencies-list
+# lttng-ust openssl-libs krb5-libs zlib libicu
+
+# For .NET on Fedora see: https://docs.microsoft.com/en-us/dotnet/core/install/linux-fedora
+# dotnet-sdk-5.0 aspnetcore-runtime-5.0 dotnet-runtime-5.0 dotnet-sdk-3.1 aspnetcore-runtime-3.1 dotnet-runtime-3.1 compat-openssl10
+
+ADD https://packages.microsoft.com/config/fedora/33/prod.repo /etc/yum.repos.d/microsoft-prod.repo
+RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
+    && dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
+    aspnetcore-runtime-3.1 \
+    aspnetcore-runtime-5.0 \
     ccache \
     clang \
     cmake \
+    compat-openssl10 \
     curl \
     diffutils \
+    dotnet-runtime-3.1 \
+    dotnet-runtime-5.0 \
+    dotnet-sdk-3.1 \
+    dotnet-sdk-5.0 \
     findutils \
     gcc \
     gdb \
@@ -14,15 +29,19 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     golang \
     inotify-tools \
     jq \
+    krb5-libs \
     libatomic \
     libedit-devel \
+    libicu \
     libstdc++-static \
     libxml2-devel \
     lld \
+    lttng-ust \
     make \
     nano \
     ncurses-devel \
     ninja-build \
+    openssl-libs \
     patch \
     python3 \
     python3-devel \
@@ -36,6 +55,7 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     tar \
     xz-devel \
     zip \
+    zlib \
    && dnf clean all
 
 # Install Buildbot from pip

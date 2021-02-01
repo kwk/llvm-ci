@@ -22,7 +22,7 @@ include ./config.mk
 PROJECT_DIR=$(shell pwd)
 
 # For the global "prepare-secrets" target all targets in this variable will be executed
-PREPARE_SECRET_TARGETS =s
+PREPARE_SECRET_TARGETS =
 
 CI_GIT_COMMIT_ID := $(shell git rev-parse --short HEAD)
 IS_DIRTY := no

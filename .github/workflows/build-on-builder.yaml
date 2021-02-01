@@ -1,4 +1,7 @@
 # TODO(kwk): READ THIS https://docs.github.com/en/rest/reference/checks#runs
+# TODO(kwk): Upon workflow cancellation, cancel the buildbot build as well if available
+#            (see http://docs.buildbot.net/current/developer/raml/buildrequest.html#endpoints)
+# TODO(kwk): HTTP Endpoint for controlling Buildbot: http://docs.buildbot.net/current/developer/rest.html#controlling 
 
 name: /build-on
 
@@ -102,36 +105,75 @@ jobs:
           debug: true
           script: |
             // For request method, see https://github.com/octokit/request.js
-            builders = await github.request('https://reverse-proxy:8443/api/v2/builders?field=name');
-            foundBuilder = False;
-            var buildersList = '';
-            for (let i of builders) {
-              buildersList += '<li>' + i + '</li>';
-              if (i == '${{steps.vars.outputs.builder-name}}') {
-                foundBuilder
+            const Http = XMLHTTPRequest();
+            const url = 'https://reverse-proxy:8443/api/v2/builders?field=name';
+            Http.open('GET', url);
+            Http.send();
+
+            Http.onreadystatechange=(e)=> {
+              var builders = JSON.parse(e);
+
+              //builders = await github.request('https://reverse-proxy:8443/api/v2/builders?field=name');
+              foundBuilder = False;
+              var buildersList = '';
+              for (let i of builders) {
+                buildersList += '<li>' + i + '</li>';
+                if (i == '${{steps.vars.outputs.builder-name}}') {
+                  foundBuilder
+                }
               }
+
+              if (foundBuilder) {
+                return
+              }
+
+              const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+            
+              buildLogComment = await update_build_log({
+                github:  github,
+                context: context,
+                core:    core,
+                summary: `Unknown builder: <code>${{steps.vars.outputs.builder-name}}</code>`,
+                details: `Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
+                  You can choose from these builders:
+                  <ul>
+                    `+buildersList+`
+                  </ul>`,
+                build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
+              });
+
+              core.setFailed('Unknown builder: ${{steps.vars.outputs.builder-name}}');
             }
-
-            if (foundBuilder) {
-              return
-            }
-
-            const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
-          
-            buildLogComment = await update_build_log({
-              github:  github,
-              context: context,
-              core:    core,
-              summary: `Unknown builder: <code>${{steps.vars.outputs.builder-name}}</code>`,
-              details: `Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
-                You can choose from these builders:
-                <ul>
-                  `+buildersList+`
-                </ul>`,
-              build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
-            });
-
-            core.setFailed('Unknown builder: ${{steps.vars.outputs.builder-name}}');
+            //builders = await github.request('https://reverse-proxy:8443/api/v2/builders?field=name');
+            //foundBuilder = False;
+            //var buildersList = '';
+            //for (let i of builders) {
+            //  buildersList += '<li>' + i + '</li>';
+            //  if (i == '${{steps.vars.outputs.builder-name}}') {
+            //    foundBuilder
+            //  }
+            //}
+            //
+            //if (foundBuilder) {
+            //  return
+            //}
+            //
+            //const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+            //
+            //buildLogComment = await update_build_log({
+            //  github:  github,
+            //  context: context,
+            //  core:    core,
+            //  summary: `Unknown builder: <code>${{steps.vars.outputs.builder-name}}</code>`,
+            //  details: `Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
+            //    You can choose from these builders:
+            //    <ul>
+            //      `+buildersList+`
+            //    </ul>`,
+            //  build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
+            //});
+            //
+            //core.setFailed('Unknown builder: ${{steps.vars.outputs.builder-name}}');
       
       - name: Kick off try-build
         id: kick_off_try_builder
