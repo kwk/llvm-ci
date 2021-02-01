@@ -105,7 +105,7 @@ jobs:
           debug: true
           script: |
             // For request method, see https://github.com/octokit/request.js
-            const Http = XMLHTTPRequest();
+            const Http = require("xmlhttprequest").XMLHTTPRequest();
             const url = 'https://reverse-proxy:8443/api/v2/builders?field=name';
             Http.open('GET', url);
             Http.send();
