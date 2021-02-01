@@ -105,7 +105,7 @@ jobs:
           debug: true
           script: |
             // For request method, see https://github.com/octokit/request.js
-            console.log(`request.defaults() = ` + JSON.stringify(github.request().defaults(), null, 2));
+            console.log(`request.defaults() = ` + JSON.stringify(github.request().defaults, null, 2));
 
             builders = await github.request('https://reverse-proxy:8443/api/v2/builders?field=name');
             foundBuilder = False;
