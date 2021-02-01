@@ -96,7 +96,7 @@ jobs:
 
       - name: Get list of available builders
         id: gettrybuilders
-        uses: bash
+        shell: bash
         run: |
           echo "::set-output name=builderlist::[`curl -s --insecure https://reverse-proxy:8443/api/v2/builders?field=name | jq  '.builders[].name' | tr '\n' ','`]"
           
