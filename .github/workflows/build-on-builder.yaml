@@ -94,20 +94,26 @@ jobs:
             });
             console.log(buildLogComment.data.id);
 
+      - name: Get list of available builders
+        id: gettrybuilders
+        uses: bash
+        run: |
+          echo "::set-output name=builderlist::[`curl -s --insecure https://reverse-proxy:8443/api/v2/builders?field=name | jq  '.builders[].name' | tr '\n' ','`]"
+          
       - name: Check if builder is known
-        if: |
-          !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+        # if: |
+        #   !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
         uses: actions/github-script@v3
         with:
           # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
           # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           github-token: ${{secrets.BOT_PAT}}
-          debug: true
           script: |
             // For request method, see https://github.com/octokit/request.js
-            console.log(`request.defaults() = ` + JSON.stringify(github.request().defaults, null, 2));
-
-            builders = await github.request('https://reverse-proxy:8443/api/v2/builders?field=name');
+            // For let's encrypt setup with SSL see this:
+            // https://blog.heckel.io/2018/08/05/issuing-lets-encrypt-certificates-for-65000-internal-servers/
+            // builders = await github.request('https://reverse-proxy:8443/api/v2/builders?field=name');
+            builders = JSON.parse('${{steps.gettrybuilders.outputs.builderlist}}');
             foundBuilder = False;
             var buildersList = '';
             for (let i of builders) {
@@ -212,7 +218,6 @@ jobs:
           # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
           # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           github-token: ${{secrets.BOT_PAT}}
-          debug: true
           script: |
             const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
           
