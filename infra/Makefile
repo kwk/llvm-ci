@@ -1,19 +1,3 @@
-# When you run make VERBOSE=1, executed commands will be printed before
-# executed, verbose flags are turned on and quiet flags are turned off for
-# various commands. Use V_FLAG in places where you can toggle on/off verbosity
-# using -v. Use Q_FLAG in places where you can toggle on/off quiet mode using
-# -q.
-Q = @
-Q_FLAG = -q
-V_FLAG =
-S_FLAG = -s
-ifeq ($(VERBOSE),1)
-       Q =
-       S_FLAG = 
-       Q_FLAG = 
-       V_FLAG = -v
-endif
-
 # It's necessary to set this because some environments don't link sh -> bash.
 SHELL := /bin/bash
 
@@ -27,16 +11,16 @@ ARCH=$(shell arch)
 CONTAINER_TOOL := docker
 COMPOSE_TOOL := docker-compose
 
-BUILDBOT_WORKER_PORT := 30007
-# TODO(kwk): We don't use this variable yet but except for
-# when a "buildbot try" command is executed.
-BUILDBOT_TRY_PORT := 30008
-BUILDBOT_MASTER := ":$(BUILDBOT_WORKER_PORT)"
+# BUILDBOT_WORKER_PORT := 30007
+# # TODO(kwk): We don't use this variable yet but except for
+# # when a "buildbot try" command is executed.
+# BUILDBOT_TRY_PORT := 30008
+# BUILDBOT_MASTER := ":$(BUILDBOT_WORKER_PORT)"
 
-.PHONY: show-buildbot-master
-## Shows the URL:PORT to that will be used to point workers to the buildbot master
-show-buildbot-master:
-	@echo $(BUILDBOT_MASTER)
+# .PHONY: show-buildbot-master
+# ## Shows the URL:PORT to that will be used to point workers to the buildbot master
+# show-buildbot-master:
+# 	@echo $(BUILDBOT_MASTER)
 
 include ./help.mk
 
@@ -52,11 +36,7 @@ WORKER_IMAGE := buildbot-worker
 ## Generates a container image to be used as a worker for buildbot.
 worker-image: worker/Dockerfile
 	@echo Building image ${WORKER_IMAGE}
-	cd worker \
-	&& $(CONTAINER_TOOL) build \
-		. \
-		-f Dockerfile \
-		-t ${WORKER_IMAGE}
+	cd worker && $(CONTAINER_TOOL) build .-f Dockerfile -t ${WORKER_IMAGE}
 
 
 PREPARE_SECRET_TARGETS += prepare-master-secrets
@@ -74,13 +54,21 @@ BUILDBOT_MASTER_IMAGE := buildbot-master
 ## Generates a container image that functions as a buildbot master.
 master-image: master/Dockerfile
 	@echo Building image ${BUILDBOT_MASTER_IMAGE}
-	cd master \
-	&& $(CONTAINER_TOOL) build \
-		. \
-		-f Dockerfile \
-		-t ${BUILDBOT_MASTER_IMAGE}
+	cd master && $(CONTAINER_TOOL) build . -f Dockerfile -t ${BUILDBOT_MASTER_IMAGE}
 
-include ./runner/runner.mk
+PREPARE_SECRET_TARGETS += prepare-runner-secrets
+.PHONY: prepare-runner-secrets
+## Copies secret templates for the runner (NOTE: existing secrets will be backed up).
+prepare-runner-secrets:
+	-cp -v --backup=numbered ./runner/compose-secrets/github-pat.sample ./runner/compose-secrets/github-pat
+
+RUNNER_IMAGE := github-actions-runner
+
+.PHONY: runner-image
+## Generates a container image to be used as a github self-hosted runner.
+runner-image: runner/Dockerfile
+	@echo Building image ${RUNNER_IMAGE}
+	cd runner && $(CONTAINER_TOOL) build . -f Dockerfile -t ${RUNNER_IMAGE}
 
 # Take the git "origin" remote's user part to determine a github user repository
 GIT_ORIGIN_USER := $(shell git ls-remote --get-url origin | cut -d ':' -f 2 | cut -d '/' -f 1)
