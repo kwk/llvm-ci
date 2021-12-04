@@ -117,7 +117,6 @@ services:
             - worker2
         volumes:
           - "./runner/compose-secrets:/secret-volume:Z"
-
 networks:
     master:
     worker:

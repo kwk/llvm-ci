@@ -1,4 +1,4 @@
-FROM fedora:33
+FROM fedora:35
 
 # For the github actions runner we need these packages: https://github.com/actions/runner/blob/main/docs/start/envlinux.md#full-dependencies-list
 # lttng-ust openssl-libs krb5-libs zlib libicu
@@ -6,7 +6,7 @@ FROM fedora:33
 # For .NET on Fedora see: https://docs.microsoft.com/en-us/dotnet/core/install/linux-fedora
 # dotnet-sdk-5.0 aspnetcore-runtime-5.0 dotnet-runtime-5.0 dotnet-sdk-3.1 aspnetcore-runtime-3.1 dotnet-runtime-3.1 compat-openssl10
 
-ADD https://packages.microsoft.com/config/fedora/33/prod.repo /etc/yum.repos.d/microsoft-prod.repo
+ADD https://packages.microsoft.com/config/fedora/34/prod.repo /etc/yum.repos.d/microsoft-prod.repo
 RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
     && dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     aspnetcore-runtime-3.1 \
