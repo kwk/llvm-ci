@@ -1,3 +1,4 @@
+# name of the project
 project(hello-world)
 
 add_executable(main src/main.cpp)
