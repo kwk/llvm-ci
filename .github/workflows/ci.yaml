@@ -3,7 +3,7 @@
 #            (see http://docs.buildbot.net/current/developer/raml/buildrequest.html#endpoints)
 # TODO(kwk): HTTP Endpoint for controlling Buildbot: http://docs.buildbot.net/current/developer/rest.html#controlling 
 
-name: /build-on
+name: /ci
 
 on:
   # NOTE(kwk): A regular comment on a PR is the same as an issue comment.
