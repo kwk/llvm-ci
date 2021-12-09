@@ -14,7 +14,6 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
     ccache \
     clang \
     cmake \
-    compat-openssl10 \
     curl \
     diffutils \
     dotnet-runtime-3.1 \
@@ -74,20 +73,9 @@ USER root
 # Volumes to mount secrets into the container
 VOLUME /secret-volume
 
-COPY home/ /home/johndoe/
-
-ARG ci_git_revision=main
-ENV CI_GIT_REVISION=${ci_git_revision}
-
-# Needed for when you want to run the build locally
-ARG ci_container_image_ref
-ENV CI_CONTAINER_IMAGE_REF=${ci_container_image_ref}
-
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 
-ENTRYPOINT [ "/home/johndoe/bin/uid_entrypoint.sh" ]
-
-CMD [ "/home/johndoe/bin/start.sh" ]
+ENTRYPOINT [ "/home/johndoe/bin/start.sh" ]
 
 ONBUILD COPY home/ /home/johndoe/
 ONBUILD RUN ls /home/johndoe
