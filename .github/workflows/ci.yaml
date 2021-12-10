@@ -13,11 +13,11 @@ on:
     types:
       - created
       # TODO(kwk): This workflow shall not run when a comment is edited as it might produce confusing results.
-      #            But there should be another workflow that runs when a /build-on comment is edited. Then
+      #            But there should be another workflow that runs when a /ci comment is edited. Then
       #            you might want to immediately update the comment to make it invalid.
       # - edited # Not cool for user interaction
 
-  # TODO(kwk): The "created" type seems to ignore /build-on in review comments, which is why we have this one. But it still does not work.
+  # TODO(kwk): The "created" type seems to ignore /ci in review comments, which is why we have this one. But it still does not work.
   # See https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#pull_request_review_comment      
   pull_request_review_comment:
     types:
@@ -29,21 +29,20 @@ on:
 jobs:
 
   # This is the quick gatekeeper for this workflow.
-  # Unless a comment starts with /build-on, we abort immediately. 
+  # Unless a comment starts with /ci, we abort immediately. 
   gatekeeper:
-    name: "Skip unless /build-on prefix is found"
+    name: "Skip unless /ci prefix is found"
     runs-on: ubuntu-latest
     # Only run on PR comment and not on issue comment (see https://github.community/t/triggering-workflow-only-for-pull-request-comment/17156)
     # TODO(kwk): Fail gracefully if this step does not pass. IMPORTANT! Done by second startsWith if-clause?
     # TODO(kwk): Respect this NOTE: https://docs.github.com/en/rest/reference/issues#get-an-issue
     if: >-
       contains(github.event.comment.html_url, '/pull/') &&
-      startsWith(github.event.comment.body, '/build-on ')
+      startsWith(github.event.comment.body, '/ci ')
     steps:
       - name: Check comment
         id: checkcomment
-        run: echo ${{ github.event.comment.body }} | grep '^/build-on '
-        # TODO(kwk): Support other flavors /must-build-on or /try-build-on ?
+        run: echo ${{ github.event.comment.body }} | grep '^/ci '
 
   call-try-builder:
     name: "Verify parameters and kick off build"
@@ -52,180 +51,209 @@ jobs:
     # the buildbot master in the test setup is not publically reachable.
     runs-on: [self-hosted]
     steps:
-      - name: Set job variables
-        id: vars
-        # For the "::set-output" part, see
-        # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
-        run: |
-          echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
-          echo "::set-output name=pr-node-id::`echo ${{ github.event.issue.node_id }}`"
+      - name: "install PyGithub"
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - run: |
+          python -m pip install --upgrade pip
+          pip install PyGithub
 
-      # See https://github.com/actions/github-script#run-custom-graphql-queries
-      # See https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
-      # See https://docs.github.com/en/graphql/overview/explorer
-
-      # Checkout pull request HEAD commit instead of merge commit
-      # TODO(kwk): Checkout code at this early step is not necessary if we keep our actions separated.
-      # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
-      - name: Checkout pull request HEAD
-        id: checkout_pr_head
+      - name: "checkout this project"
         uses: actions/checkout@v2
         with:
-          #ref: origin/main
-          # TODO(kwk): Fetching all history seems to be an overkill?
-          # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
-          fetch-depth: 1
           repository: ${{ github.repository }}
-
-      - name: Start build log comment
-        id: build_log
-        uses: actions/github-script@v3
-        with: 
-          github-token: ${{secrets.BOT_PAT}}
-          debug: true
-          script: |
-            const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
-          
-            buildLogComment = await update_build_log({
-              github:  github,
-              context: context,
-              core:    core,
-              summary: `Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`,
-            });
-            console.log(buildLogComment.data.id);
-
-      - name: Get list of available builders
-        id: gettrybuilders
-        shell: bash
-        run: |
-          echo "::set-output name=builderlist::[`curl -s --insecure https://reverse-proxy:8443/api/v2/builders?field=name | jq  '.builders[].name' | tr '\n' ','`]"
-          
-      - name: Check if builder is known
-        # if: |
-        #   !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
-        uses: actions/github-script@v3
-        with:
-          # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
-          # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
-          github-token: ${{secrets.BOT_PAT}}
-          script: |
-            // For request method, see https://github.com/octokit/request.js
-            // For let's encrypt setup with SSL see this:
-            // https://blog.heckel.io/2018/08/05/issuing-lets-encrypt-certificates-for-65000-internal-servers/
-            // builders = await github.request('https://reverse-proxy:8443/api/v2/builders?field=name');
-            builders = JSON.parse('${{steps.gettrybuilders.outputs.builderlist}}');
-            foundBuilder = False;
-            var buildersList = '';
-            for (let i of builders) {
-              buildersList += '<li>' + i + '</li>';
-              // TODO(kwk): Sanitize user-input? To not allow code injection.
-              if (i == '${{steps.vars.outputs.builder-name}}') {
-                foundBuilder = True
-              }
-            }
-
-            if (foundBuilder) {
-              return
-            }
-
-            const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
-          
-            buildLogComment = await update_build_log({
-              github:  github,
-              context: context,
-              core:    core,
-              summary: `Unknown builder: <code>${{steps.vars.outputs.builder-name}}</code>`,
-              details: `Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
-                You can choose from these builders:
-                <ul>
-                  `+buildersList+`
-                </ul>`,
-              build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
-            });
-
-            core.setFailed('Unknown builder: ${{steps.vars.outputs.builder-name}}');
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+          path: llvm-ci
       
-      - name: Kick off try-build
-        id: kick_off_try_builder
-        # if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
-        shell: bash
+      - name: "delete assets older than a week and from today"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git fetch origin pull/${{ github.event.issue.number }}/head:pr-${{ github.event.issue.number }}
+          llvm-ci/github/update-build-log.py \
+            --token ${{ secrets.GITHUB_TOKEN }} \
+            --project ${{ github.repository }} \
+            --issue_number ${{ github.event.issue.number }} \
+            --trigger_comment_id ${{ github.event.comment.id }} \
+            --trigger_user ${{ github.actor }} \
+            --message 'Kicked-off the Github workflow: <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>'
 
-          # Ensure Bash pipelines (e.g. cmd | othercmd) return a non-zero status if any of
-          # the commands fail, rather than returning the exit status of the last command
-          # in the pipeline.
-          set -o pipefail
+      # - name: Set job variables
+      #   id: vars
+      #   # For the "::set-output" part, see
+      #   # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
+      #   run: |
+      #     echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
+      #     echo "::set-output name=pr-node-id::`echo ${{ github.event.issue.node_id }}`"
 
-          # Copy event.json locally for further inspection
-          # TODO(kwk): Remove if not needed (currently only needed for debugging and inspecting fields)
-          cp -v ${{github.event_path}} .
+      # # See https://github.com/actions/github-script#run-custom-graphql-queries
+      # # See https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
+      # # See https://docs.github.com/en/graphql/overview/explorer
 
-          git diff HEAD..pr-${{ github.event.issue.number }} > mydiff
+      # # Checkout pull request HEAD commit instead of merge commit
+      # # TODO(kwk): Checkout code at this early step is not necessary if we keep our actions separated.
+      # # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
+      # - name: Checkout pull request HEAD
+      #   id: checkout_pr_head
+      #   uses: actions/checkout@v2
+      #   with:
+      #     #ref: origin/main
+      #     # TODO(kwk): Fetching all history seems to be an overkill?
+      #     # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+      #     fetch-depth: 1
+      #     repository: ${{ github.repository }}
 
-          #--branch="pull/${{ github.event.issue.number }}/head" \
+      # - name: Start build log comment
+      #   id: build_log
+      #   uses: actions/github-script@v3
+      #   with: 
+      #     github-token: ${{secrets.BOT_PAT}}
+      #     debug: true
+      #     script: |
+      #       const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
           
-          # --baserev="origin/main" \
-          # ^ Results in: fatal: invalid object name 'origin'.
+      #       buildLogComment = await update_build_log({
+      #         github:  github,
+      #         context: context,
+      #         core:    core,
+      #         summary: `Kicked-off the Github workflow: <a href="https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>`,
+      #       });
+      #       console.log(buildLogComment.data.id);
 
-          # See this page for getting a description about the values I'm filling in for the build properties:
-          # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#github-context
-          # https://docs.github.com/en/free-pro-team@latest/rest/reference/issues#comments
-          buildbot try \
-            --master master:8031 \  
-            --builder='${{steps.vars.outputs.builder-name}}' \
-            --passwd='${{ secrets.TRY_PASSWORD }}' \
-            --username='${{ secrets.TRY_USER }}' \
-            --connect='pb' \
-            --vc="git" \
-            --patchlevel=1 \
-            --baserev="`git rev-parse HEAD`" \
-            --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
-            --who='${{ github.actor }}' \
-            --repository='${{ github.repository }}' \
-            --property=project='${{ github.repository }}' \
-            --property=repository='https://github.com/${{ github.repository }}.git' \
-            --property=github_action='${{ github.action }}' \
-            --property=github_actor='${{ github.actor }}' \
-            --property=github_event_name='${{ github.event_name }}' \
-            --property=github_event_path='${{ github.event_path }}' \
-            --property=github_head_ref='${{ github.head_ref }}' \
-            --property=github_job='${{ github.job }}' \
-            --property=github_ref='${{ github.ref }}' \
-            --property=github_repository='${{ github.repository }}' \
-            --property=github_repository_owner='${{ github.repository_owner }}' \
-            --property=github_run_id='${{ github.run_id }}' \
-            --property=github_run_number='${{ github.run_number }}' \
-            --property=github_sha='${{ github.sha }}' \
-            --property=github_workflow='${{ github.workflow }}' \
-            --property=github_workspace='${{ github.workspace }}' \
-            --property=_github_trigger_comment_html_url='${{ github.event.comment.html_url }}' \
-            --property=_github_trigger_comment_url='${{ github.event.comment.url }}' \
-            --property=_github_trigger_comment_id='${{ github.event.comment.id }}' \
-            --property=_github_trigger_comment_node_id='${{ github.event.comment.node_id }}' \
-            --property=_github_trigger_comment_body='${{ github.event.comment.body }}' \
-            --property=_github_pr_number='${{ github.event.issue.number }}' \
-            --property=_github_issue_number='${{ github.event.issue.number }}' \
-            --property=_github_pr_html_url='${{ github.event.issue.html_url }}' \
-            --property=_github_build_log_comment_node_id='${{steps.vars.outputs.build-log-comment-node-id}}' \
-            --diff mydiff
-
-      - name: Update build log
-        # if: |
-        #   !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
-        uses: actions/github-script@v3
-        with:
-          # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
-          # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
-          github-token: ${{secrets.BOT_PAT}}
-          script: |
-            const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+      # - name: Get list of available builders
+      #   id: gettrybuilders
+      #   shell: bash
+      #   run: |
+      #     echo "::set-output name=builderlist::[`curl -s --insecure https://reverse-proxy:8443/api/v2/builders?field=name | jq  '.builders[].name' | tr '\n' ','`]"
           
-            buildLogComment = await update_build_log({
-              github:  github,
-              context: context,
-              core:    core,
-              summary: `Handed request over to buildbot`,
-              details: `Once buildbot starts your build, it will append to this comment and include a link to the logs for you to follow.`,
-              build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
-            });      
+      # - name: Check if builder is known
+      #   # if: |
+      #   #   !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+      #   uses: actions/github-script@v3
+      #   with:
+      #     # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
+      #     # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
+      #     github-token: ${{secrets.BOT_PAT}}
+      #     script: |
+      #       // For request method, see https://github.com/octokit/request.js
+      #       // For let's encrypt setup with SSL see this:
+      #       // https://blog.heckel.io/2018/08/05/issuing-lets-encrypt-certificates-for-65000-internal-servers/
+      #       // builders = await github.request('https://reverse-proxy:8443/api/v2/builders?field=name');
+      #       builders = JSON.parse('${{steps.gettrybuilders.outputs.builderlist}}');
+      #       foundBuilder = False;
+      #       var buildersList = '';
+      #       for (let i of builders) {
+      #         buildersList += '<li>' + i + '</li>';
+      #         // TODO(kwk): Sanitize user-input? To not allow code injection.
+      #         if (i == '${{steps.vars.outputs.builder-name}}') {
+      #           foundBuilder = True
+      #         }
+      #       }
+
+      #       if (foundBuilder) {
+      #         return
+      #       }
+
+      #       const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+          
+      #       buildLogComment = await update_build_log({
+      #         github:  github,
+      #         context: context,
+      #         core:    core,
+      #         summary: `Unknown builder: <code>${{steps.vars.outputs.builder-name}}</code>`,
+      #         details: `Sorry but, there's no builder called <code>${{steps.vars.outputs.builder-name}}</code>.
+      #           You can choose from these builders:
+      #           <ul>
+      #             `+buildersList+`
+      #           </ul>`,
+      #         build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
+      #       });
+
+      #       core.setFailed('Unknown builder: ${{steps.vars.outputs.builder-name}}');
+      
+      # - name: Kick off try-build
+      #   id: kick_off_try_builder
+      #   # if: contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+      #   shell: bash
+      #   run: |
+      #     git fetch origin pull/${{ github.event.issue.number }}/head:pr-${{ github.event.issue.number }}
+
+      #     # Ensure Bash pipelines (e.g. cmd | othercmd) return a non-zero status if any of
+      #     # the commands fail, rather than returning the exit status of the last command
+      #     # in the pipeline.
+      #     set -o pipefail
+
+      #     # Copy event.json locally for further inspection
+      #     # TODO(kwk): Remove if not needed (currently only needed for debugging and inspecting fields)
+      #     cp -v ${{github.event_path}} .
+
+      #     git diff HEAD..pr-${{ github.event.issue.number }} > mydiff
+
+      #     #--branch="pull/${{ github.event.issue.number }}/head" \
+          
+      #     # --baserev="origin/main" \
+      #     # ^ Results in: fatal: invalid object name 'origin'.
+
+      #     # See this page for getting a description about the values I'm filling in for the build properties:
+      #     # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#github-context
+      #     # https://docs.github.com/en/free-pro-team@latest/rest/reference/issues#comments
+      #     buildbot try \
+      #       --master master:8031 \  
+      #       --builder='${{steps.vars.outputs.builder-name}}' \
+      #       --passwd='${{ secrets.TRY_PASSWORD }}' \
+      #       --username='${{ secrets.TRY_USER }}' \
+      #       --connect='pb' \
+      #       --vc="git" \
+      #       --patchlevel=1 \
+      #       --baserev="`git rev-parse HEAD`" \
+      #       --comment='TODO(kwk): Come up with a better comment but try to do something with a UUID for followup comments ;)' \
+      #       --who='${{ github.actor }}' \
+      #       --repository='${{ github.repository }}' \
+      #       --property=project='${{ github.repository }}' \
+      #       --property=repository='https://github.com/${{ github.repository }}.git' \
+      #       --property=github_action='${{ github.action }}' \
+      #       --property=github_actor='${{ github.actor }}' \
+      #       --property=github_event_name='${{ github.event_name }}' \
+      #       --property=github_event_path='${{ github.event_path }}' \
+      #       --property=github_head_ref='${{ github.head_ref }}' \
+      #       --property=github_job='${{ github.job }}' \
+      #       --property=github_ref='${{ github.ref }}' \
+      #       --property=github_repository='${{ github.repository }}' \
+      #       --property=github_repository_owner='${{ github.repository_owner }}' \
+      #       --property=github_run_id='${{ github.run_id }}' \
+      #       --property=github_run_number='${{ github.run_number }}' \
+      #       --property=github_sha='${{ github.sha }}' \
+      #       --property=github_workflow='${{ github.workflow }}' \
+      #       --property=github_workspace='${{ github.workspace }}' \
+      #       --property=_github_trigger_comment_html_url='${{ github.event.comment.html_url }}' \
+      #       --property=_github_trigger_comment_url='${{ github.event.comment.url }}' \
+      #       --property=_github_trigger_comment_id='${{ github.event.comment.id }}' \
+      #       --property=_github_trigger_comment_node_id='${{ github.event.comment.node_id }}' \
+      #       --property=_github_trigger_comment_body='${{ github.event.comment.body }}' \
+      #       --property=_github_pr_number='${{ github.event.issue.number }}' \
+      #       --property=_github_issue_number='${{ github.event.issue.number }}' \
+      #       --property=_github_pr_html_url='${{ github.event.issue.html_url }}' \
+      #       --property=_github_build_log_comment_node_id='${{steps.vars.outputs.build-log-comment-node-id}}' \
+      #       --diff mydiff
+
+      # - name: Update build log
+      #   # if: |
+      #   #   !contains(steps.gettrybuilders.outputs.namelist, steps.vars.outputs.builder-name)
+      #   uses: actions/github-script@v3
+      #   with:
+      #     # GitHub provides a token that you can use to authenticate on behalf of GitHub Actions.
+      #     # See https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
+      #     github-token: ${{secrets.BOT_PAT}}
+      #     script: |
+      #       const update_build_log = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/js/update_build_log.js`);
+          
+      #       buildLogComment = await update_build_log({
+      #         github:  github,
+      #         context: context,
+      #         core:    core,
+      #         summary: `Handed request over to buildbot`,
+      #         details: `Once buildbot starts your build, it will append to this comment and include a link to the logs for you to follow.`,
+      #         build_log_comment_id: `${{ steps.build_log.outputs.result }}`,
+      #       });      
