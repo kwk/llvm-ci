@@ -6,20 +6,12 @@ FROM fedora:35
 # For .NET on Fedora see: https://docs.microsoft.com/en-us/dotnet/core/install/linux-fedora
 # dotnet-sdk-5.0 aspnetcore-runtime-5.0 dotnet-runtime-5.0 dotnet-sdk-3.1 aspnetcore-runtime-3.1 dotnet-runtime-3.1 compat-openssl10
 
-ADD https://packages.microsoft.com/config/fedora/34/prod.repo /etc/yum.repos.d/microsoft-prod.repo
-RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
-    && dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
-    aspnetcore-runtime-3.1 \
-    aspnetcore-runtime-5.0 \
+RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
     ccache \
     clang \
     cmake \
     curl \
     diffutils \
-    dotnet-runtime-3.1 \
-    dotnet-runtime-5.0 \
-    dotnet-sdk-3.1 \
-    dotnet-sdk-5.0 \
     findutils \
     gcc \
     gdb \
@@ -59,9 +51,9 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
 
 # Install Buildbot from pip
 # See http://trac.buildbot.net/wiki/RunningBuildbotWithVirtualEnv
-RUN useradd --create-home johndoe
-WORKDIR /home/johndoe
-USER johndoe
+RUN useradd --create-home bb-worker
+WORKDIR /home/bb-worker
+USER bb-worker
 COPY requirements.txt requirements.txt
 RUN virtualenv sandbox \
     && source sandbox/bin/activate \
@@ -75,10 +67,28 @@ VOLUME /secret-volume
 
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 
-ENTRYPOINT [ "/home/johndoe/bin/start.sh" ]
+ENTRYPOINT [ "/home/bb-worker/bin/start.sh" ]
 
-ONBUILD COPY home/ /home/johndoe/
-ONBUILD RUN ls /home/johndoe
-ONBUILD RUN chmod +x /home/johndoe/bin/*
-ONBUILD RUN chgrp -R 0 /home/johndoe \
-        && chmod -R g=u /home/johndoe /etc/passwd
+COPY home/ /home/bb-worker/
+
+# Port choices
+# 9994 = staging
+# 9990 = production
+ENV BUILDBOT_MASTER="lab.llvm.org:9994"
+
+# All commands are run in a build-specific subdirectory of this base dir
+ENV BUILDBOT_BASEDIR="/home/bb-worker/buildbot"
+
+# Options passed to buildbot-worker create-worker
+ENV BUILDBOT_CREATE_WORKER_OPTS=""
+
+# Will be visible from the build status page. So you may wish to munge it a bit
+# if address-harvesting spambots are a concern.
+ENV BUILDBOT_INFO_ADMIN="Your Name <yourname at email dot com>"
+
+ENV BUILDBOT_ACCESS_URI=""
+################################################################################
+
+ENV PATH="/home/bb-worker/bin:${PATH}" HOME=/home/bb-worker
+
+

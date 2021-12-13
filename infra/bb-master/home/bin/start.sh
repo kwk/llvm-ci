@@ -8,10 +8,10 @@ set -eu
 set -o pipefail
 
 # We installed buildbot in a virtualenv that we need to activate here
-source /home/johndoe/sandbox/bin/activate
+source /home/bb-master/sandbox/bin/activate
 
-BUILDBOT_MASTER_BASEDIR=/home/johndoe/basedir
-CONFIG_FILE=/home/johndoe/cfg/master.cfg
+BUILDBOT_MASTER_BASEDIR=/home/bb-master/basedir
+CONFIG_FILE=/home/bb-master/cfg/master.cfg
 
 buildbot create-master --force --config=${CONFIG_FILE} "${BUILDBOT_MASTER_BASEDIR}"
 

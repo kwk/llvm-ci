@@ -55,7 +55,14 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - run: |
+        run: |
+          gh  --upgrade pip
+          gh 
+      - name: "install PyGithub"
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+        run: |
           python -m pip install --upgrade pip
           pip install PyGithub
 
@@ -68,26 +75,24 @@ jobs:
           fetch-depth: 1
           path: llvm-ci
       
-      - name: "delete assets older than a week and from today"
+      - name: "create-build-log"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # For the "::set-output" part, see
+        # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
+        #   
         run: |
-          llvm-ci/github/update-build-log.py \
+          llvm-ci/github/create-build-log.py \
             --token ${{ secrets.GITHUB_TOKEN }} \
             --project ${{ github.repository }} \
-            --issue_number ${{ github.event.issue.number }} \
+            --pr_id ${{ github.event.issue.number }} \
             --trigger_comment_id ${{ github.event.comment.id }} \
-            --trigger_user ${{ github.actor }} \
-            --message 'Kicked-off the Github workflow: <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>'
-
-      # - name: Set job variables
-      #   id: vars
-      #   # For the "::set-output" part, see
-      #   # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
-      #   run: |
-      #     echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
-      #     echo "::set-output name=pr-node-id::`echo ${{ github.event.issue.node_id }}`"
-
+            --summary 'Kicked-off the Github workflow: <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"><code>${{ github.workflow }}</code></a>' \
+          > ./build_log_comment_id
+          echo "::set-output name=build-log-comment-id::`cat ./build_log_comment_id`"
+          echo "::set-output name=pr-node-id::`echo ${{ github.event.issue.node_id }}`"
+          echo "::set-output name=builder-name::`echo ${{ github.event.comment.body }} | cut -d ' ' -f 2 | tr -d ' '`"
+      
       # # See https://github.com/actions/github-script#run-custom-graphql-queries
       # # See https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
       # # See https://docs.github.com/en/graphql/overview/explorer

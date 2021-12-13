@@ -1,0 +1,79 @@
+FROM fedora:35
+
+# For the github actions runner we need these packages: https://github.com/actions/runner/blob/main/docs/start/envlinux.md#full-dependencies-list
+# lttng-ust openssl-libs krb5-libs zlib libicu
+
+# For .NET on Fedora see: https://docs.microsoft.com/en-us/dotnet/core/install/linux-fedora
+# dotnet-sdk-5.0 aspnetcore-runtime-5.0 dotnet-runtime-5.0 dotnet-sdk-3.1 aspnetcore-runtime-3.1 dotnet-runtime-3.1 compat-openssl10
+
+ADD https://packages.microsoft.com/config/fedora/34/prod.repo /etc/yum.repos.d/microsoft-prod.repo
+RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
+    && dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
+    aspnetcore-runtime-5.0 \
+    ccache \
+    clang \
+    cmake \
+    curl \
+    diffutils \
+    dotnet-runtime-5.0 \
+    dotnet-sdk-5.0 \
+    findutils \
+    git \
+    jq \
+    krb5-libs \
+    make \
+    openssl-libs \
+    patch \
+    python3 \
+    python3-devel \
+    python3-pip \
+    python3-psutil \
+    python3-service-identity \
+    python3-virtualenv \
+    redhat-lsb-core \
+     && dnf clean all
+
+# Install Buildbot from pip
+# See http://trac.buildbot.net/wiki/RunningBuildbotWithVirtualEnv
+RUN useradd --create-home github-runner
+USER root
+
+# Volumes to mount secrets into the container
+VOLUME /secret-volume
+
+LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
+
+ENTRYPOINT [ "/home/github-runner/bin/start.sh" ]
+
+COPY home/ /home/github-runner/
+
+RUN mkdir -pv /home/github-runner/actions-runner/ \
+    && cd /home/github-runner/actions-runner \
+    && curl -O -L https://github.com/actions/runner/releases/download/v2.285.1/actions-runner-linux-x64-2.285.1.tar.gz \
+    && tar xzf ./actions-runner-linux-x64-2.285.1.tar.gz \
+    && rm -v actions-runner-linux-x64-2.285.1.tar.gz \
+    && ./bin/installdependencies.sh \
+    && dnf clean all
+
+# Changing the permissions of /usr/share/GitHubActionsService is crucial;
+# otherwise the auto runner won't be able to write to this directory when it auto-updates.
+# TODO(kwk): Can this step be removed?
+RUN mkdir -pv /usr/share/GitHubActionsService \
+    && chgrp -R 0 /home/github-runner \
+    && chmod -R g=u /home/github-runner /etc/passwd /usr/share/GitHubActionsService
+
+#&& chown -RHLv runner:runner /home/github-runner \
+    
+# TODO(kwk): Use this to get the latest actions-runner:
+# && GITHUB_RUNNER_VERSION=$(\
+#         curl --silent "https://api.github.com/repos/actions/github-runner/releases/latest" \
+#         | jq -r '.tag_name[1:]'\
+#     ) \
+# && curl -Ls https://github.com/actions/github-runner/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-${GITHUB_RUNNER_VERSION}.tar.gz \
+#     | tar xz \
+
+
+ENV RUNNER_LABELS = "fedora35,container"
+ENV RUNNER_NAME = "my-github-actions-runner"
+
+

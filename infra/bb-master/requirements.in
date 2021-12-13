@@ -5,5 +5,5 @@
 
 # Find out more about requirements.txt here: https://pip.pypa.io/en/stable/reference/pip_install/#requirements-file-format
 
-buildbot[bundle]
+buildbot[bundle]==3.4.0
 txrequests
