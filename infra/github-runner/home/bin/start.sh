@@ -8,7 +8,7 @@ set -eu
 set -o pipefail
 
 # We installed buildbot in a virtualenv that we need to activate here
-source /home/johndoe/sandbox/bin/activate
+source /home/github-runner/sandbox/bin/activate
 
 GH_PAT=$(cat /secret-volume/github-pat)
 

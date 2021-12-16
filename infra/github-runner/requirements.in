@@ -7,3 +7,4 @@
 
 buildbot[bundle]==3.4.0
 txrequests
+PyGithub

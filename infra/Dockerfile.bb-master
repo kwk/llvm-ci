@@ -27,7 +27,7 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
 RUN useradd --create-home bb-master
 WORKDIR /home/bb-master
 USER bb-master
-COPY requirements.txt requirements.txt
+COPY bb-master/requirements.txt requirements.txt
 RUN virtualenv sandbox \
     && source sandbox/bin/activate \
     && python -m pip install --upgrade pip \
@@ -56,4 +56,11 @@ ENV BUILDBOT_WWW_PORT=8010
 ENV BUILDBOT_MASTER_TRY_PORT=8031
 ENV BUILDBOT_MASTER_TITLE="Default"
 
-COPY home/ /home/bb-master/
+COPY bb-master/home/ /home/bb-master/
+
+RUN chmod +x /home/bb-master/bin/*
+RUN chgrp -R 0 /home/bb-master \
+    && chmod -R g=u /home/bb-master /etc/passwd
+
+USER bb-master
+

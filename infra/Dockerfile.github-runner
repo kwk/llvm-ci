@@ -36,6 +36,14 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
 # Install Buildbot from pip
 # See http://trac.buildbot.net/wiki/RunningBuildbotWithVirtualEnv
 RUN useradd --create-home github-runner
+WORKDIR /home/github-runner
+USER github-runner
+COPY github-runner/requirements.txt requirements.txt
+RUN virtualenv sandbox \
+    && source sandbox/bin/activate \
+    && python -m pip install --upgrade pip \
+    && source sandbox/bin/activate \
+    && pip install --requirement requirements.txt
 USER root
 
 # Volumes to mount secrets into the container
@@ -44,8 +52,6 @@ VOLUME /secret-volume
 LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 
 ENTRYPOINT [ "/home/github-runner/bin/start.sh" ]
-
-COPY home/ /home/github-runner/
 
 RUN mkdir -pv /home/github-runner/actions-runner/ \
     && cd /home/github-runner/actions-runner \
@@ -72,6 +78,7 @@ RUN mkdir -pv /usr/share/GitHubActionsService \
 # && curl -Ls https://github.com/actions/github-runner/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-${GITHUB_RUNNER_VERSION}.tar.gz \
 #     | tar xz \
 
+COPY github-runner/home/ /home/github-runner/
 
 ENV RUNNER_LABELS = "fedora35,container"
 ENV RUNNER_NAME = "my-github-actions-runner"

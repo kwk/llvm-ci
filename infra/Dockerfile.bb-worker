@@ -54,7 +54,7 @@ RUN dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
 RUN useradd --create-home bb-worker
 WORKDIR /home/bb-worker
 USER bb-worker
-COPY requirements.txt requirements.txt
+COPY bb-worker/requirements.txt requirements.txt
 RUN virtualenv sandbox \
     && source sandbox/bin/activate \
     && python -m pip install --upgrade pip \
@@ -69,7 +69,7 @@ LABEL maintainer="Konrad Kleine <kkleine@redhat.com>"
 
 ENTRYPOINT [ "/home/bb-worker/bin/start.sh" ]
 
-COPY home/ /home/bb-worker/
+COPY bb-worker/home/ /home/bb-worker/
 
 # Port choices
 # 9994 = staging
